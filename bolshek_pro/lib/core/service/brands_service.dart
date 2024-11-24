@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:bolshek_pro/core/models/brands_response.dart';
+import 'package:bolshek_pro/core/utils/constants.dart';
 import 'package:bolshek_pro/core/utils/provider.dart';
-import 'package:bolshek_pro/utils/constants.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';

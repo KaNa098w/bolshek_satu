@@ -39,8 +39,7 @@ class _SettingsPageState extends State<SettingsPage> {
       builder: (context) {
         return CitySelectionBottomSheet(
           selectedCity: _selectedCity,
-          onCitySelected: (city) async {
-            await _cityService.saveCity(city);
+          onCitySelected: (city) {
             setState(() {
               _selectedCity = city;
             });
@@ -75,11 +74,11 @@ class _SettingsPageState extends State<SettingsPage> {
                     SizedBox(
                       width: 10,
                     ),
-                    Text(
-                      user?.lastName ?? '',
-                      style:
-                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                    ),
+                    // Text(
+                    //   user?.lastName ?? '',
+                    //   style:
+                    //       TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    // ),
                   ],
                 ),
                 IconButton(

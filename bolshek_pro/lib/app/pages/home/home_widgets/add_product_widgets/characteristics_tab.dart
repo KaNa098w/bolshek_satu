@@ -1,4 +1,5 @@
 import 'package:bolshek_pro/app/pages/home/home_widgets/add_variant_widget.dart';
+import 'package:bolshek_pro/app/widgets/custom_button.dart';
 import 'package:flutter/material.dart';
 import 'package:bolshek_pro/core/models/properties_response.dart';
 import 'package:bolshek_pro/core/service/properties_service.dart';
@@ -145,6 +146,14 @@ class _CharacteristicsTabState extends State<CharacteristicsTab> {
               );
             }).toList(),
             ProductDetailsWidget(),
+            const SizedBox(height: 12),
+            Center(
+              child: CustomButton(
+                text: 'Создать товар',
+                onPressed: () {},
+              ),
+            ),
+            const SizedBox(height: 12),
           ],
         ),
       ),

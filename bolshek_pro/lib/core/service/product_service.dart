@@ -38,6 +38,56 @@ class ProductService {
     }
   }
 
+  Future<void> createProduct(
+      BuildContext context,
+      String name,
+      String slug,
+      String brandId,
+      String status,
+      String deliveryType,
+      String categoryId,
+      String vendorCode) async {
+    try {
+      final token = _getToken(context);
+      final body = {
+        "name": name,
+        "slug": slug,
+        "brandId": brandId,
+        "status": status,
+        "deliveryType": deliveryType,
+        "categoryId": categoryId,
+        "compatibleVehicleIds": [],
+        "vendorCode": vendorCode,
+      };
+
+      print(
+          'Creating product with data: ${jsonEncode(body)}'); // Логируем тело запроса
+
+      final response = await http.post(
+        Uri.parse(_baseUrl),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode(body),
+      );
+
+      print(
+          'Response status: ${response.statusCode}'); // Логируем статус ответа
+      print('Response body: ${response.body}'); // Логируем тело ответа
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        print('Product created successfully');
+      } else {
+        throw Exception(
+            'Failed to create product: ${response.statusCode}, ${response.body}');
+      }
+    } catch (e) {
+      print('Error creating product: $e'); // Логируем ошибки
+      throw Exception('Error creating product: $e');
+    }
+  }
+
   String _getToken(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final token = authProvider.authResponse?.token;

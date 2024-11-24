@@ -3,7 +3,6 @@ import 'package:bolshek_pro/app/pages/orders/orders_page.dart';
 import 'package:bolshek_pro/app/pages/product/product_page.dart';
 import 'package:bolshek_pro/app/pages/settings/settings_page.dart';
 import 'package:bolshek_pro/core/service/auth_service.dart';
-import 'package:bolshek_pro/utils/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 

@@ -212,26 +212,6 @@ class _ProductDetailsWidgetState extends State<ProductDetailsWidget> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Row(
-          //   children: [
-          //     Expanded(
-          //       child: _buildTextField(label: 'Цена', hint: '0'),
-          //     ),
-          //     const SizedBox(width: 8.0),
-          //     Expanded(
-          //       child: _buildStyledDropdown(
-          //         label: 'Валюта',
-          //         items: ['KZT', 'USD', 'EUR'],
-          //         value: 'KZT', // Укажите значение по умолчанию
-          //         onChanged: (value) {
-          //           // Логика обработки выбора
-          //           print('Вы выбрали: $value');
-          //         },
-          //       ),
-          //     ),
-          //   ],
-          // ),
-          // const SizedBox(height: 12.0),
           Row(
             children: [
               Expanded(
@@ -248,10 +228,6 @@ class _ProductDetailsWidgetState extends State<ProductDetailsWidget> {
                   },
                 ),
               ),
-              // const SizedBox(width: 8.0),
-              // Expanded(
-              //   child: _buildQuantityField(),
-              // ),
             ],
           ),
           const SizedBox(height: 12.0),

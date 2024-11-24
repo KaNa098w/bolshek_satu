@@ -20,8 +20,6 @@ class _AddProductPageState extends State<AddProductPage>
   List<PropertyItems> cachedProperties = [];
   Map<String, String> cachedPropertyValues = {};
 
-  List<PropertyItems> _properties = []; // Список свойств
-  Map<String, String> _propertyValues = {}; // Значения свойств
   String? selectedCategoryId;
 
   @override
