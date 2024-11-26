@@ -1,4 +1,6 @@
+import 'dart:convert';
 import 'dart:io';
+import 'package:path/path.dart' as path;
 
 import 'package:bolshek_pro/core/models/category_response.dart' as category;
 import 'package:bolshek_pro/core/models/brands_response.dart';
@@ -9,10 +11,12 @@ import 'package:bolshek_pro/core/service/properties_service.dart';
 import 'package:bolshek_pro/app/pages/home/home_widgets/add_name_product_page.dart';
 import 'package:bolshek_pro/app/pages/home/home_widgets/add_variant_widget.dart';
 import 'package:bolshek_pro/app/widgets/custom_input_widget.dart';
+import 'package:bolshek_pro/core/utils/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:bolshek_pro/app/widgets/custom_button.dart';
 import 'package:bolshek_pro/app/widgets/custom_dropdown_field.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
 
 class InfoTab extends StatefulWidget {
   final String productName;
@@ -32,7 +36,7 @@ class InfoTab extends StatefulWidget {
   _InfoTabState createState() => _InfoTabState();
 }
 
-class _InfoTabState extends State<InfoTab> {
+class _InfoTabState extends State<InfoTab> with AutomaticKeepAliveClientMixin {
   Map<String, List<PropertyItems>> categoryPropertiesCache = {};
   Map<String, Map<String, String>> propertyValuesCache = {};
   String selectedBrand = 'Выберите бренд';
@@ -51,6 +55,9 @@ class _InfoTabState extends State<InfoTab> {
   bool isLoadingCategories = true;
 
   @override
+  bool get wantKeepAlive => true;
+
+  @override
   void initState() {
     super.initState();
     _loadBrands();
@@ -61,16 +68,50 @@ class _InfoTabState extends State<InfoTab> {
     try {
       final pickedFile = await _picker.pickImage(source: source);
       if (pickedFile != null) {
-        setState(() {
-          if (_images.length < 5) {
-            _images.add(File(pickedFile.path));
-          } else {
-            _showError('Можно загрузить максимум 5 фото');
-          }
-        });
+        final file = File(pickedFile.path);
+
+        if (_images.length < 5) {
+          // Подготовка данных изображения
+          final imageData = await prepareImageData(file);
+
+          // Добавление данных в AuthProvider
+          context.read<GlobalProvider>().addImageData(imageData);
+
+          // Вывод в консоль
+          print('Добавленное изображение: $imageData');
+
+          setState(() {
+            _images.add(file);
+          });
+        } else {
+          _showError('Можно загрузить максимум 5 фото');
+        }
       }
     } catch (e) {
       _showError('Ошибка при выборе фото: $e');
+    }
+  }
+
+  Future<Map<String, dynamic>> prepareImageData(File file) async {
+    try {
+      final name = path.basename(file.path); // Имя файла
+      final size = await file.length(); // Размер в байтах
+      final type = file.path.endsWith('.png')
+          ? 'image/png'
+          : file.path.endsWith('.jpg') || file.path.endsWith('.jpeg')
+              ? 'image/jpeg'
+              : 'application/octet-stream'; // MIME-тип
+      final bytes = await file.readAsBytes(); // Байты файла
+      final data = base64Encode(bytes); // Данные в формате Base64
+
+      return {
+        "name": name,
+        "size": size,
+        "type": type,
+        "data": data,
+      };
+    } catch (e) {
+      throw Exception('Ошибка обработки файла: $e');
     }
   }
 
@@ -260,49 +301,51 @@ class _InfoTabState extends State<InfoTab> {
                                           subcategory.name ?? 'Без названия';
                                     });
 
-                                    // Проверяем, есть ли данные в кэше
-                                    if (categoryPropertiesCache
-                                        .containsKey(subcategory.id)) {
-                                      widget.onPropertiesLoaded(
-                                        categoryPropertiesCache[
-                                            subcategory.id]!,
-                                        propertyValuesCache[subcategory.id]!,
-                                      );
-                                    } else {
-                                      try {
-                                        // Загрузка данных, если их нет в кэше
-                                        final propertiesResponse =
-                                            await PropertiesService()
-                                                .fetchProperties(context,
-                                                    subcategory.id ?? '');
+                                    _selectCategory(subcategory.id ?? '');
 
-                                        setState(() {
-                                          categoryPropertiesCache[
-                                                  subcategory.id!] =
-                                              propertiesResponse.items ?? [];
-                                          propertyValuesCache[subcategory.id!] =
-                                              {
-                                            for (var property
-                                                in propertiesResponse.items ??
-                                                    [])
-                                              property.id ?? '': '',
-                                          };
-                                        });
+                                    // // Проверяем, есть ли данные в кэше
+                                    // if (categoryPropertiesCache
+                                    //     .containsKey(subcategory.id)) {
+                                    //   widget.onPropertiesLoaded(
+                                    //     categoryPropertiesCache[
+                                    //         subcategory.id]!,
+                                    //     propertyValuesCache[subcategory.id]!,
+                                    //   );
+                                    // } else {
+                                    //   try {
+                                    //     // Загрузка данных, если их нет в кэше
+                                    //     final propertiesResponse =
+                                    //         await PropertiesService()
+                                    //             .fetchProperties(context,
+                                    //                 subcategory.id ?? '');
 
-                                        widget.onPropertiesLoaded(
-                                          categoryPropertiesCache[
-                                              subcategory.id]!,
-                                          propertyValuesCache[subcategory.id]!,
-                                        );
-                                      } catch (e) {
-                                        _showError(
-                                            'Ошибка загрузки свойств: $e');
-                                      }
-                                    }
+                                    //     setState(() {
+                                    //       categoryPropertiesCache[
+                                    //               subcategory.id!] =
+                                    //           propertiesResponse.items ?? [];
+                                    //       propertyValuesCache[subcategory.id!] =
+                                    //           {
+                                    //         for (var property
+                                    //             in propertiesResponse.items ??
+                                    //                 [])
+                                    //           property.id ?? '': '',
+                                    //       };
+                                    //     });
 
-                                    // Передаём ID выбранной категории в родительский виджет
-                                    widget.onCategorySelected(
-                                        subcategory.id ?? '');
+                                    //     widget.onPropertiesLoaded(
+                                    //       categoryPropertiesCache[
+                                    //           subcategory.id]!,
+                                    //       propertyValuesCache[subcategory.id]!,
+                                    //     );
+                                    //   } catch (e) {
+                                    //     _showError(
+                                    //         'Ошибка загрузки свойств: $e');
+                                    //   }
+                                    // }
+
+                                    // // Передаём ID выбранной категории в родительский виджет
+                                    // widget.onCategorySelected(
+                                    //     subcategory.id ?? '');
                                   },
                                 ),
                               );
@@ -371,7 +414,7 @@ class _InfoTabState extends State<InfoTab> {
       ),
       backgroundColor: Colors.white,
       builder: (context) {
-        String searchQuery = ''; // Локальная переменная для ввода
+        String searchQuery = ''; // Локальная переменная для поиска
         return StatefulBuilder(
           builder: (context, setStateModal) {
             final filteredBrands = brands
@@ -385,73 +428,74 @@ class _InfoTabState extends State<InfoTab> {
               height: MediaQuery.of(context).size.height * 0.9,
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
-                child: SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      const SizedBox(height: 14),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: TextField(
-                              decoration: InputDecoration(
-                                hintText: 'Поиск бренда',
-                                prefixIcon: const Icon(Icons.search),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                contentPadding: const EdgeInsets.symmetric(
-                                  vertical: 10,
-                                  horizontal: 12,
-                                ),
+                child: Column(
+                  children: [
+                    const SizedBox(height: 14),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            decoration: InputDecoration(
+                              hintText: 'Поиск бренда',
+                              prefixIcon: const Icon(Icons.search),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
                               ),
-                              onChanged: (value) {
-                                setStateModal(() {
-                                  searchQuery = value;
-                                });
-                              },
+                              contentPadding: const EdgeInsets.symmetric(
+                                vertical: 10,
+                                horizontal: 12,
+                              ),
                             ),
-                          ),
-                          const SizedBox(width: 10),
-                          IconButton(
-                            icon: const Icon(Icons.close),
-                            onPressed: () {
-                              Navigator.pop(context);
+                            onChanged: (value) {
+                              setStateModal(() {
+                                searchQuery = value;
+                              });
                             },
                           ),
-                        ],
-                      ),
-                      const SizedBox(height: 10),
-                      SizedBox(
-                        height: MediaQuery.of(context).size.height * 0.7,
-                        child: ListView.builder(
-                          itemCount: filteredBrands.length,
-                          itemBuilder: (context, index) {
-                            final brand = filteredBrands[index];
-                            return ListTile(
-                              title: Text(brand.name ?? 'Без названия'),
-                              onTap: () {
-                                Navigator.pop(context);
-                                setState(() {
-                                  selectedBrand = brand.name ?? 'Без названия';
-                                });
-                              },
-                            );
-                          },
                         ),
-                      ),
-                      const SizedBox(height: 10),
-                      Align(
-                        alignment: Alignment.bottomCenter,
-                        child: CustomButton(
-                          text: 'Создать свой бренд',
+                        const SizedBox(width: 10),
+                        IconButton(
+                          icon: const Icon(Icons.close),
                           onPressed: () {
-                            _showAddBrandDialog();
+                            Navigator.pop(context);
                           },
                         ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    SizedBox(
+                      height: MediaQuery.of(context).size.height * 0.7,
+                      child: ListView.builder(
+                        itemCount: filteredBrands.length,
+                        itemBuilder: (context, index) {
+                          final brand = filteredBrands[index];
+                          return ListTile(
+                            title: Text(brand.name ?? 'Без названия'),
+                            onTap: () {
+                              Navigator.pop(context);
+                              setState(() {
+                                selectedBrand = brand.name ?? 'Без названия';
+                                // Установка brandId в AuthProvider
+                                context
+                                    .read<GlobalProvider>()
+                                    .setBrandId(brand.id ?? '');
+                              });
+                            },
+                          );
+                        },
                       ),
-                      const SizedBox(height: 20),
-                    ],
-                  ),
+                    ),
+                    const SizedBox(height: 10),
+                    Align(
+                      alignment: Alignment.bottomCenter,
+                      child: CustomButton(
+                        text: 'Создать свой бренд',
+                        onPressed: () {
+                          _showAddBrandDialog();
+                        },
+                      ),
+                    ),
+                  ],
                 ),
               ),
             );
@@ -459,6 +503,17 @@ class _InfoTabState extends State<InfoTab> {
         );
       },
     );
+  }
+
+  void _selectCategory(String categoryId) {
+    context
+        .read<GlobalProvider>()
+        .setCategoryId(categoryId); // Передача через AuthProvider
+    widget.onCategorySelected(categoryId); // Ваш текущий callback
+  }
+
+  void _selectBrand(String brandId) {
+    context.read<GlobalProvider>().setBrandId(brandId);
   }
 
   void _showAddBrandDialog() {
@@ -532,6 +587,7 @@ class _InfoTabState extends State<InfoTab> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return isLoading
         ? const Center(child: CircularProgressIndicator())
         : Padding(
@@ -605,12 +661,14 @@ class _InfoTabState extends State<InfoTab> {
                   ),
                   const SizedBox(height: 20),
                   CustomDropdownField(
-                    title: 'Наименования товара',
+                    title: 'Наименование товара',
                     value: widget.productName.isNotEmpty
                         ? widget.productName
-                        : 'Антифриз',
+                        : 'Не указано',
                     onTap: () {
-                      // Логика выбора категории
+                      context
+                          .read<GlobalProvider>()
+                          .setName(widget.productName);
                     },
                     showIcon: false,
                   ),
@@ -622,10 +680,8 @@ class _InfoTabState extends State<InfoTab> {
                   ),
                   const SizedBox(height: 20),
                   CustomDropdownField(
-                    title: 'Бренд',
-                    value: selectedBrand,
-                    onTap: _showBrands,
-                  ),
+                      title: 'Бренд', value: selectedBrand, onTap: _showBrands),
+
                   const SizedBox(height: 20),
                   // ..._properties.map((property) {
                   //   return Column(
@@ -647,22 +703,22 @@ class _InfoTabState extends State<InfoTab> {
                   Row(
                     children: [
                       Expanded(
-                        child: _buildTextField(label: 'Цена', hint: '0'),
-                      ),
-                      const SizedBox(width: 8.0),
-                      Expanded(
-                        child: _buildStyledDropdown(
-                          label: 'Валюта',
-                          items: ['KZT', 'USD', 'EUR'],
-                          value: 'KZT', // Укажите значение по умолчанию
+                        child: TextField(
+                          keyboardType: TextInputType.number,
+                          decoration: const InputDecoration(
+                            labelText: 'Цена',
+                            hintText: 'Введите цену',
+                            border: OutlineInputBorder(),
+                          ),
                           onChanged: (value) {
-                            // Логика обработки выбора
-                            print('Вы выбрали: $value');
+                            final price = (double.tryParse(value) ?? 0.0) * 100;
+                            context.read<GlobalProvider>().setPrice(price);
                           },
                         ),
                       ),
                     ],
                   ),
+
                   const SizedBox(height: 12.0),
                   const SizedBox(height: 20),
                   Center(

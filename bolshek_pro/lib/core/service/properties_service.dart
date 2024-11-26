@@ -7,14 +7,14 @@ import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 
 class PropertiesService {
-  final String _baseUrl = '${Constants.baseUrl}/categories';
+  final String _baseUrl = '${Constants.baseUrl}';
 
   /// Fetch all categories using GET
   Future<PropertiesResponse> fetchProperties(
       BuildContext context, String categoryId) async {
     try {
       final token = _getToken(context);
-      final url = '$_baseUrl/$categoryId/properties';
+      final url = '$_baseUrl/categories/$categoryId/properties';
       print('Request URL: $url');
       print(
           'Request Headers: {Authorization: Bearer $token, Content-Type: application/json}');
@@ -42,9 +42,47 @@ class PropertiesService {
     }
   }
 
+  Future<void> createProductProperties(
+    BuildContext context, {
+    required String productId,
+    required String value,
+    required String propertyId,
+  }) async {
+    try {
+      final token = _getToken(context);
+      final body = {"value": jsonEncode(value), "propertyId": propertyId};
+
+      print(
+          'Creating product variant with data: ${jsonEncode(body)}'); // Логируем тело запроса
+
+      final response = await http.post(
+        Uri.parse('$_baseUrl/products/$productId/properties'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode(body),
+      );
+
+      print(
+          'Response status: ${response.statusCode}'); // Логируем статус ответа
+      print('Response body: ${response.body}'); // Логируем тело ответа
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        print('Product properties created successfully');
+      } else {
+        throw Exception(
+            'Failed to create product properties: ${response.statusCode}, ${response.body}');
+      }
+    } catch (e) {
+      print('Error creating product properties: $e'); // Логируем ошибки
+      throw Exception('Error creating product properties: $e');
+    }
+  }
+
   /// Retrieve the token from AuthProvider
   String _getToken(BuildContext context) {
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final authProvider = Provider.of<GlobalProvider>(context, listen: false);
     final token = authProvider.authResponse?.token;
 
     if (token == null || token.isEmpty) {

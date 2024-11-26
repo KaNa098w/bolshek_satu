@@ -51,7 +51,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
   @override
   Widget build(BuildContext context) {
-    final authProvider = Provider.of<AuthProvider>(context);
+    final authProvider = Provider.of<GlobalProvider>(context);
     final user = authProvider.authResponse?.user;
     return Scaffold(
       backgroundColor: Colors.white,
@@ -67,18 +67,18 @@ class _SettingsPageState extends State<SettingsPage> {
                 Row(
                   children: [
                     Text(
-                      user?.email ?? '',
+                      user?.firstName ?? '',
                       style:
                           TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                     ),
                     SizedBox(
                       width: 10,
                     ),
-                    // Text(
-                    //   user?.lastName ?? '',
-                    //   style:
-                    //       TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                    // ),
+                    Text(
+                      user?.lastName ?? '',
+                      style:
+                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    ),
                   ],
                 ),
                 IconButton(

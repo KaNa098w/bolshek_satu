@@ -34,7 +34,7 @@ class _LoginPageState extends State<LoginPage> {
       );
 
       // Сохранение данных в провайдер
-      context.read<AuthProvider>().setAuthData(authResponse);
+      context.read<GlobalProvider>().setAuthData(authResponse);
 
       Navigator.pushReplacement(
         context,

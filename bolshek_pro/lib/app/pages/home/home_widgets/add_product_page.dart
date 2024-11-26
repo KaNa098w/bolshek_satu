@@ -1,10 +1,11 @@
 import 'package:bolshek_pro/core/models/properties_response.dart';
 import 'package:bolshek_pro/app/pages/home/home_widgets/add_product_widgets/characteristics_tab.dart';
 import 'package:bolshek_pro/app/pages/home/home_widgets/add_product_widgets/info_tab.dart';
+import 'package:bolshek_pro/core/utils/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:bolshek_pro/app/widgets/custom_button.dart';
-import 'package:bolshek_pro/app/widgets/custom_dropdown_field.dart';
 import 'package:bolshek_pro/core/utils/theme.dart';
+import 'package:provider/provider.dart';
 
 class AddProductPage extends StatefulWidget {
   final String productName;
@@ -17,25 +18,15 @@ class AddProductPage extends StatefulWidget {
 class _AddProductPageState extends State<AddProductPage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  List<PropertyItems> cachedProperties = [];
-  Map<String, String> cachedPropertyValues = {};
-
-  String? selectedCategoryId;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
 
-    // Добавляем слушатель переключения вкладок
-    _tabController.addListener(() {
-      if (_tabController.index == 1) {
-        // Если переключились на "Характеристики"
-        setState(() {
-          // Обновляем данные в CharacteristicsTab
-          // Это уже делается через свойства _properties и _propertyValues
-        });
-      }
+    // Устанавливаем name в AuthProvider
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<GlobalProvider>().setName(widget.productName);
     });
   }
 
@@ -69,23 +60,16 @@ class _AddProductPageState extends State<AddProductPage>
           InfoTab(
             productName: widget.productName,
             onPropertiesLoaded: (properties, propertyValues) {
-              setState(() {
-                cachedProperties = properties;
-                cachedPropertyValues = propertyValues;
-              });
+              // Устанавливаем кешированные данные, если нужно
+              // Это больше не используется напрямую для CharacteristicsTab
             },
             tabController: _tabController,
             onCategorySelected: (categoryId) {
-              setState(() {
-                selectedCategoryId = categoryId;
-              });
+              // Устанавливаем выбранную категорию в AuthProvider
+              context.read<GlobalProvider>().setCategoryId(categoryId);
             },
           ),
-          CharacteristicsTab(
-            categoryId: selectedCategoryId,
-            cachedProperties: cachedProperties,
-            cachedPropertyValues: cachedPropertyValues,
-          ),
+          const CharacteristicsTab(), // Используется без параметров
         ],
       ),
     );

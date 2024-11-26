@@ -21,6 +21,7 @@ dependencies:
   flutter_svg: ^2.0.14
   image_picker: ^1.1.2
   flutter_launcher_icons: ^0.14.1
+  path: ^1.9.0
 
 
 dev_dependencies:
@@ -30,11 +31,12 @@ dev_dependencies:
 
   flutter_lints: ^4.0.0
 
-flutter_icons:
+flutter_launcher_icons:
   android: true
   ios: true
-  image_path_android: "assets/icons/icon_bolshek.png"
-  image_path_ios: "assets/icons/icon_bolshek.png"
+  image_path_android: "assets/icons/icon_bolshek_2.png"
+  image_path_ios: "assets/icons/icon_bolshek_2.png"
+  remove_alpha_ios: true
 
 
 

@@ -65,7 +65,7 @@ class BrandsService {
 
   /// Retrieve the token from AuthProvider
   String _getToken(BuildContext context) {
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final authProvider = Provider.of<GlobalProvider>(context, listen: false);
     final token = authProvider.authResponse?.token;
 
     if (token == null || token.isEmpty) {

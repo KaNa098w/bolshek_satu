@@ -1,6 +1,5 @@
 import 'package:bolshek_pro/core/service/city_service.dart';
 import 'package:bolshek_pro/app/pages/home/home_widgets/add_name_product_page.dart';
-import 'package:bolshek_pro/app/pages/home/home_widgets/add_product_page.dart';
 import 'package:bolshek_pro/app/pages/settings/settings_widget/city_widgets/city_selection.dart';
 import 'package:flutter/material.dart';
 import '../../widgets/custom_button.dart';

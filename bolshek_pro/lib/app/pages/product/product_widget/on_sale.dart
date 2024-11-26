@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:bolshek_pro/core/models/product_response.dart';
 import 'package:bolshek_pro/core/service/product_service.dart';
 import 'package:bolshek_pro/app/pages/home/home_widgets/add_name_product_page.dart';
@@ -24,9 +26,9 @@ class _OnSaleState extends State<OnSale> {
   @override
   void initState() {
     super.initState();
+    _loadFromCache(); // Загружаем товары из кэша
     _fetchProducts();
 
-    // Добавляем обработчик для прокрутки
     _scrollController.addListener(() {
       if (_scrollController.position.pixels ==
           _scrollController.position.maxScrollExtent) {
@@ -56,15 +58,45 @@ class _OnSaleState extends State<OnSale> {
         _products.addAll(response.items ?? []);
         _skip += _take;
         _hasMore = (response.items?.length ?? 0) == _take;
-        _isLoading = false;
       });
+
+      // Сохраняем загруженные товары в кэш
+      await _saveToCache();
     } catch (e) {
-      setState(() {
-        _isLoading = false;
-      });
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Ошибка загрузки: $e')),
       );
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  Future<void> _saveToCache() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final String jsonData =
+          jsonEncode(_products.map((e) => e.toJson()).toList());
+      await prefs.setString('cached_on_sale_products', jsonData);
+    } catch (e) {
+      debugPrint('Ошибка сохранения в кэш: $e');
+    }
+  }
+
+  Future<void> _loadFromCache() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final String? jsonData = prefs.getString('cached_on_sale_products');
+      if (jsonData != null) {
+        final List<dynamic> jsonList = jsonDecode(jsonData);
+        setState(() {
+          _products
+              .addAll(jsonList.map((e) => ProductItems.fromJson(e)).toList());
+        });
+      }
+    } catch (e) {
+      debugPrint('Ошибка загрузки из кэша: $e');
     }
   }
 
@@ -76,7 +108,7 @@ class _OnSaleState extends State<OnSale> {
         children: [
           Expanded(
             child: ListView.builder(
-              controller: _scrollController, // Привязываем контроллер
+              controller: _scrollController,
               itemCount: _products.length + (_hasMore ? 1 : 0),
               itemBuilder: (context, index) {
                 if (index == _products.length) {
