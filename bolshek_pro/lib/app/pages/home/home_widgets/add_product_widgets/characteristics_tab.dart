@@ -17,7 +17,7 @@ class CharacteristicsTab extends StatefulWidget {
   @override
   _CharacteristicsTabState createState() => _CharacteristicsTabState();
 }
-
+ф
 class _CharacteristicsTabState extends State<CharacteristicsTab>
     with AutomaticKeepAliveClientMixin {
   Map<String, String> _propertyValues = {};
