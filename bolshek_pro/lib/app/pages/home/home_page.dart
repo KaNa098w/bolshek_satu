@@ -1,9 +1,9 @@
 import 'package:bolshek_pro/core/service/city_service.dart';
-import 'package:bolshek_pro/app/pages/home/home_widgets/add_name_product_page.dart';
+import 'package:bolshek_pro/app/widgets/home_widgets/add_name_product_page.dart';
 import 'package:bolshek_pro/app/pages/settings/settings_widget/city_widgets/city_selection.dart';
 import 'package:flutter/material.dart';
 import '../../widgets/custom_button.dart';
-import 'home_widgets/empty_state.dart';
+import '../../widgets/home_widgets/empty_state.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);

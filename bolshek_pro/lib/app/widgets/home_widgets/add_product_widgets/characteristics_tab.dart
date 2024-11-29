@@ -1,5 +1,6 @@
 import 'dart:convert';
-import 'package:bolshek_pro/app/pages/home/home_widgets/add_variant_widget.dart';
+import 'package:bolshek_pro/app/widgets/home_widgets/add_variant_widget.dart';
+import 'package:bolshek_pro/app/widgets/main_controller.dart';
 import 'package:bolshek_pro/core/service/images_service.dart';
 import 'package:bolshek_pro/core/service/product_service.dart';
 import 'package:bolshek_pro/core/service/variants_service.dart';
@@ -17,7 +18,7 @@ class CharacteristicsTab extends StatefulWidget {
   @override
   _CharacteristicsTabState createState() => _CharacteristicsTabState();
 }
-ф
+
 class _CharacteristicsTabState extends State<CharacteristicsTab>
     with AutomaticKeepAliveClientMixin {
   Map<String, String> _propertyValues = {};
@@ -73,6 +74,17 @@ class _CharacteristicsTabState extends State<CharacteristicsTab>
 
   void _createProduct() async {
     try {
+      // Показать индикатор загрузки
+      showDialog(
+        context: context,
+        barrierDismissible: false, // Запретить закрытие по клику вне окна
+        builder: (context) {
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
+        },
+      );
+
       final authProvider = context.read<GlobalProvider>();
       final imagesService = ImagesService();
       final propertiesService = PropertiesService();
@@ -81,21 +93,22 @@ class _CharacteristicsTabState extends State<CharacteristicsTab>
       final productName = authProvider.name ?? 'Не указано';
       final brandId = authProvider.brandId ?? '';
       final categoryId = authProvider.selectedCategoryId ?? '';
-      final status = 'awaiting_approval';
-      final deliveryType = 'express';
+      final status = authProvider.status;
+      final deliveryType = authProvider.deliveryType;
       final vendorCode = authProvider.vendorCode;
+      final descriptionText = authProvider.descriptionText;
 
       // Создание продукта
       final response = await ProductService().createProduct(
-        context,
-        productName,
-        productName.toLowerCase().replaceAll(' ', '-'), // slug
-        brandId,
-        status,
-        deliveryType,
-        categoryId,
-        vendorCode,
-      );
+          context,
+          productName,
+          productName.toLowerCase().replaceAll(' ', '-'), // slug
+          brandId,
+          status,
+          deliveryType,
+          categoryId,
+          vendorCode,
+          descriptionText!);
 
       // Парсинг ответа
       final Map<String, dynamic> responseData = jsonDecode(response.body);
@@ -145,12 +158,40 @@ class _CharacteristicsTabState extends State<CharacteristicsTab>
         }
       }
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content:
-                Text('Товар, фотографии, свойства и вариант успешно созданы!')),
+      // Закрыть индикатор загрузки
+      Navigator.pop(context);
+
+      // Уведомление об успехе с кнопкой перехода
+      showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: const Text('Успех'),
+            content: const Text('Товар успешно создан!'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context); // Закрыть диалог
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const MainControllerNavigator(),
+                      settings:
+                          const RouteSettings(arguments: 1), // Индекс "Товары"
+                    ),
+                    (route) => false, // Удалить все предыдущие маршруты
+                  );
+                },
+                child: const Text('Перейти к товарам'),
+              ),
+            ],
+          );
+        },
       );
     } catch (e) {
+      // Закрыть индикатор загрузки
+      Navigator.pop(context);
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Ошибка: $e')),
       );

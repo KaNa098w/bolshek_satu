@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:bolshek_pro/core/utils/theme.dart';
 import 'package:path/path.dart' as path;
 
 import 'package:bolshek_pro/core/models/category_response.dart' as category;
@@ -8,8 +9,8 @@ import 'package:bolshek_pro/core/models/properties_response.dart';
 import 'package:bolshek_pro/core/service/brands_service.dart';
 import 'package:bolshek_pro/core/service/category_service.dart';
 import 'package:bolshek_pro/core/service/properties_service.dart';
-import 'package:bolshek_pro/app/pages/home/home_widgets/add_name_product_page.dart';
-import 'package:bolshek_pro/app/pages/home/home_widgets/add_variant_widget.dart';
+import 'package:bolshek_pro/app/widgets/home_widgets/add_name_product_page.dart';
+import 'package:bolshek_pro/app/widgets/home_widgets/add_variant_widget.dart';
 import 'package:bolshek_pro/app/widgets/custom_input_widget.dart';
 import 'package:bolshek_pro/core/utils/provider.dart';
 import 'package:flutter/material.dart';
@@ -20,16 +21,18 @@ import 'package:provider/provider.dart';
 
 class InfoTab extends StatefulWidget {
   final String productName;
-  final Function(List<PropertyItems>, Map<String, String>) onPropertiesLoaded;
   final TabController tabController;
   final Function(String) onCategorySelected;
+  final bool Function() validateInfoTab;
+  final void Function(String) showError;
 
   const InfoTab({
     Key? key,
     required this.productName,
-    required this.onPropertiesLoaded,
     required this.tabController,
     required this.onCategorySelected,
+    required this.validateInfoTab,
+    required this.showError,
   }) : super(key: key);
 
   @override
@@ -48,7 +51,6 @@ class _InfoTabState extends State<InfoTab> with AutomaticKeepAliveClientMixin {
   final CategoriesService _categoriesService = CategoriesService();
   List<category.CategoryItems> categories = [];
   List<category.CategoryItems> filteredCategories = [];
-  Map<String, String> _propertyValues = {};
   final ImagePicker _picker = ImagePicker();
   List<File> _images = [];
 
@@ -217,11 +219,7 @@ class _InfoTabState extends State<InfoTab> with AutomaticKeepAliveClientMixin {
   }
 
   void _showCategories() {
-    if (categories.isEmpty) {
-      _showError('Список категорий пуст');
-      return;
-    }
-
+    // Показываем модальное окно
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -230,23 +228,41 @@ class _InfoTabState extends State<InfoTab> with AutomaticKeepAliveClientMixin {
       ),
       backgroundColor: Colors.white,
       builder: (context) {
-        String searchQuery = '';
+        // Используем StatefulBuilder для управления состоянием модального окна
         return StatefulBuilder(
           builder: (context, setStateModal) {
-            final filteredCategories = categories
-                .where((category) =>
-                    category.name != null &&
-                    category.name!
-                        .toLowerCase()
-                        .contains(searchQuery.toLowerCase()))
-                .toList();
+            // Проверяем состояние загрузки
+            if (isLoadingCategories) {
+              // Пока данные загружаются, показываем индикатор
+              return SizedBox(
+                height: MediaQuery.of(context).size.height * 0.4,
+                child: const Center(
+                    child: CircularProgressIndicator(
+                  color: ThemeColors.orange,
+                )),
+              );
+            }
+
+            // Если данные загружены, проверяем их наличие
+            if (categories.isEmpty) {
+              return SizedBox(
+                height: MediaQuery.of(context).size.height * 0.4,
+                child: const Center(
+                  child: Text('Список категорий пуст'),
+                ),
+              );
+            }
+
+            // Если категории загружены, отображаем список
+            String searchQuery = '';
+            final filteredCategories = categories;
+
             return SizedBox(
               height: MediaQuery.of(context).size.height * 0.9,
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
                   children: [
-                    const SizedBox(height: 14),
                     Row(
                       children: [
                         Expanded(
@@ -265,6 +281,14 @@ class _InfoTabState extends State<InfoTab> with AutomaticKeepAliveClientMixin {
                             onChanged: (value) {
                               setStateModal(() {
                                 searchQuery = value;
+                                filteredCategories.clear();
+                                filteredCategories.addAll(
+                                  categories.where((category) =>
+                                      category.name != null &&
+                                      category.name!
+                                          .toLowerCase()
+                                          .contains(searchQuery.toLowerCase())),
+                                );
                               });
                             },
                           ),
@@ -289,12 +313,11 @@ class _InfoTabState extends State<InfoTab> with AutomaticKeepAliveClientMixin {
                             title: Text(parentCategory.name ?? 'Без названия'),
                             children: subcategories.map((subcategory) {
                               return Padding(
-                                padding: const EdgeInsets.only(
-                                    left: 16.0), // Абзац для подкатегорий
+                                padding: const EdgeInsets.only(left: 16.0),
                                 child: ListTile(
                                   title:
                                       Text(subcategory.name ?? 'Без названия'),
-                                  onTap: () async {
+                                  onTap: () {
                                     Navigator.pop(context);
                                     setState(() {
                                       selectedCategory =
@@ -302,50 +325,6 @@ class _InfoTabState extends State<InfoTab> with AutomaticKeepAliveClientMixin {
                                     });
 
                                     _selectCategory(subcategory.id ?? '');
-
-                                    // // Проверяем, есть ли данные в кэше
-                                    // if (categoryPropertiesCache
-                                    //     .containsKey(subcategory.id)) {
-                                    //   widget.onPropertiesLoaded(
-                                    //     categoryPropertiesCache[
-                                    //         subcategory.id]!,
-                                    //     propertyValuesCache[subcategory.id]!,
-                                    //   );
-                                    // } else {
-                                    //   try {
-                                    //     // Загрузка данных, если их нет в кэше
-                                    //     final propertiesResponse =
-                                    //         await PropertiesService()
-                                    //             .fetchProperties(context,
-                                    //                 subcategory.id ?? '');
-
-                                    //     setState(() {
-                                    //       categoryPropertiesCache[
-                                    //               subcategory.id!] =
-                                    //           propertiesResponse.items ?? [];
-                                    //       propertyValuesCache[subcategory.id!] =
-                                    //           {
-                                    //         for (var property
-                                    //             in propertiesResponse.items ??
-                                    //                 [])
-                                    //           property.id ?? '': '',
-                                    //       };
-                                    //     });
-
-                                    //     widget.onPropertiesLoaded(
-                                    //       categoryPropertiesCache[
-                                    //           subcategory.id]!,
-                                    //       propertyValuesCache[subcategory.id]!,
-                                    //     );
-                                    //   } catch (e) {
-                                    //     _showError(
-                                    //         'Ошибка загрузки свойств: $e');
-                                    //   }
-                                    // }
-
-                                    // // Передаём ID выбранной категории в родительский виджет
-                                    // widget.onCategorySelected(
-                                    //     subcategory.id ?? '');
                                   },
                                 ),
                               );
@@ -362,6 +341,20 @@ class _InfoTabState extends State<InfoTab> with AutomaticKeepAliveClientMixin {
         );
       },
     );
+
+    // Проверяем, загружены ли данные, и при необходимости запускаем загрузку
+    if (categories.isEmpty) {
+      _loadCategories().then((_) {
+        // После завершения загрузки вызываем обновление состояния модального окна
+        if (context.mounted) {
+          Navigator.pop(context); // Закрываем текущее окно
+          _showCategories(); // Повторно открываем с загруженными данными
+        }
+      }).catchError((error) {
+        // Если произошла ошибка, отображаем сообщение
+        _showError('Ошибка загрузки категорий: $error');
+      });
+    }
   }
 
   void _showError(String message) {
@@ -703,17 +696,48 @@ class _InfoTabState extends State<InfoTab> with AutomaticKeepAliveClientMixin {
                   Row(
                     children: [
                       Expanded(
-                        child: TextField(
-                          keyboardType: TextInputType.number,
-                          decoration: const InputDecoration(
-                            labelText: 'Цена',
-                            hintText: 'Введите цену',
-                            border: OutlineInputBorder(),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors
+                                .grey.shade100, // Задний фон grade shade 100
+                            borderRadius:
+                                BorderRadius.circular(10), // Закругленные углы
                           ),
-                          onChanged: (value) {
-                            final price = (double.tryParse(value) ?? 0.0) * 100;
-                            context.read<GlobalProvider>().setPrice(price);
-                          },
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4), // Отступы внутри контейнера
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: TextField(
+                                  keyboardType: TextInputType.number,
+                                  decoration: const InputDecoration(
+                                    labelText: 'Цена',
+                                    hintText: 'Введите цену',
+                                    border: InputBorder
+                                        .none, // Убираем стандартную границу
+                                  ),
+                                  onChanged: (value) {
+                                    final price =
+                                        (double.tryParse(value) ?? 0.0) * 100;
+                                    context
+                                        .read<GlobalProvider>()
+                                        .setPrice(price);
+                                  },
+                                ),
+                              ),
+                              const SizedBox(
+                                  width:
+                                      8), // Расстояние между TextField и текстом "KZT"
+                              const Text(
+                                'KZT',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold, // Жирный шрифт
+                                  fontSize: 16, // Размер текста
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ],
@@ -725,8 +749,13 @@ class _InfoTabState extends State<InfoTab> with AutomaticKeepAliveClientMixin {
                     child: CustomButton(
                       text: 'Продолжить',
                       onPressed: () {
-                        widget.tabController.animateTo(
-                            1); // Переход на вкладку "Характеристики"
+                        if (widget.validateInfoTab()) {
+                          widget.tabController.index =
+                              1; // Переход на CharacteristicsTab
+                        } else {
+                          widget.showError(
+                              'Пожалуйста, заполните все обязательные поля перед продолжением.');
+                        }
                       },
                     ),
                   ),

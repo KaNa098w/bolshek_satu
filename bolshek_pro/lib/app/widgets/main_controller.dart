@@ -22,6 +22,16 @@ class _MainControllerNavigatorState extends State<MainControllerNavigator> {
   void initState() {
     super.initState();
     _fetchOrganizationName();
+
+    // Установка стартового индекса из переданных аргументов
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final args = ModalRoute.of(context)?.settings.arguments as int?;
+      if (args != null && args < _pages.length) {
+        setState(() {
+          _currentIndex = args;
+        });
+      }
+    });
   }
 
   // Список страниц для переключения
@@ -55,6 +65,7 @@ class _MainControllerNavigatorState extends State<MainControllerNavigator> {
           organizationName ?? '',
           style: TextStyle(fontSize: 21, fontWeight: FontWeight.bold),
         ),
+        centerTitle: false,
       ),
       body: IndexedStack(
         index: _currentIndex, // Показываем выбранную страницу

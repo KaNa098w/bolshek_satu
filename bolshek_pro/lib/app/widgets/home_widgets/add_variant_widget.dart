@@ -339,7 +339,10 @@ class _ProductDetailsWidgetState extends State<ProductDetailsWidget> {
                 child: _buildTextField(
                   label: 'Описание',
                   hint: 'Описание товара',
-                  maxLines: 4, // Поле ввода занимает 3 строки
+                  maxLines: 4,
+                  onChanged: (value) {
+                    context.read<GlobalProvider>().setDescriptionText(value);
+                  }, // Поле ввода занимает 3 строки
                 ),
               ),
             ],

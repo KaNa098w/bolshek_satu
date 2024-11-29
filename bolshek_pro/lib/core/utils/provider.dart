@@ -1,5 +1,6 @@
 import 'package:bolshek_pro/core/models/auth_response.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class GlobalProvider extends ChangeNotifier {
   AuthResponse? _authResponse;
@@ -9,6 +10,7 @@ class GlobalProvider extends ChangeNotifier {
   String _status = 'awaiting_approval';
   String _deliveryType = 'standard';
   String _vendorCode = '';
+  String? _descriptionText;
 
   // Новые поля
   double _price = 0.0;
@@ -29,12 +31,21 @@ class GlobalProvider extends ChangeNotifier {
   String get status => _status;
   String get deliveryType => _deliveryType;
   String get vendorCode => _vendorCode;
+  String? get descriptionText => _descriptionText;
 
   AuthResponse? get authResponse => _authResponse;
 
   List<Map<String, dynamic>> _images = [];
 
   List<Map<String, dynamic>> get images => _images;
+  Map<String, String> _propertyValues = {};
+
+  Map<String, String> get propertyValues => _propertyValues;
+
+  void setPropertyValues(Map<String, String> values) {
+    _propertyValues = values;
+    notifyListeners();
+  }
 
   void addImageData(Map<String, dynamic> imageData) {
     if (_images.length < 5) {
@@ -50,11 +61,15 @@ class GlobalProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setAuthData(AuthResponse response) {
+  void setAuthData(AuthResponse response) async {
     _authResponse = response;
     notifyListeners();
-    // Обновление виджетов, которые слушают провайдер
-    print(authResponse?.token);
+
+    // Сохранение данных в SharedPreferences
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('token', response.token ?? '');
+    await prefs.setString('userName', response.user?.firstName ?? '');
+    await prefs.setString('userLastName', response.user?.lastName ?? '');
   }
 
   void clearAuthData() {
@@ -92,6 +107,11 @@ class GlobalProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void setDescriptionText(String descriptionText) {
+    _descriptionText = descriptionText;
+    notifyListeners();
+  }
+
   void setPrice(double price) {
     _price = price;
     notifyListeners();
@@ -107,8 +127,52 @@ class GlobalProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void setImages(List<Map<String, dynamic>> images) {
+    _images = images;
+    notifyListeners();
+  }
+
   void setManufacturerId(String manufacturerId) {
     _manufacturerId = manufacturerId;
     notifyListeners();
+  }
+
+  // Новый метод logout
+  Future<void> logout() async {
+    // Очистка данных из SharedPreferences
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.clear(); // Удаляем все сохраненные данные
+
+    // Очистка данных в памяти
+    _authResponse = null;
+    _selectedCategoryId = null;
+    _name = null;
+    _brandId = null;
+    _status = 'awaiting_approval';
+    _deliveryType = 'standard';
+    _vendorCode = '';
+    _descriptionText = null;
+    _price = 0.0;
+    _kind = 'original';
+    _sku = '';
+    _manufacturerId = null;
+    _images.clear();
+    notifyListeners();
+  }
+
+  Future<void> loadAuthData() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+    final firstName = prefs.getString('userName');
+    final lastName = prefs.getString('userLastName');
+
+    if (token != null) {
+      // Восстановление данных авторизации
+      _authResponse = AuthResponse(
+        token: token,
+        user: User(firstName: firstName, lastName: lastName),
+      );
+      notifyListeners();
+    }
   }
 }

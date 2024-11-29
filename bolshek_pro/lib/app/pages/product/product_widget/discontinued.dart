@@ -1,6 +1,8 @@
+import 'package:bolshek_pro/app/widgets/product_detail_widget.dart';
+import 'package:bolshek_pro/app/widgets/widget_from_bolshek/shop_product_detail_screen.dart';
 import 'package:bolshek_pro/core/models/product_response.dart';
 import 'package:bolshek_pro/core/service/product_service.dart';
-import 'package:bolshek_pro/app/pages/home/home_widgets/add_name_product_page.dart';
+import 'package:bolshek_pro/app/widgets/home_widgets/add_name_product_page.dart';
 import 'package:bolshek_pro/app/widgets/custom_button.dart';
 import 'package:bolshek_pro/core/utils/theme.dart';
 import 'package:flutter/material.dart';
@@ -149,7 +151,12 @@ class _Discontinued extends State<Discontinued> {
       ),
       trailing: const Icon(Icons.more_vert),
       onTap: () {
-        // Логика при нажатии на товар
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ShopProductDetailScreen(),
+          ),
+        );
       },
     );
   }

@@ -16,6 +16,25 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 
+  @override
+  void initState() {
+    super.initState();
+    _checkAuthStatus();
+  }
+
+  Future<void> _checkAuthStatus() async {
+    // Загрузка сохраненных данных авторизации
+    await context.read<GlobalProvider>().loadAuthData();
+
+    // Если пользователь авторизован, перенаправляем на главную
+    if (context.read<GlobalProvider>().authResponse != null) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => MainControllerNavigator()),
+      );
+    }
+  }
+
   Future<void> _register() async {
     String email = emailController.text;
     String password = passwordController.text;

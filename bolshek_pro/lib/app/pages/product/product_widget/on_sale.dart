@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:bolshek_pro/core/models/product_response.dart';
 import 'package:bolshek_pro/core/service/product_service.dart';
-import 'package:bolshek_pro/app/pages/home/home_widgets/add_name_product_page.dart';
+import 'package:bolshek_pro/app/widgets/home_widgets/add_name_product_page.dart';
 import 'package:bolshek_pro/app/widgets/custom_button.dart';
 import 'package:bolshek_pro/core/utils/theme.dart';
 import 'package:flutter/material.dart';
@@ -43,6 +43,35 @@ class _OnSaleState extends State<OnSale> {
     super.dispose();
   }
 
+  Future<void> _loadFromCache() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final String? jsonData = prefs.getString('cached_on_sale_products');
+      if (jsonData != null) {
+        final List<dynamic> jsonList = jsonDecode(jsonData);
+        setState(() {
+          _products.clear();
+          _products
+              .addAll(jsonList.map((e) => ProductItems.fromJson(e)).toList());
+        });
+      }
+    } catch (e) {
+      debugPrint('Ошибка загрузки из кэша: $e');
+    }
+  }
+
+  Future<void> _saveToCache() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final uniqueProducts = _products.toSet().toList();
+      final String jsonData =
+          jsonEncode(uniqueProducts.map((e) => e.toJson()).toList());
+      await prefs.setString('cached_on_sale_products', jsonData);
+    } catch (e) {
+      debugPrint('Ошибка сохранения в кэш: $e');
+    }
+  }
+
   Future<void> _fetchProducts() async {
     if (_isLoading || !_hasMore) return;
 
@@ -55,12 +84,16 @@ class _OnSaleState extends State<OnSale> {
           context: context, take: _take, skip: _skip, status: 'active');
 
       setState(() {
-        _products.addAll(response.items ?? []);
+        final newProducts = response.items ?? [];
+        for (var product in newProducts) {
+          if (!_products.any((p) => p.id == product.id)) {
+            _products.add(product);
+          }
+        }
         _skip += _take;
         _hasMore = (response.items?.length ?? 0) == _take;
       });
 
-      // Сохраняем загруженные товары в кэш
       await _saveToCache();
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -70,33 +103,6 @@ class _OnSaleState extends State<OnSale> {
       setState(() {
         _isLoading = false;
       });
-    }
-  }
-
-  Future<void> _saveToCache() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final String jsonData =
-          jsonEncode(_products.map((e) => e.toJson()).toList());
-      await prefs.setString('cached_on_sale_products', jsonData);
-    } catch (e) {
-      debugPrint('Ошибка сохранения в кэш: $e');
-    }
-  }
-
-  Future<void> _loadFromCache() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final String? jsonData = prefs.getString('cached_on_sale_products');
-      if (jsonData != null) {
-        final List<dynamic> jsonList = jsonDecode(jsonData);
-        setState(() {
-          _products
-              .addAll(jsonList.map((e) => ProductItems.fromJson(e)).toList());
-        });
-      }
-    } catch (e) {
-      debugPrint('Ошибка загрузки из кэша: $e');
     }
   }
 

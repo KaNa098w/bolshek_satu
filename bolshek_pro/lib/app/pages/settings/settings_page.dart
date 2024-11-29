@@ -1,3 +1,4 @@
+import 'package:bolshek_pro/app/pages/auth/auth_page.dart';
 import 'package:bolshek_pro/core/service/city_service.dart';
 import 'package:bolshek_pro/app/pages/settings/settings_widget/city_widgets/city_selection_bottom_sheet.dart';
 import 'package:bolshek_pro/core/utils/provider.dart';
@@ -49,10 +50,40 @@ class _SettingsPageState extends State<SettingsPage> {
     );
   }
 
+  Future<void> _logout() async {
+    bool confirm = await showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Выход из аккаунта'),
+        content: const Text('Вы уверены, что хотите выйти?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Отмена'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Выйти'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm) {
+      await context.read<GlobalProvider>().logout(); // Теперь метод асинхронный
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (context) => LoginPage()),
+        (route) => false,
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<GlobalProvider>(context);
     final user = authProvider.authResponse?.user;
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: Column(
@@ -68,28 +99,24 @@ class _SettingsPageState extends State<SettingsPage> {
                   children: [
                     Text(
                       user?.firstName ?? '',
-                      style:
-                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                      style: const TextStyle(
+                          fontSize: 20, fontWeight: FontWeight.bold),
                     ),
-                    SizedBox(
-                      width: 10,
-                    ),
+                    const SizedBox(width: 10),
                     Text(
                       user?.lastName ?? '',
-                      style:
-                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                      style: const TextStyle(
+                          fontSize: 20, fontWeight: FontWeight.bold),
                     ),
                   ],
                 ),
                 IconButton(
                   icon: const Icon(
-                    Icons.location_on,
+                    Icons.logout,
                     color: ThemeColors.orange,
-                    size: 32,
+                    size: 25,
                   ),
-                  onPressed: () {
-                    _showCitySelection;
-                  }, // Здесь может быть логика для изменения города
+                  onPressed: _logout,
                 ),
               ],
             ),
@@ -100,22 +127,18 @@ class _SettingsPageState extends State<SettingsPage> {
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
             subtitle: Column(
-              crossAxisAlignment: CrossAxisAlignment
-                  .start, // Тексты будут выровнены по левому краю
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(_selectedCity ?? 'Город не выбран'),
-                const SizedBox(height: 4), // Отступ между текстами
+                const SizedBox(height: 4),
                 const Text(
-                  'Активный', // Добавляем второй текст
-                  style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.green), // Стиль для второго текста
+                  'Активный',
+                  style: TextStyle(fontSize: 12, color: Colors.green),
                 ),
               ],
             ),
             trailing: const Icon(Icons.arrow_forward_ios),
             onTap: () {
-              // Переход на страницу "Склад"
               Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -131,22 +154,18 @@ class _SettingsPageState extends State<SettingsPage> {
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
             subtitle: Column(
-              crossAxisAlignment: CrossAxisAlignment
-                  .start, // Тексты будут выровнены по левому краю
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(_selectedCity ?? 'Город не выбран'),
-                const SizedBox(height: 4), // Отступ между текстами
+                const SizedBox(height: 4),
                 const Text(
-                  'Активный', // Добавляем второй текст
-                  style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.green), // Стиль для второго текста
+                  'Активный',
+                  style: TextStyle(fontSize: 12, color: Colors.green),
                 ),
               ],
             ),
             trailing: const Icon(Icons.arrow_forward_ios),
             onTap: () {
-              // Переход на страницу "Склад"
               Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -162,22 +181,18 @@ class _SettingsPageState extends State<SettingsPage> {
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
             subtitle: Column(
-              crossAxisAlignment: CrossAxisAlignment
-                  .start, // Тексты будут выровнены по левому краю
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(_selectedCity ?? 'Город не выбран'),
-                const SizedBox(height: 4), // Отступ между текстами
+                const SizedBox(height: 4),
                 const Text(
-                  'Не активный', // Добавляем второй текст
-                  style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.red), // Стиль для второго текста
+                  'Не активный',
+                  style: TextStyle(fontSize: 12, color: Colors.red),
                 ),
               ],
             ),
             trailing: const Icon(Icons.arrow_forward_ios),
             onTap: () {
-              // Переход на страницу "Склад"
               Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -186,7 +201,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 ),
               );
             },
-          )
+          ),
         ],
       ),
     );

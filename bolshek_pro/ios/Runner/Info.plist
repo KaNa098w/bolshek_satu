@@ -45,5 +45,12 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<!-- Разрешения для работы с камерой и фотогалереей -->
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Мы используем вашу фотогалерею для добавления изображений.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Мы используем камеру для создания изображений.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Мы используем вашу фотогалерею для сохранения изображений.</string>
 </dict>
 </plist>

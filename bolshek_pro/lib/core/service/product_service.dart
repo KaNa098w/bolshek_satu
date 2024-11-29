@@ -1,13 +1,26 @@
 import 'dart:convert';
+import 'dart:math';
 import 'package:bolshek_pro/core/models/product_response.dart';
 import 'package:bolshek_pro/core/utils/constants.dart';
 import 'package:bolshek_pro/core/utils/provider.dart';
 import 'package:http/http.dart' as http;
+import 'package:pretty_http_logger/pretty_http_logger.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
+import 'package:uuid/uuid.dart';
 
 class ProductService {
+  final httpClient = HttpWithMiddleware.build(
+    middlewares: [HttpLogger(logLevel: LogLevel.BODY)],
+  );
   final String _baseUrl = '${Constants.baseUrl}/products';
+
+  final Uuid _uuid = Uuid();
+
+  /// Метод для генерации уникального ID блока
+  String _generateBlockId() {
+    return _uuid.v4(); // Генерация уникального идентификатора
+  }
 
   /// Fetch products with pagination
   Future<ProductResponse> fetchProductsPaginated({
@@ -38,15 +51,56 @@ class ProductService {
     }
   }
 
+  Future<ProductItems> fetchProduct({
+    required BuildContext context,
+    required String id,
+  }) async {
+    final String token = _getToken(context);
+
+    try {
+      print('Запрос к сервису: $_baseUrl/$id'); // Лог URL
+      print('Токен: $token'); // Лог токена
+
+      final response = await httpClient.get(
+        Uri.parse('$_baseUrl/$id'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      print('Статус ответа: ${response.statusCode}'); // Лог статуса
+      print('Тело ответа: ${response.body}'); // Лог тела ответа
+
+      if (response.statusCode == 200) {
+        final json = jsonDecode(response.body);
+        print('Декодированный JSON: $json'); // Лог декодированного JSON
+
+        // Прямо создаём объект ProductItems из JSON
+        final product = ProductItems.fromJson(json);
+        print('Сформированный ProductItems: $product');
+        return product;
+      } else {
+        print('Ошибка: ${response.statusCode}, Тело ответа: ${response.body}');
+        throw Exception('Не удалось загрузить данные о продукте');
+      }
+    } catch (e) {
+      print('Исключение: $e');
+      throw Exception('Ошибка при выполнении запроса: $e');
+    }
+  }
+
   Future<http.Response> createProduct(
-      BuildContext context,
-      String name,
-      String slug,
-      String brandId,
-      String status,
-      String deliveryType,
-      String categoryId,
-      String vendorCode) async {
+    BuildContext context,
+    String name,
+    String slug,
+    String brandId,
+    String status,
+    String deliveryType,
+    String categoryId,
+    String vendorCode,
+    String descriptionText, // Передаём ваш текст для описания
+  ) async {
     try {
       final token = _getToken(context);
       final body = {
@@ -58,6 +112,16 @@ class ProductService {
         "categoryId": categoryId,
         "compatibleVehicleIds": [],
         "vendorCode": vendorCode,
+        "description": {
+          "time": DateTime.now().millisecondsSinceEpoch,
+          "blocks": [
+            {
+              "id": _generateBlockId(), // Генерация уникального ID для блока
+              "type": "paragraph",
+              "data": {"text": descriptionText},
+            }
+          ],
+        },
       };
 
       print('Creating product with data: ${jsonEncode(body)}');

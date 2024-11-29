@@ -1,6 +1,6 @@
 import 'package:bolshek_pro/core/models/properties_response.dart';
-import 'package:bolshek_pro/app/pages/home/home_widgets/add_product_widgets/characteristics_tab.dart';
-import 'package:bolshek_pro/app/pages/home/home_widgets/add_product_widgets/info_tab.dart';
+import 'package:bolshek_pro/app/widgets/home_widgets/add_product_widgets/characteristics_tab.dart';
+import 'package:bolshek_pro/app/widgets/home_widgets/add_product_widgets/info_tab.dart';
 import 'package:bolshek_pro/core/utils/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:bolshek_pro/app/widgets/custom_button.dart';
@@ -24,10 +24,39 @@ class _AddProductPageState extends State<AddProductPage>
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
 
-    // Устанавливаем name в AuthProvider
+    // Слушатель для блокировки свайпа
+    _tabController.addListener(() {
+      if (_tabController.index == 1 && _tabController.previousIndex == 0) {
+        if (!_validateInfoTab()) {
+          _tabController.index = 0; // Возврат на вкладку "Инфо"
+          _showError(
+              'Пожалуйста, заполните обязательные поля на вкладке "Инфо"');
+        }
+      }
+    });
+
+    // Устанавливаем имя продукта в GlobalProvider
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<GlobalProvider>().setName(widget.productName);
     });
+  }
+
+  bool _validateInfoTab() {
+    final globalProvider = context.read<GlobalProvider>();
+    if (globalProvider.selectedCategoryId == null ||
+        globalProvider.brandId == null ||
+        globalProvider.price == null ||
+        globalProvider.price == 0 ||
+        (globalProvider.images.isEmpty)) {
+      return false;
+    }
+    return true;
+  }
+
+  void _showError(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
+    );
   }
 
   @override
@@ -59,15 +88,12 @@ class _AddProductPageState extends State<AddProductPage>
         children: [
           InfoTab(
             productName: widget.productName,
-            onPropertiesLoaded: (properties, propertyValues) {
-              // Устанавливаем кешированные данные, если нужно
-              // Это больше не используется напрямую для CharacteristicsTab
-            },
             tabController: _tabController,
             onCategorySelected: (categoryId) {
-              // Устанавливаем выбранную категорию в AuthProvider
               context.read<GlobalProvider>().setCategoryId(categoryId);
             },
+            validateInfoTab: _validateInfoTab,
+            showError: _showError,
           ),
           const CharacteristicsTab(), // Используется без параметров
         ],
