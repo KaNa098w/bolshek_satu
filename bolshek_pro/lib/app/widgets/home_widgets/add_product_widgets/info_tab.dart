@@ -50,7 +50,6 @@ class _InfoTabState extends State<InfoTab> with AutomaticKeepAliveClientMixin {
   String selectedCategory = 'Выберите категорию';
   final CategoriesService _categoriesService = CategoriesService();
   List<category.CategoryItems> categories = [];
-  List<category.CategoryItems> filteredCategories = [];
   final ImagePicker _picker = ImagePicker();
   List<File> _images = [];
 
@@ -667,13 +666,14 @@ class _InfoTabState extends State<InfoTab> with AutomaticKeepAliveClientMixin {
                   ),
                   const SizedBox(height: 20),
                   CustomDropdownField(
+                      title: 'Бренд', value: selectedBrand, onTap: _showBrands),
+                  const SizedBox(height: 20),
+
+                  CustomDropdownField(
                     title: 'Категория',
                     value: selectedCategory,
                     onTap: _showCategories,
                   ),
-                  const SizedBox(height: 20),
-                  CustomDropdownField(
-                      title: 'Бренд', value: selectedBrand, onTap: _showBrands),
 
                   const SizedBox(height: 20),
                   // ..._properties.map((property) {

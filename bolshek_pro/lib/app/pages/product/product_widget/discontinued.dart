@@ -1,5 +1,5 @@
 import 'package:bolshek_pro/app/widgets/product_detail_widget.dart';
-import 'package:bolshek_pro/app/widgets/widget_from_bolshek/shop_product_detail_screen.dart';
+import 'package:bolshek_pro/app/pages/product/product_detail_screen.dart';
 import 'package:bolshek_pro/core/models/product_response.dart';
 import 'package:bolshek_pro/core/service/product_service.dart';
 import 'package:bolshek_pro/app/widgets/home_widgets/add_name_product_page.dart';
@@ -46,6 +46,7 @@ class _Discontinued extends State<Discontinued> {
   Future<void> _fetchProducts() async {
     if (_isLoading || !_hasMore) return;
 
+    if (!mounted) return; // Проверяем, что виджет всё ещё смонтирован
     setState(() {
       _isLoading = true;
     });
@@ -57,6 +58,7 @@ class _Discontinued extends State<Discontinued> {
           skip: _skip,
           status: 'awaiting_approval');
 
+      if (!mounted) return; // Проверяем, что виджет всё ещё смонтирован
       setState(() {
         _products.addAll(response.items ?? []);
         _skip += _take;
@@ -64,12 +66,15 @@ class _Discontinued extends State<Discontinued> {
         _isLoading = false;
       });
     } catch (e) {
+      if (!mounted) return; // Проверяем, что виджет всё ещё смонтирован
       setState(() {
         _isLoading = false;
       });
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Ошибка загрузки: $e')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Ошибка загрузки: $e')),
+        );
+      }
     }
   }
 
@@ -98,6 +103,7 @@ class _Discontinued extends State<Discontinued> {
                   image: product.images?.isNotEmpty == true
                       ? product.images!.first
                       : null,
+                  productId: product.id ?? '', // Передаем productId
                 );
               },
             ),
@@ -125,6 +131,7 @@ class _Discontinued extends State<Discontinued> {
     required String name,
     required String price,
     required Images? image,
+    required String productId, // Добавляем параметр productId
   }) {
     final imageUrl = image?.getBestFitImage() ?? '';
 
@@ -154,7 +161,8 @@ class _Discontinued extends State<Discontinued> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => ShopProductDetailScreen(),
+            builder: (context) => ShopProductDetailScreen(
+                productId: productId), // Передаем productId
           ),
         );
       },

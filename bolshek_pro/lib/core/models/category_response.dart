@@ -34,7 +34,7 @@ class CategoryItems {
   String? organizationId;
   String? name;
   String? slug;
-  Icon? icon;
+  CategoryIcon? icon;
   String? parentId;
   List<CategoryItems>? children;
 
@@ -62,7 +62,8 @@ class CategoryItems {
     organizationId = json['organizationId'];
     name = json['name'];
     slug = json['slug'];
-    icon = json['icon'] != null ? new Icon.fromJson(json['icon']) : null;
+    icon =
+        json['icon'] != null ? new CategoryIcon.fromJson(json['icon']) : null;
     parentId = json['parentId'];
     children = [];
   }
@@ -86,7 +87,7 @@ class CategoryItems {
   }
 }
 
-class Icon {
+class CategoryIcon {
   String? url;
   String? hash;
   int? size;
@@ -96,7 +97,7 @@ class Icon {
   int? height;
   String? blurhash;
 
-  Icon(
+  CategoryIcon(
       {this.url,
       this.hash,
       this.size,
@@ -106,7 +107,7 @@ class Icon {
       this.height,
       this.blurhash});
 
-  Icon.fromJson(Map<String, dynamic> json) {
+  CategoryIcon.fromJson(Map<String, dynamic> json) {
     url = json['url'];
     hash = json['hash'];
     size = json['size'];

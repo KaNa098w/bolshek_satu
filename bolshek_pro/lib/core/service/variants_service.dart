@@ -91,6 +91,56 @@ class VariantsService {
     }
   }
 
+  Future<void> updateProductVariant(
+    BuildContext context, {
+    required String productId,
+    required String variantId,
+    required double newAmount,
+  }) async {
+    try {
+      final token = _getToken(context);
+
+      final body = {
+        "basePrice": {
+          "amount": newAmount,
+          "precision": 2,
+          "currency": "KZT",
+        },
+        "price": {
+          "amount": newAmount, // Используем тот же amount
+          "precision": 2,
+          "currency": "KZT",
+        },
+      };
+
+      print(
+          'Updating product variant with data: ${jsonEncode(body)}'); // Логируем тело запроса
+
+      final response = await http.put(
+        Uri.parse('$_baseUrl/$productId/variants/$variantId'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode(body),
+      );
+
+      print(
+          'Response status: ${response.statusCode}'); // Логируем статус ответа
+      print('Response body: ${response.body}'); // Логируем тело ответа
+
+      if (response.statusCode == 200) {
+        print('Product variant updated successfully');
+      } else {
+        throw Exception(
+            'Failed to update product variant: ${response.statusCode}, ${response.body}');
+      }
+    } catch (e) {
+      print('Error updating product variant: $e'); // Логируем ошибки
+      throw Exception('Error updating product variant: $e');
+    }
+  }
+
   String _getToken(BuildContext context) {
     final authProvider = Provider.of<GlobalProvider>(context, listen: false);
     final token = authProvider.authResponse?.token;

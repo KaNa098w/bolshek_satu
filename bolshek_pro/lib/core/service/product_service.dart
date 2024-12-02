@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:math';
+import 'package:bolshek_pro/core/models/fetch_product_response.dart';
 import 'package:bolshek_pro/core/models/product_response.dart';
 import 'package:bolshek_pro/core/utils/constants.dart';
 import 'package:bolshek_pro/core/utils/provider.dart';
@@ -51,7 +52,7 @@ class ProductService {
     }
   }
 
-  Future<ProductItems> fetchProduct({
+  Future<FetchProductResponse> fetchProduct({
     required BuildContext context,
     required String id,
   }) async {
@@ -77,8 +78,8 @@ class ProductService {
         print('Декодированный JSON: $json'); // Лог декодированного JSON
 
         // Прямо создаём объект ProductItems из JSON
-        final product = ProductItems.fromJson(json);
-        print('Сформированный ProductItems: $product');
+        final product = FetchProductResponse.fromJson(json);
+        print('Сформированный FetchProductResponse: $product');
         return product;
       } else {
         print('Ошибка: ${response.statusCode}, Тело ответа: ${response.body}');

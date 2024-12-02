@@ -33,7 +33,9 @@ class ThemeColors {
   static const grey8 = Color(0xFF888B93);
   static const grey9 = Color(0xFFE8E7E7);
   static const black = Colors.black;
+  static const blackWithPath = Color.fromARGB(255, 53, 52, 52);
   static const grey10 = Color(0xFFE7E7E9);
+  static const red = Color.fromARGB(255, 218, 102, 94);
 
   static const green1 = Colors.green;
   static const green = Color.fromARGB(255, 75, 212, 110);

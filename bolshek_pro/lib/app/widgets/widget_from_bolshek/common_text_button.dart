@@ -6,6 +6,7 @@ class CommonTextButton extends StatelessWidget {
   final Color? bgColor;
   final Color? textColor;
   final Color? borderColor;
+  final double? size;
   final String buttonText;
   final Function() onTap;
   const CommonTextButton({
@@ -13,6 +14,7 @@ class CommonTextButton extends StatelessWidget {
     this.bgColor,
     this.textColor,
     this.borderColor,
+    this.size,
     required this.buttonText,
     required this.onTap,
   });
@@ -33,7 +35,7 @@ class CommonTextButton extends StatelessWidget {
         child: Text(
           buttonText,
           style: ThemeTextInterRegular.size11.copyWith(
-            fontSize: 17,
+            fontSize: size ?? 17,
             fontWeight: FontWeight.bold,
             color: textColor ?? Colors.white,
           ),

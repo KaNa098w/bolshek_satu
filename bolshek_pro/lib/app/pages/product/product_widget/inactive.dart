@@ -1,3 +1,4 @@
+import 'package:bolshek_pro/app/pages/product/product_detail_screen.dart';
 import 'package:bolshek_pro/core/models/product_response.dart';
 import 'package:bolshek_pro/core/service/product_service.dart';
 import 'package:bolshek_pro/app/widgets/home_widgets/add_name_product_page.dart';
@@ -85,6 +86,7 @@ class _Inactive extends State<Inactive> {
 
                 final product = _products[index];
                 return _buildProductItem(
+                  productId: product.id ?? '',
                   name: product.name ?? 'Без названия',
                   price: product.variants != null &&
                           product.variants!.isNotEmpty
@@ -120,6 +122,7 @@ class _Inactive extends State<Inactive> {
     required String name,
     required String price,
     required Images? image,
+    required String productId,
   }) {
     final imageUrl = image?.getBestFitImage() ?? '';
 
@@ -146,7 +149,13 @@ class _Inactive extends State<Inactive> {
       ),
       trailing: const Icon(Icons.more_vert),
       onTap: () {
-        // Логика при нажатии на товар
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ShopProductDetailScreen(
+                productId: productId), // Передаем productId
+          ),
+        );
       },
     );
   }

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:bolshek_pro/app/pages/product/product_detail_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:bolshek_pro/core/models/product_response.dart';
 import 'package:bolshek_pro/core/service/product_service.dart';
@@ -26,7 +27,6 @@ class _OnSaleState extends State<OnSale> {
   @override
   void initState() {
     super.initState();
-    _loadFromCache(); // Загружаем товары из кэша
     _fetchProducts();
 
     _scrollController.addListener(() {
@@ -43,35 +43,6 @@ class _OnSaleState extends State<OnSale> {
     super.dispose();
   }
 
-  Future<void> _loadFromCache() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final String? jsonData = prefs.getString('cached_on_sale_products');
-      if (jsonData != null) {
-        final List<dynamic> jsonList = jsonDecode(jsonData);
-        setState(() {
-          _products.clear();
-          _products
-              .addAll(jsonList.map((e) => ProductItems.fromJson(e)).toList());
-        });
-      }
-    } catch (e) {
-      debugPrint('Ошибка загрузки из кэша: $e');
-    }
-  }
-
-  Future<void> _saveToCache() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final uniqueProducts = _products.toSet().toList();
-      final String jsonData =
-          jsonEncode(uniqueProducts.map((e) => e.toJson()).toList());
-      await prefs.setString('cached_on_sale_products', jsonData);
-    } catch (e) {
-      debugPrint('Ошибка сохранения в кэш: $e');
-    }
-  }
-
   Future<void> _fetchProducts() async {
     if (_isLoading || !_hasMore) return;
 
@@ -83,6 +54,8 @@ class _OnSaleState extends State<OnSale> {
       final response = await _productService.fetchProductsPaginated(
           context: context, take: _take, skip: _skip, status: 'active');
 
+      if (!mounted) return; // Проверяем, что виджет всё ещё активен
+
       setState(() {
         final newProducts = response.items ?? [];
         for (var product in newProducts) {
@@ -93,13 +66,13 @@ class _OnSaleState extends State<OnSale> {
         _skip += _take;
         _hasMore = (response.items?.length ?? 0) == _take;
       });
-
-      await _saveToCache();
     } catch (e) {
+      if (!mounted) return; // Проверяем, что виджет всё ещё активен
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Ошибка загрузки: $e')),
       );
     } finally {
+      if (!mounted) return; // Проверяем, что виджет всё ещё активен
       setState(() {
         _isLoading = false;
       });
@@ -131,6 +104,7 @@ class _OnSaleState extends State<OnSale> {
                   image: product.images?.isNotEmpty == true
                       ? product.images!.first
                       : null,
+                  productId: product.id ?? '', // Передаем идентификатор товара
                 );
               },
             ),
@@ -158,6 +132,7 @@ class _OnSaleState extends State<OnSale> {
     required String name,
     required String price,
     required Images? image,
+    required String productId, // Добавляем параметр productId
   }) {
     final imageUrl = image?.getBestFitImage() ?? '';
 
@@ -184,7 +159,14 @@ class _OnSaleState extends State<OnSale> {
       ),
       trailing: const Icon(Icons.more_vert),
       onTap: () {
-        // Логика при нажатии на товар
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ShopProductDetailScreen(
+              productId: productId, // Передаем идентификатор товара
+            ),
+          ),
+        );
       },
     );
   }
