@@ -170,7 +170,7 @@ class _ShopProductDetailScreenState extends State<ShopProductDetailScreen> {
                 clipBehavior: Clip.antiAlias, // Обрезка изображения по границе
                 child: Image.network(
                   _productImages.first,
-                  fit: BoxFit.cover,
+                  fit: BoxFit.contain,
                   errorBuilder: (context, error, stackTrace) => const Icon(
                     Icons.image,
                     size: 100,
@@ -240,7 +240,7 @@ class _ShopProductDetailScreenState extends State<ShopProductDetailScreen> {
                   ? "${_formatPrice(_productPrice! / 100)} ₸"
                   : "Цена отсутствует",
               style: ThemeTextMontserratBold.size21.copyWith(
-                fontSize: 18,
+                fontSize: 17,
                 color: ThemeColors.grey5,
               ),
             ),
@@ -259,7 +259,7 @@ class _ShopProductDetailScreenState extends State<ShopProductDetailScreen> {
               ),
             ),
             SizedBox(
-              width: 30,
+              width: 10,
             ),
             Text(
               'Артикул: $_articul',
@@ -521,8 +521,8 @@ class _ShopProductDetailScreenState extends State<ShopProductDetailScreen> {
                 child: CommonTextButton(
                   buttonText: Constants.changeProduct,
                   size: 15,
-                  onTap: () {
-                    Navigator.push(
+                  onTap: () async {
+                    final result = await Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (context) => ProductChangePage(
@@ -531,6 +531,9 @@ class _ShopProductDetailScreenState extends State<ShopProductDetailScreen> {
                         ),
                       ),
                     );
+                    if (result == true) {
+                      _fetchProductDetails();
+                    }
                   },
                 ),
               ),

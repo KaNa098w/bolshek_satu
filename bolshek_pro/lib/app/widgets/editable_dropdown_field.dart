@@ -59,18 +59,15 @@ class _EditableDropdownFieldState extends State<EditableDropdownField> {
               color: ThemeColors.grey5,
             ),
           ),
-          AnimatedContainer(
-            duration: const Duration(milliseconds: 100),
-            height: fieldHeight,
+          SizedBox(
+            height: fieldHeight, // Высота остаётся постоянной
             child: _isEditing
                 ? TextField(
                     controller: _controller,
                     autofocus: true,
                     maxLines: widget.maxLines,
-                    textInputAction:
-                        TextInputAction.done, // "Готово" на клавиатуре
-                    onSubmitted: (value) =>
-                        _confirmEdit(), // Завершаем редактирование
+                    textInputAction: TextInputAction.done,
+                    onSubmitted: (value) => _confirmEdit(),
                     decoration: InputDecoration(
                       hintText: widget.hint,
                       hintStyle: const TextStyle(color: Colors.grey),
@@ -84,12 +81,25 @@ class _EditableDropdownFieldState extends State<EditableDropdownField> {
                 : GestureDetector(
                     onTap: () {
                       setState(() {
-                        _isEditing = true; // Переходим в режим редактирования
+                        _isEditing = true; // Включаем режим редактирования
+                      });
+
+                      // Добавляем следующий кадр для автоматического фокуса
+                      Future.microtask(() {
+                        FocusScope.of(context).requestFocus(
+                          FocusNode(), // Сбрасываем фокус
+                        );
+                        FocusScope.of(context).requestFocus(
+                          FocusNode(),
+                        );
+                        _controller.selection = TextSelection.collapsed(
+                          offset:
+                              _controller.text.length, // Ставим курсор в конец
+                        );
                       });
                     },
-                    child: Container(
-                      alignment: Alignment.centerLeft,
-                      height: fieldHeight,
+                    child: Align(
+                      alignment: Alignment.topLeft,
                       child: Text(
                         widget.value.isEmpty ? widget.hint : widget.value,
                         maxLines: widget.maxLines,

@@ -77,6 +77,15 @@ class _Discontinued extends State<Discontinued> {
     }
   }
 
+  Future<void> _refreshProducts() async {
+    setState(() {
+      _products.clear(); // Очищаем текущий список
+      _skip = 0; // Сбрасываем позицию для пагинации
+      _hasMore = true; // Сбрасываем индикатор наличия данных
+    });
+    await _fetchProducts(); // Загружаем данные заново
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -86,50 +95,52 @@ class _Discontinued extends State<Discontinued> {
           Expanded(
             child: Stack(
               children: [
-                // Основной список продуктов
-                ListView.builder(
-                  controller: _scrollController, // Привязываем контроллер
-                  itemCount: _products.length + (_hasMore ? 1 : 0),
-                  itemBuilder: (context, index) {
-                    if (index == _products.length) {
-                      // Загрузчик внизу списка
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 16.0, horizontal: 10),
-                        child: Center(
-                          child: Column(
-                            children: List.generate(
-                              3, // Количество повторений
-                              (index) => const Padding(
-                                padding: EdgeInsets.only(
-                                    bottom: 10), // Отступ между строками
-                                child: LoadingWidget(
-                                  width: 380, // Занимает всю ширину строки
-                                  height: 75, // Высота строки товара
+                // Оборачиваем ListView в RefreshIndicator
+                RefreshIndicator(
+                  color: ThemeColors.orange,
+                  onRefresh: _refreshProducts, // Метод обновления данных
+                  child: ListView.builder(
+                    controller: _scrollController, // Привязываем контроллер
+                    itemCount: _products.length + (_hasMore ? 1 : 0),
+                    itemBuilder: (context, index) {
+                      if (index == _products.length) {
+                        // Загрузчик внизу списка
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 16.0, horizontal: 10),
+                          child: Center(
+                            child: Column(
+                              children: List.generate(
+                                3, // Количество повторений
+                                (index) => const Padding(
+                                  padding: EdgeInsets.only(
+                                      bottom: 10), // Отступ между строками
+                                  child: LoadingWidget(
+                                    width: 380, // Занимает всю ширину строки
+                                    height: 75, // Высота строки товара
+                                  ),
                                 ),
                               ),
                             ),
                           ),
-                        ),
+                        );
+                      }
+
+                      final product = _products[index];
+                      return _buildProductItem(
+                        name: product.name ?? 'Без названия',
+                        price: product.variants != null &&
+                                product.variants!.isNotEmpty
+                            ? '${(product.variants!.first.price?.amount ?? 0) / 100} ₸'
+                            : 'Цена не указана',
+                        image: product.images?.isNotEmpty == true
+                            ? product.images!.first
+                            : null,
+                        productId: product.id ?? '', // Передаем productId
                       );
-                    }
-
-                    final product = _products[index];
-                    return _buildProductItem(
-                      name: product.name ?? 'Без названия',
-                      price: product.variants != null &&
-                              product.variants!.isNotEmpty
-                          ? '${(product.variants!.first.price?.amount ?? 0) / 100} ₸'
-                          : 'Цена не указана',
-                      image: product.images?.isNotEmpty == true
-                          ? product.images!.first
-                          : null,
-                      productId: product.id ?? '', // Передаем productId
-                    );
-                  },
+                    },
+                  ),
                 ),
-
-                // Центральный загрузчик, если идет начальная загрузка
               ],
             ),
           ),

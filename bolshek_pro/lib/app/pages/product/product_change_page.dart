@@ -448,6 +448,7 @@ class _ProductChangePageState extends State<ProductChangePage> {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Товар успешно обновлён')),
           );
+          Navigator.pop(context, true);
         } else {
           throw Exception('Ошибка обновления товара: ${response.body}');
         }
@@ -1086,7 +1087,7 @@ class _ProductChangePageState extends State<ProductChangePage> {
                                   ? NetworkImage(image.url!)
                                   : FileImage(File(image.url!))
                                       as ImageProvider,
-                              fit: BoxFit.cover,
+                              fit: BoxFit.contain,
                             ),
                           ),
                         ),
