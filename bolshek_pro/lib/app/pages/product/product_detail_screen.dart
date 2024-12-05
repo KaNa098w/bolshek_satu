@@ -29,6 +29,13 @@ class _ShopProductDetailScreenState extends State<ShopProductDetailScreen> {
   String? _variantId;
   String? _status;
   List<Map<String, String>> _productCharacteristics = [];
+  String? _articul;
+  String? _manufacturers_name;
+  String? _variants_kod;
+  int selectedImageIndex = 0;
+  int selectedVariantIndex = 0;
+  int? _variants_lenght;
+  String? _variant_kind;
 
   @override
   void initState() {
@@ -43,6 +50,11 @@ class _ShopProductDetailScreenState extends State<ShopProductDetailScreen> {
         id: widget.productId,
       );
       setState(() {
+        _variant_kind = product.variants?.first.kind;
+        _variants_lenght = product.variants?.length;
+        _variants_kod = product.variants?.first?.sku!;
+        _manufacturers_name = product.variants?.first.manufacturer?.name;
+        _articul = product?.vendorCode;
         _status = product.status;
         _variantId = product.variants?.first.id;
         // Название товара
@@ -123,7 +135,8 @@ class _ShopProductDetailScreenState extends State<ShopProductDetailScreen> {
             Divider(color: ThemeColors.grey2),
             _buildProductDescription(),
             const SizedBox(height: 20),
-            _buildProductCharacteristics(),
+            _buildProductCharacteristics(
+                _variants_kod ?? "", _manufacturers_name ?? ""),
           ],
         ),
       ),
@@ -216,32 +229,76 @@ class _ShopProductDetailScreenState extends State<ShopProductDetailScreen> {
   }
 
   Widget _buildProductPrice() {
-    return Row(
-      // mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      crossAxisAlignment: CrossAxisAlignment.center,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          _productPrice != null
-              ? "${_formatPrice(_productPrice! / 100)} ₸"
-              : "Цена отсутствует",
-          style: ThemeTextMontserratBold.size21.copyWith(
-            fontSize: 18,
-            color: ThemeColors.grey5,
-          ),
-        ),
-        TextButton(
-          onPressed: () {
-            _showPriceEditDialog(widget.productId, _variantId!);
-            // Открываем диалог для редактирования цены
-          },
-          child: Text(
-            "Изменить цену",
-            style: TextStyle(
-              fontSize: 14,
-              color: ThemeColors.orange, // Цвет текста кнопки
-              fontWeight: FontWeight.bold,
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Text(
+              _productPrice != null
+                  ? "${_formatPrice(_productPrice! / 100)} ₸"
+                  : "Цена отсутствует",
+              style: ThemeTextMontserratBold.size21.copyWith(
+                fontSize: 18,
+                color: ThemeColors.grey5,
+              ),
             ),
-          ),
+            TextButton(
+              onPressed: () {
+                _showPriceEditDialog(widget.productId, _variantId!);
+                // Открываем диалог для редактирования цены
+              },
+              child: Text(
+                "Изменить цену",
+                style: TextStyle(
+                  fontSize: 14,
+                  color: ThemeColors.orange, // Цвет текста кнопки
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            SizedBox(
+              width: 30,
+            ),
+            Text(
+              'Артикул: $_articul',
+              style: ThemeTextMontserratBold.size21.copyWith(
+                  fontSize: 12,
+                  color: ThemeColors.black,
+                  fontWeight: FontWeight.w400),
+            ),
+          ],
+        ),
+        Row(
+          children: [
+            GestureDetector(
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                width: 105, // Фиксированная ширина
+                height: 25, // Фиксированная высота
+                decoration: BoxDecoration(
+                  color: ThemeColors.orange,
+                  borderRadius: BorderRadius.circular(5), // Квадратный вид
+                  border: Border.all(color: ThemeColors.orange),
+                ),
+                child: Center(
+                  child: Text(
+                    _variant_kind == 'original'
+                        ? 'Оригинал'
+                        : _variant_kind == 'sub_original'
+                            ? 'Под оригинал'
+                            : _variant_kind ?? '',
+                    style: ThemeTextInterRegular.size11.copyWith(
+                      color: ThemeColors.black,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
       ],
     );
@@ -360,7 +417,20 @@ class _ShopProductDetailScreenState extends State<ShopProductDetailScreen> {
     );
   }
 
-  Widget _buildProductCharacteristics() {
+  Widget _buildProductCharacteristics(String productCode, String brandName) {
+    // Добавление Код товара и Название бренда в начале списка
+    final updatedCharacteristics = [
+      {
+        "title": "Код товара",
+        "value": productCode.isNotEmpty ? productCode : "Не указан",
+      },
+      {
+        "title": "Название бренда",
+        "value": brandName.isNotEmpty ? brandName : "Не указан",
+      },
+      ..._productCharacteristics, // Остальные характеристики
+    ];
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -375,7 +445,7 @@ class _ShopProductDetailScreenState extends State<ShopProductDetailScreen> {
           physics: const NeverScrollableScrollPhysics(),
           shrinkWrap: true,
           itemBuilder: (context, index) {
-            final characteristic = _productCharacteristics[index];
+            final characteristic = updatedCharacteristics[index];
             return Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -397,7 +467,7 @@ class _ShopProductDetailScreenState extends State<ShopProductDetailScreen> {
             );
           },
           separatorBuilder: (context, index) => const SizedBox(height: 5),
-          itemCount: _productCharacteristics.length,
+          itemCount: updatedCharacteristics.length,
         ),
       ],
     );
@@ -507,12 +577,12 @@ class _ShopProductDetailScreenState extends State<ShopProductDetailScreen> {
       await statusChangeService.updateProductStatus(
         context: context,
         id: widget.productId, // ID продукта
-        status: 'awaiting_approval', // Новый статус
+        status: 'active', // Новый статус
       );
 
       // Обновляем статус локально
       setState(() {
-        _status = 'awaiting_approval';
+        _status = 'active';
       });
 
       // Логика после успешного обновления

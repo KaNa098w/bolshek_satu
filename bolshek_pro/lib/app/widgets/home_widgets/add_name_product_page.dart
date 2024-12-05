@@ -47,7 +47,7 @@ class _ProductNameInputPageState extends State<ProductNameInputPage> {
             children: [
               Container(
                 decoration: BoxDecoration(
-                  color: ThemeColors.grey2,
+                  color: Colors.grey.shade200,
                   borderRadius: BorderRadius.circular(12),
                   // boxShadow: [
                   //   BoxShadow(

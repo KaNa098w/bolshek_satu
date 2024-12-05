@@ -44,8 +44,8 @@ class _InfoTabState extends State<InfoTab> with AutomaticKeepAliveClientMixin {
   Map<String, Map<String, String>> propertyValuesCache = {};
   String selectedBrand = 'Выберите бренд';
   final BrandsService _brandsService = BrandsService();
-  List<Items> brands = [];
-  List<Items> filteredBrands = [];
+  List<BrandItems> brands = [];
+  List<BrandItems> filteredBrands = [];
   bool isLoading = true;
   String selectedCategory = 'Выберите категорию';
   final CategoriesService _categoriesService = CategoriesService();

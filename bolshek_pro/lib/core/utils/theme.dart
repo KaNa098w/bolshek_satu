@@ -23,12 +23,13 @@ class ThemeColors {
   static const orange = Color(0xFFFBBE45);
   static Color? grey2 = Colors.grey[300];
   static Color grey = Colors.grey;
+  static Color? grey1 = Color.fromARGB(255, 146, 146, 146);
   static Color white = Colors.white;
   static const transparent = Color(0x00000000);
   static const grey3 = Color(0xFFBDBDBD);
   static const grey4 = Color(0xFFd9d9d9);
   static const grey5 = Color(0xFF4F4F4F);
-  static const grey6 = Color(0xFF9A9DA4);
+  static const blue = Colors.blue;
   static const grey7 = Color(0xFFE7E7E9);
   static const grey8 = Color(0xFF888B93);
   static const grey9 = Color(0xFFE8E7E7);

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:bolshek_pro/core/utils/theme.dart';
 
-class CustomInputField extends StatefulWidget {
+class CustomInputField extends StatelessWidget {
   final String title;
   final String value;
   final ValueChanged<String> onChanged;
@@ -15,77 +16,39 @@ class CustomInputField extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _CustomInputFieldState createState() => _CustomInputFieldState();
-}
-
-class _CustomInputFieldState extends State<CustomInputField> {
-  late TextEditingController _controller;
-  late FocusNode _focusNode;
-  late String initialText;
-
-  @override
-  void initState() {
-    super.initState();
-    initialText = widget.value;
-    _controller = TextEditingController(text: widget.value);
-    _focusNode = FocusNode();
-
-    // Обработка событий фокуса
-    _focusNode.addListener(() {
-      if (_focusNode.hasFocus) {
-        // Очищаем текст при фокусе
-        if (_controller.text == initialText) {
-          _controller.clear();
-        }
-      } else {
-        // Если ничего не введено, восстанавливаем текст
-        if (_controller.text.isEmpty) {
-          _controller.text = initialText;
-        }
-      }
-    });
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    _focusNode.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          widget.title,
-          style: const TextStyle(
-            fontSize: 14,
-            color: Colors.grey,
-          ),
-        ),
-        const SizedBox(height: 4),
-        TextField(
-          controller: _controller,
-          focusNode: _focusNode,
-          onChanged: widget.onChanged,
-          decoration: InputDecoration(
-            hintText: widget.hint,
-            contentPadding: const EdgeInsets.symmetric(
-              vertical: 10,
-              horizontal: 12,
-            ),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(10),
+        color: Colors.grey.shade100,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: TextStyle(
+              fontSize: 12,
+              color: ThemeColors.grey1,
             ),
           ),
-          style: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w500,
+          // const SizedBox(height: 2),
+          TextField(
+            controller: TextEditingController(text: value),
+            onChanged: onChanged,
+            decoration: InputDecoration(
+              hintText: hint,
+              hintStyle: const TextStyle(color: Colors.grey),
+              border: InputBorder.none, // Убираем стандартную границу
+            ),
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

@@ -1,14 +1,14 @@
 class ManufacturersResponse {
-  List<Items>? items;
+  List<ManufacturersItems>? items;
   int? total;
 
   ManufacturersResponse({this.items, this.total});
 
   ManufacturersResponse.fromJson(Map<String, dynamic> json) {
     if (json['items'] != null) {
-      items = <Items>[];
+      items = <ManufacturersItems>[];
       json['items'].forEach((v) {
-        items!.add(new Items.fromJson(v));
+        items!.add(new ManufacturersItems.fromJson(v));
       });
     }
     total = json['total'];
@@ -24,7 +24,7 @@ class ManufacturersResponse {
   }
 }
 
-class Items {
+class ManufacturersItems {
   String? id;
   String? createdAt;
   String? updatedAt;
@@ -34,7 +34,7 @@ class Items {
   String? organizationId;
   String? name;
 
-  Items(
+  ManufacturersItems(
       {this.id,
       this.createdAt,
       this.updatedAt,
@@ -44,7 +44,7 @@ class Items {
       this.organizationId,
       this.name});
 
-  Items.fromJson(Map<String, dynamic> json) {
+  ManufacturersItems.fromJson(Map<String, dynamic> json) {
     id = json['id'];
     createdAt = json['createdAt'];
     updatedAt = json['updatedAt'];

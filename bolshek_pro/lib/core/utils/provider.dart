@@ -7,7 +7,7 @@ class GlobalProvider extends ChangeNotifier {
   String? _selectedCategoryId;
   String? _name;
   String? _brandId;
-  String _status = 'awaiting_approval';
+  String? _status;
   String _deliveryType = 'standard';
   String _vendorCode = '';
   String? _descriptionText;
@@ -28,7 +28,7 @@ class GlobalProvider extends ChangeNotifier {
   String? get selectedCategoryId => _selectedCategoryId;
   String? get name => _name;
   String? get brandId => _brandId;
-  String get status => _status;
+  String? get status => _status;
   String get deliveryType => _deliveryType;
   String get vendorCode => _vendorCode;
   String? get descriptionText => _descriptionText;
@@ -175,4 +175,6 @@ class GlobalProvider extends ChangeNotifier {
       notifyListeners();
     }
   }
+
+  static of(BuildContext context, {required bool listen}) {}
 }

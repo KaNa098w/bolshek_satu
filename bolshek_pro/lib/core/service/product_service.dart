@@ -52,6 +52,30 @@ class ProductService {
     }
   }
 
+  Future<ProductResponse> fetchProductsStatuses({
+    required BuildContext context,
+  }) async {
+    try {
+      final token = _getToken(context);
+      final response = await http.get(
+        Uri.parse('$_baseUrl?statuses=created&statuses=updated'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final json = jsonDecode(response.body);
+        return ProductResponse.fromJson(json);
+      } else {
+        throw Exception('Failed to load products: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Error fetching products: $e');
+    }
+  }
+
   Future<FetchProductResponse> fetchProduct({
     required BuildContext context,
     required String id,
@@ -96,7 +120,6 @@ class ProductService {
     String name,
     String slug,
     String brandId,
-    String status,
     String deliveryType,
     String categoryId,
     String vendorCode,
@@ -108,7 +131,6 @@ class ProductService {
         "name": name,
         "slug": slug,
         "brandId": brandId,
-        "status": status,
         "deliveryType": deliveryType,
         "categoryId": categoryId,
         "compatibleVehicleIds": [],
@@ -148,6 +170,34 @@ class ProductService {
     } catch (e) {
       print('Error creating product: $e');
       throw Exception('Error creating product: $e');
+    }
+  }
+
+  Future<http.Response> updateProduct({
+    required BuildContext context,
+    required String id,
+    required Map<String, dynamic> updatedFields,
+  }) async {
+    try {
+      final token = _getToken(context);
+
+      final response = await httpClient.put(
+        Uri.parse('$_baseUrl/$id'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode(updatedFields),
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 204) {
+        return response;
+      } else {
+        throw Exception(
+            'Failed to update product: ${response.statusCode}, ${response.body}');
+      }
+    } catch (e) {
+      throw Exception('Error updating product: $e');
     }
   }
 

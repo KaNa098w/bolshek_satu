@@ -368,34 +368,35 @@ class Property {
   String? createdAt;
   String? name;
   String? type;
-  Null? unit;
+  String? unit; // Изменено с Null? на String?
   String? categoryId;
 
-  Property(
-      {this.id,
-      this.createdAt,
-      this.name,
-      this.type,
-      this.unit,
-      this.categoryId});
+  Property({
+    this.id,
+    this.createdAt,
+    this.name,
+    this.type,
+    this.unit,
+    this.categoryId,
+  });
 
   Property.fromJson(Map<String, dynamic> json) {
     id = json['id'];
     createdAt = json['createdAt'];
     name = json['name'];
     type = json['type'];
-    unit = json['unit'];
+    unit = json['unit']; // Парсинг строки
     categoryId = json['categoryId'];
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['id'] = this.id;
-    data['createdAt'] = this.createdAt;
-    data['name'] = this.name;
-    data['type'] = this.type;
-    data['unit'] = this.unit;
-    data['categoryId'] = this.categoryId;
+    final Map<String, dynamic> data = Map<String, dynamic>();
+    data['id'] = id;
+    data['createdAt'] = createdAt;
+    data['name'] = name;
+    data['type'] = type;
+    data['unit'] = unit;
+    data['categoryId'] = categoryId;
     return data;
   }
 }

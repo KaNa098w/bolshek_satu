@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:bolshek_pro/core/models/brands_response.dart';
 
 class BrandModal extends StatelessWidget {
-  final List<Items> brands;
+  final List<BrandItems> brands;
   final Function(String) onBrandSelected;
 
   const BrandModal({

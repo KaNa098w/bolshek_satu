@@ -50,9 +50,9 @@ class CustomDropdownField extends StatelessWidget {
                 children: [
                   Text(
                     title,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 12,
-                      color: Colors.grey,
+                      color: ThemeColors.grey1,
                     ),
                   ),
                   const SizedBox(height: 4),

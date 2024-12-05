@@ -1,3 +1,4 @@
+import 'package:bolshek_pro/app/widgets/loading_widget.dart';
 import 'package:bolshek_pro/app/widgets/product_detail_widget.dart';
 import 'package:bolshek_pro/app/pages/product/product_detail_screen.dart';
 import 'package:bolshek_pro/core/models/product_response.dart';
@@ -52,11 +53,9 @@ class _Discontinued extends State<Discontinued> {
     });
 
     try {
-      final response = await _productService.fetchProductsPaginated(
-          context: context,
-          take: _take,
-          skip: _skip,
-          status: 'awaiting_approval');
+      final response = await _productService.fetchProductsStatuses(
+        context: context,
+      );
 
       if (!mounted) return; // Проверяем, что виджет всё ещё смонтирован
       setState(() {
@@ -85,27 +84,53 @@ class _Discontinued extends State<Discontinued> {
       body: Column(
         children: [
           Expanded(
-            child: ListView.builder(
-              controller: _scrollController, // Привязываем контроллер
-              itemCount: _products.length + (_hasMore ? 1 : 0),
-              itemBuilder: (context, index) {
-                if (index == _products.length) {
-                  return const Center(child: CircularProgressIndicator());
-                }
+            child: Stack(
+              children: [
+                // Основной список продуктов
+                ListView.builder(
+                  controller: _scrollController, // Привязываем контроллер
+                  itemCount: _products.length + (_hasMore ? 1 : 0),
+                  itemBuilder: (context, index) {
+                    if (index == _products.length) {
+                      // Загрузчик внизу списка
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 16.0, horizontal: 10),
+                        child: Center(
+                          child: Column(
+                            children: List.generate(
+                              3, // Количество повторений
+                              (index) => const Padding(
+                                padding: EdgeInsets.only(
+                                    bottom: 10), // Отступ между строками
+                                child: LoadingWidget(
+                                  width: 380, // Занимает всю ширину строки
+                                  height: 75, // Высота строки товара
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      );
+                    }
 
-                final product = _products[index];
-                return _buildProductItem(
-                  name: product.name ?? 'Без названия',
-                  price: product.variants != null &&
-                          product.variants!.isNotEmpty
-                      ? '${(product.variants!.first.price?.amount ?? 0) / 100} ₸'
-                      : 'Цена не указана',
-                  image: product.images?.isNotEmpty == true
-                      ? product.images!.first
-                      : null,
-                  productId: product.id ?? '', // Передаем productId
-                );
-              },
+                    final product = _products[index];
+                    return _buildProductItem(
+                      name: product.name ?? 'Без названия',
+                      price: product.variants != null &&
+                              product.variants!.isNotEmpty
+                          ? '${(product.variants!.first.price?.amount ?? 0) / 100} ₸'
+                          : 'Цена не указана',
+                      image: product.images?.isNotEmpty == true
+                          ? product.images!.first
+                          : null,
+                      productId: product.id ?? '', // Передаем productId
+                    );
+                  },
+                ),
+
+                // Центральный загрузчик, если идет начальная загрузка
+              ],
             ),
           ),
           Padding(

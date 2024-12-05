@@ -1,8 +1,10 @@
 import 'package:bolshek_pro/app/pages/home/home_page.dart';
+import 'package:bolshek_pro/app/pages/my_organization/my_organiztion_page.dart';
 import 'package:bolshek_pro/app/pages/orders/orders_page.dart';
 import 'package:bolshek_pro/app/pages/product/product_page.dart';
 import 'package:bolshek_pro/app/pages/settings/settings_page.dart';
 import 'package:bolshek_pro/core/service/auth_service.dart';
+import 'package:bolshek_pro/core/utils/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
@@ -61,11 +63,39 @@ class _MainControllerNavigatorState extends State<MainControllerNavigator> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
+        // backgroundColor: ThemeColors.orange,
         title: Text(
           organizationName ?? '',
-          style: TextStyle(fontSize: 21, fontWeight: FontWeight.bold),
+          style: TextStyle(
+              fontSize: 21,
+              fontWeight: FontWeight.bold,
+              color: ThemeColors.blackWithPath),
         ),
         centerTitle: false,
+        actions: [
+          IconButton(
+            icon: Icon(
+              Icons.business_rounded, // Иконка профиля
+              size: 30,
+              color: ThemeColors.grey5, // Цвет иконки
+            ),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => MyOrganizationPage(
+                      // organizationName: "Tech Corp", // Пример данных
+                      // organizationType: "Головная",
+                      // isActive: true,
+                      // creationDate: "01.12.2023",
+                      // city: "Алматы",
+                      // address: "ул. Абая, д. 123, офис 456",
+                      ),
+                ),
+              );
+            },
+          ),
+        ],
       ),
       body: IndexedStack(
         index: _currentIndex, // Показываем выбранную страницу

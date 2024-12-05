@@ -4,10 +4,14 @@ import 'package:bolshek_pro/core/models/variants_response.dart';
 import 'package:bolshek_pro/core/utils/constants.dart';
 import 'package:bolshek_pro/core/utils/provider.dart';
 import 'package:http/http.dart' as http;
+import 'package:pretty_http_logger/pretty_http_logger.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 
 class VariantsService {
+  final httpClient = HttpWithMiddleware.build(
+    middlewares: [HttpLogger(logLevel: LogLevel.BODY)], // Добавление логгера
+  );
   final String _baseUrl = '${Constants.baseUrl}/products';
 
   /// Fetch products with pagination
@@ -17,7 +21,7 @@ class VariantsService {
   }) async {
     try {
       final token = _getToken(context);
-      final response = await http.get(
+      final response = await httpClient.get(
         Uri.parse('$_baseUrl/$productId/variants'),
         headers: {
           'Authorization': 'Bearer $token',
@@ -66,7 +70,7 @@ class VariantsService {
       print(
           'Creating product variant with data: ${jsonEncode(body)}'); // Логируем тело запроса
 
-      final response = await http.post(
+      final response = await httpClient.post(
         Uri.parse('$_baseUrl/$productId/variants'),
         headers: {
           'Authorization': 'Bearer $token',
@@ -116,7 +120,7 @@ class VariantsService {
       print(
           'Updating product variant with data: ${jsonEncode(body)}'); // Логируем тело запроса
 
-      final response = await http.put(
+      final response = await httpClient.put(
         Uri.parse('$_baseUrl/$productId/variants/$variantId'),
         headers: {
           'Authorization': 'Bearer $token',

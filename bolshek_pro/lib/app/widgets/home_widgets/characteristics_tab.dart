@@ -1,10 +1,13 @@
 import 'dart:convert';
+import 'package:bolshek_pro/app/widgets/custom_dropdown_field.dart';
+import 'package:bolshek_pro/app/widgets/editable_dropdown_field.dart';
 import 'package:bolshek_pro/app/widgets/home_widgets/add_variant_widget.dart';
 import 'package:bolshek_pro/app/widgets/main_controller.dart';
 import 'package:bolshek_pro/core/service/images_service.dart';
 import 'package:bolshek_pro/core/service/product_service.dart';
 import 'package:bolshek_pro/core/service/variants_service.dart';
 import 'package:bolshek_pro/core/utils/provider.dart';
+import 'package:bolshek_pro/core/utils/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:bolshek_pro/core/models/properties_response.dart';
@@ -93,7 +96,6 @@ class _CharacteristicsTabState extends State<CharacteristicsTab>
       final productName = authProvider.name ?? 'Не указано';
       final brandId = authProvider.brandId ?? '';
       final categoryId = authProvider.selectedCategoryId ?? '';
-      final status = authProvider.status;
       final deliveryType = authProvider.deliveryType;
       final vendorCode = authProvider.vendorCode;
       final descriptionText = authProvider.descriptionText;
@@ -104,7 +106,6 @@ class _CharacteristicsTabState extends State<CharacteristicsTab>
           productName,
           productName.toLowerCase().replaceAll(' ', '-'), // slug
           brandId,
-          status,
           deliveryType,
           categoryId,
           vendorCode,
@@ -229,7 +230,7 @@ class _CharacteristicsTabState extends State<CharacteristicsTab>
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        CustomInputField(
+                        EditableDropdownField(
                           title: property.unit == null
                               ? '${property.name}'
                               : '${property.name} (${property.unit})',
