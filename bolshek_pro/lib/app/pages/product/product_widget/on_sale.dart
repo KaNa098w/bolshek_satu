@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:bolshek_pro/app/pages/product/product_detail_screen.dart';
+import 'package:bolshek_pro/app/widgets/loading_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:bolshek_pro/core/models/product_response.dart';
 import 'package:bolshek_pro/core/service/product_service.dart';
@@ -79,38 +80,87 @@ class _OnSaleState extends State<OnSale> {
     }
   }
 
+  Future<void> _refreshProducts() async {
+    setState(() {
+      _products.clear(); // Очищаем текущий список
+      _skip = 0; // Сбрасываем позицию для пагинации
+      _hasMore = true; // Сбрасываем индикатор наличия данных
+    });
+    await _fetchProducts(); // Загружаем данные заново
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: ThemeColors.white,
+      backgroundColor: ThemeColors.greyF,
       body: Column(
         children: [
           Expanded(
-            child: ListView.builder(
-              controller: _scrollController,
-              itemCount: _products.length + (_hasMore ? 1 : 0),
-              itemBuilder: (context, index) {
-                if (index == _products.length) {
-                  return const Center(child: CircularProgressIndicator());
-                }
+            child: Stack(
+              children: [
+                // Оборачиваем ListView в RefreshIndicator
+                RefreshIndicator(
+                  color: ThemeColors.orange,
+                  onRefresh: _refreshProducts, // Метод обновления данных
+                  child: ListView.builder(
+                    controller: _scrollController, // Привязываем контроллер
+                    itemCount: _products.length + (_hasMore ? 1 : 0),
+                    itemBuilder: (context, index) {
+                      if (index == _products.length) {
+                        // Загрузчик внизу списка
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 16.0, horizontal: 10),
+                          child: Center(
+                            child: Column(
+                              children: List.generate(
+                                6, // Количество повторений
+                                (index) => Padding(
+                                  padding: const EdgeInsets.only(
+                                      bottom: 10), // Отступ между строками
+                                  child: Row(
+                                    children: [
+                                      // Левая часть загрузочного индикатора
+                                      LoadingWidget(
+                                        width: 80, // Меньшая ширина
+                                        height: 70, // Высота строки товара
+                                      ),
+                                      const SizedBox(
+                                          width: 10), // Отступ между частями
+                                      // Правая часть загрузочного индикатора
+                                      LoadingWidget(
+                                        width: 280, // Большая ширина
+                                        height: 70, // Высота строки товара
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        );
+                      }
 
-                final product = _products[index];
-                return _buildProductItem(
-                  name: product.name ?? 'Без названия',
-                  price: product.variants != null &&
-                          product.variants!.isNotEmpty
-                      ? '${(product.variants!.first.price?.amount ?? 0) / 100} ₸'
-                      : 'Цена не указана',
-                  image: product.images?.isNotEmpty == true
-                      ? product.images!.first
-                      : null,
-                  productId: product.id ?? '', // Передаем идентификатор товара
-                );
-              },
+                      final product = _products[index];
+                      return _buildProductItem(
+                        name: product.name ?? 'Без названия',
+                        price: product.variants != null &&
+                                product.variants!.isNotEmpty
+                            ? '${(product.variants!.first.price?.amount ?? 0) / 100} ₸'
+                            : 'Цена не указана',
+                        image: product.images?.isNotEmpty == true
+                            ? product.images!.first
+                            : null,
+                        productId: product.id ?? '', // Передаем productId
+                      );
+                    },
+                  ),
+                ),
+              ],
             ),
           ),
           Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.only(bottom: 8.0, top: 5),
             child: CustomButton(
               text: 'Добавить новый товар',
               onPressed: () {
@@ -136,38 +186,61 @@ class _OnSaleState extends State<OnSale> {
   }) {
     final imageUrl = image?.getBestFitImage() ?? '';
 
-    return ListTile(
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-      leading: Container(
-        width: 80,
-        height: 80,
-        color: Colors.white,
-        child: imageUrl.isEmpty
-            ? const Icon(Icons.image, size: 40, color: Colors.grey)
-            : Image.network(imageUrl, fit: BoxFit.contain),
-      ),
-      title: Text(
-        name,
-        style: const TextStyle(fontWeight: FontWeight.w400, fontSize: 14),
-      ),
-      subtitle: Padding(
-        padding: const EdgeInsets.only(top: 10),
-        child: Text(
-          price,
-          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white, // Белый фон
+          borderRadius: BorderRadius.circular(12), // Слегка овальные края
+          // boxShadow: [
+          //   BoxShadow(
+          //     color: Colors.black.withOpacity(0.1),
+          //     blurRadius: 6,
+          //     offset: const Offset(0, 3), // Слегка приподнятая тень
+          //   ),
+          // ],
         ),
-      ),
-      trailing: const Icon(Icons.more_vert),
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => ShopProductDetailScreen(
-              productId: productId, // Передаем идентификатор товара
+        child: ListTile(
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 12, vertical: 1),
+          leading: Container(
+            width: 80,
+            height: 80,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius:
+                  BorderRadius.circular(8), // Овальные края для изображения
+            ),
+            child: imageUrl.isEmpty
+                ? const Icon(Icons.image, size: 40, color: Colors.grey)
+                : ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: Image.network(imageUrl, fit: BoxFit.contain),
+                  ),
+          ),
+          title: Text(
+            name,
+            style: const TextStyle(fontWeight: FontWeight.w400, fontSize: 14),
+          ),
+          subtitle: Padding(
+            padding: const EdgeInsets.only(top: 10),
+            child: Text(
+              price,
+              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
             ),
           ),
-        );
-      },
+          trailing: const Icon(Icons.more_vert),
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ShopProductDetailScreen(
+                    productId: productId), // Передаем productId
+              ),
+            );
+          },
+        ),
+      ),
     );
   }
 }

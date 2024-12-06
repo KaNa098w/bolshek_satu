@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:bolshek_pro/app/widgets/animation_rotation_widget.dart';
 import 'package:bolshek_pro/app/widgets/editable_dropdown_field.dart';
 import 'package:bolshek_pro/core/models/category_response.dart' as category;
 import 'package:bolshek_pro/app/widgets/custom_button.dart';
@@ -12,6 +13,7 @@ import 'package:bolshek_pro/core/service/category_service.dart';
 import 'package:bolshek_pro/core/service/images_service.dart';
 import 'package:bolshek_pro/core/service/maufacturers_service.dart';
 import 'package:bolshek_pro/core/service/properties_service.dart';
+import 'package:bolshek_pro/core/service/variants_service.dart';
 import 'package:bolshek_pro/core/utils/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:bolshek_pro/core/service/product_service.dart';
@@ -60,6 +62,8 @@ class _ProductChangePageState extends State<ProductChangePage> {
   String selectedType = 'Оригинал';
   Map<String, String> _propertyValues = {};
   ValueNotifier<List<PropertyItems>> propertiesNotifier = ValueNotifier([]);
+  List<XFile> _newImages = []; // Новые изображения, добавленные пользователем
+  List<String> _deletedImages = []; // URL удалённых изображений
 
   final CategoriesService _categoriesService = CategoriesService();
   bool isLoadingCategories = true;
@@ -392,6 +396,12 @@ class _ProductChangePageState extends State<ProductChangePage> {
       return;
     }
 
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => const UpdatingAnimationPage(),
+      ),
+    );
+
     // Получаем изменённые поля для обновления товара
     final updatedFields = _getUpdatedFields();
 
@@ -399,7 +409,7 @@ class _ProductChangePageState extends State<ProductChangePage> {
     final updatedProperties = _propertyValues.entries.where((entry) {
       // Ищем существующее свойство по ID
       final existingProperty = _product?.properties?.firstWhereOrNull(
-        (property) => property.id == entry.key, // Используем properties.id
+        (id) => id == entry.key, // Используем properties.id
       );
 
       // Если свойства нет или значение изменилось
@@ -412,27 +422,120 @@ class _ProductChangePageState extends State<ProductChangePage> {
       };
     }).toList();
 
-    if (updatedFields.isEmpty && updatedProperties.isEmpty) {
+    final bool hasImageChanges =
+        _newImages.isNotEmpty || _deletedImages.isNotEmpty;
+
+    // Проверяем изменения в вариантах (производитель и SKU)
+    final currentVariant = _product?.variants?.first;
+    final updatedManufacturerId = _selectedManufacturer?.id ??
+        currentVariant?.manufacturerId; // Новый ID производителя
+    final updatedSku = _product?.variants?.first.sku; // Новый SKU
+
+    final hasVariantChanges = currentVariant != null &&
+        (updatedManufacturerId != currentVariant.manufacturerId ||
+            updatedSku != currentVariant.sku);
+
+    // Если нет изменений, выводим сообщение
+    if (updatedFields.isEmpty &&
+        updatedProperties.isEmpty &&
+        !hasImageChanges &&
+        !hasVariantChanges) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Нет изменений для сохранения')),
       );
+      Navigator.pop(context); // Закрываем экран загрузки
       return;
     }
 
     try {
-      // Обновляем свойства
-      final propertiesService = PropertiesService();
-      for (final updatedProperty in updatedProperties) {
-        final propertyId = updatedProperty['id']; // Это `properties.id`
-        final newValue = updatedProperty['value']; // Новое значение
+      // Загружаем новые фотографии
+      for (final newImage in _newImages) {
+        final file = File(newImage.path);
+        final bytes = await file.readAsBytes();
+        final base64Image = base64Encode(bytes);
 
-        // Обновляем свойство через сервис
-        await propertiesService.updateProductProperty(
+        await _imagesService.createProductImage(
           context,
           productId: widget.productId,
-          propertiesId: _product?.properties?.first.id ??
-              '', // Изменено на `propertiesId`
-          value: newValue ?? '',
+          imageSize: bytes.lengthInBytes.toDouble(),
+          imageData: base64Image,
+          imageName: newImage.name,
+        );
+      }
+
+      // Удаляем фотографии
+      for (final imageUrl in _deletedImages) {
+        final images = await _imagesService.fetchProductImages(
+          context,
+          productId: widget.productId,
+        );
+
+        final imageHash = images
+            .firstWhere(
+              (image) => image.url == imageUrl,
+              orElse: () => throw Exception('Image hash not found for URL'),
+            )
+            .hash;
+
+        if (imageHash != null) {
+          await _imagesService.deleteProductImage(
+            context,
+            productId: widget.productId,
+            imageHash: imageHash,
+          );
+        }
+      }
+
+      // Очистка локальных списков
+      setState(() {
+        _newImages.clear();
+        _deletedImages.clear();
+      });
+
+      // Обновляем свойства
+      if (updatedProperties.isNotEmpty) {
+        final propertiesService = PropertiesService();
+
+        for (final updatedProperty in updatedProperties) {
+          // Получаем ID свойства (properties.id) из updatedProperty
+          final propertyId =
+              updatedProperty['id']; // Это ID свойства property.id
+
+          // Ищем соответствующий объект в _product?.properties
+          final propertiesItem = _product?.properties?.firstWhere(
+            (property) =>
+                property.property?.id == propertyId, // Сравнение по property.id
+          );
+
+          if (propertiesItem != null) {
+            // Если объект найден, получаем его `properties.id` (ID свойства на уровне объекта)
+            final propertiesId =
+                propertiesItem.id; // Берём ID из объекта `properties`
+            final newValue = updatedProperty['value']; // Новое значение
+
+            // Обновляем свойство через сервис
+            await propertiesService.updateProductProperty(
+              context,
+              productId: widget.productId,
+              propertiesId: propertiesId ?? '',
+              value: newValue ?? '',
+            );
+          } else {
+            print('Свойство с property.id $propertyId не найдено.');
+          }
+        }
+      }
+
+      // Обновляем variant, если есть изменения
+      if (hasVariantChanges && currentVariant != null) {
+        final variantsService = VariantsService();
+        await variantsService.updateProductVariant(
+          context,
+          productId: widget.productId,
+          variantId: currentVariant.id ?? '',
+          newAmount: (currentVariant.price?.amount ?? 0).toDouble(),
+          manufacturerId: updatedManufacturerId,
+          sku: updatedSku,
         );
       }
 
@@ -445,54 +548,84 @@ class _ProductChangePageState extends State<ProductChangePage> {
         );
 
         if (response.statusCode == 200 || response.statusCode == 204) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Товар успешно обновлён')),
-          );
           Navigator.pop(context, true);
+          _showSuccessDialog();
         } else {
           throw Exception('Ошибка обновления товара: ${response.body}');
         }
       }
 
-      // Перезагружаем данные товара
       await _fetchProduct();
+      Navigator.pop(context); // Гарантированно закрываем страницу
     } catch (e) {
+      Navigator.pop(context); // Закрываем страницу при ошибке
       _showError('Ошибка при обновлении товара: $e');
     }
+  }
+
+  void _showSuccessDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false, // Диалог нельзя закрыть кликом вне окна
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(
+                Icons.check_circle,
+                color: Colors.green,
+                size: 55,
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                'Товар успешно обновлён!',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context); // Закрываем диалог
+                  Navigator.pop(
+                      context, true); // Возвращаемся на предыдущую страницу
+                },
+                style: ElevatedButton.styleFrom(
+                  foregroundColor: Colors.white,
+                  backgroundColor: ThemeColors.orange, // Цвет текста кнопки
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 32,
+                    vertical: 12,
+                  ), // Внутренние отступы
+                  shape: RoundedRectangleBorder(
+                    borderRadius:
+                        BorderRadius.circular(12), // Закруглённые края кнопки
+                  ),
+                ),
+                child: const Text(
+                  'Показать товар',
+                  style: TextStyle(
+                    fontSize: 12, // Размер шрифта
+                    fontWeight: FontWeight.bold, // Толщина шрифта
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   Future<void> _addImage() async {
     final pickedFile =
         await _imagePicker.pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
-      try {
-        // Показываем загрузчик
-        _showLoadingDialog('Добавление изображения...');
-
-        final file = File(pickedFile.path);
-        final bytes = await file.readAsBytes();
-        final base64Image = base64Encode(bytes);
-
-        await _imagesService.createProductImage(
-          context,
-          productId: widget.productId,
-          imageSize: bytes.lengthInBytes.toDouble(),
-          imageData: base64Image,
-          imageName: pickedFile.name ?? 'new_image',
-        );
-
-        // Обновляем данные
-        await _fetchProduct();
-
-        // Закрываем загрузчик
-        Navigator.of(context).pop();
-
-        // Показываем уведомление об успехе
-        _showSnackBar('Изображение успешно добавлено');
-      } catch (e) {
-        Navigator.of(context).pop(); // Закрываем загрузчик
-        _showError('Ошибка при добавлении изображения: $e');
-      }
+      setState(() {
+        _newImages.add(pickedFile); // Сохраняем файл локально
+      });
     }
   }
 
@@ -506,7 +639,9 @@ class _ProductChangePageState extends State<ProductChangePage> {
             padding: const EdgeInsets.all(16.0),
             child: Row(
               children: [
-                const CircularProgressIndicator(),
+                const CircularProgressIndicator(
+                  color: ThemeColors.grey4,
+                ),
                 const SizedBox(width: 16),
                 Expanded(child: Text(message)),
               ],
@@ -533,71 +668,18 @@ class _ProductChangePageState extends State<ProductChangePage> {
   }
 
   Future<void> _removeImage(int index) async {
-    final confirm = await showDialog<bool>(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('Подтвердить удаление'),
-          content:
-              const Text('Вы уверены, что хотите удалить это изображение?'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(false),
-              child: const Text('Отмена'),
-            ),
-            ElevatedButton(
-              onPressed: () => Navigator.of(context).pop(true),
-              child: const Text('Удалить'),
-            ),
-          ],
-        );
-      },
-    );
+    final imageToRemove = _product?.images?[index];
 
-    if (confirm == true) {
-      try {
-        // Показываем загрузчик
-        _showLoadingDialog('Удаление изображения...');
-
-        // Получаем hash изображения
-        final imageToRemove = _product?.images?[index];
-        if (imageToRemove == null || imageToRemove.url == null) {
-          throw Exception('Изображение не найдено');
-        }
-
-        final images = await _imagesService.fetchProductImages(
-          context,
-          productId: widget.productId,
-        );
-
-        final imageHash = images
-            .firstWhere(
-              (image) => image.url == imageToRemove.url,
-              orElse: () => throw Exception('Image hash not found for URL'),
-            )
-            .hash;
-
-        // Удаляем изображение
-        await _imagesService.deleteProductImage(
-          context,
-          productId: widget.productId,
-          imageHash: imageHash!,
-        );
-
-        // Убираем изображение из списка
-        setState(() {
-          _product?.images?.removeAt(index);
-        });
-
-        // Закрываем загрузчик
-        Navigator.of(context).pop();
-
-        // Показываем уведомление об успехе
-        _showSnackBar('Изображение успешно удалено');
-      } catch (e) {
-        Navigator.of(context).pop(); // Закрываем загрузчик
-        _showError('Ошибка при удалении изображения: $e');
-      }
+    if (imageToRemove != null) {
+      setState(() {
+        _deletedImages
+            .add(imageToRemove.url ?? ''); // Сохраняем URL для удаления
+        _product?.images?.removeAt(index); // Удаляем из локального списка
+      });
+    } else if (index < _newImages.length) {
+      setState(() {
+        _newImages.removeAt(index); // Удаляем из добавленных
+      });
     }
   }
 
@@ -998,7 +1080,10 @@ class _ProductChangePageState extends State<ProductChangePage> {
         title: const Text('Редактирование товара'),
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(
+              child: CircularProgressIndicator(
+              color: ThemeColors.grey4,
+            ))
           : _errorMessage != null
               ? Center(
                   child: Column(
@@ -1072,7 +1157,8 @@ class _ProductChangePageState extends State<ProductChangePage> {
               const SizedBox(height: 5),
               Row(
                 children: [
-                  ..._product!.images!.map((image) {
+                  // Отображение существующих изображений
+                  ...?_product?.images?.map((image) {
                     int index = _product!.images!.indexOf(image);
                     return Stack(
                       children: [
@@ -1083,10 +1169,7 @@ class _ProductChangePageState extends State<ProductChangePage> {
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(8),
                             image: DecorationImage(
-                              image: image.url!.startsWith('http')
-                                  ? NetworkImage(image.url!)
-                                  : FileImage(File(image.url!))
-                                      as ImageProvider,
+                              image: NetworkImage(image.url!),
                               fit: BoxFit.contain,
                             ),
                           ),
@@ -1096,23 +1179,47 @@ class _ProductChangePageState extends State<ProductChangePage> {
                           top: 0,
                           child: GestureDetector(
                             onTap: () => _removeImage(index),
-                            child: Container(
-                              decoration: const BoxDecoration(
-                                color: Colors.red,
-                                shape: BoxShape.circle,
-                              ),
-                              child: const Icon(
-                                Icons.close,
-                                color: Colors.white,
-                                size: 20,
-                              ),
-                            ),
+                            child: const Icon(Icons.close,
+                                color: Colors.red, size: 20),
                           ),
                         ),
                       ],
                     );
                   }).toList(),
-                  if (_product!.images!.length < 5)
+
+                  // Отображение новых изображений
+                  ..._newImages.map((newImage) {
+                    int index = _product?.images?.length ??
+                        0 + _newImages.indexOf(newImage);
+                    return Stack(
+                      children: [
+                        Container(
+                          margin: const EdgeInsets.only(right: 10),
+                          width: 80,
+                          height: 80,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(8),
+                            image: DecorationImage(
+                              image: FileImage(File(newImage.path)),
+                              fit: BoxFit.contain,
+                            ),
+                          ),
+                        ),
+                        Positioned(
+                          right: 8,
+                          top: 0,
+                          child: GestureDetector(
+                            onTap: () => _removeImage(index),
+                            child: const Icon(Icons.close,
+                                color: Colors.red, size: 20),
+                          ),
+                        ),
+                      ],
+                    );
+                  }).toList(),
+
+                  // Кнопка добавления изображения
+                  if ((_product?.images?.length ?? 0) + _newImages.length < 5)
                     GestureDetector(
                       onTap: _addImage,
                       child: Container(
@@ -1122,11 +1229,8 @@ class _ProductChangePageState extends State<ProductChangePage> {
                           border: Border.all(color: Colors.grey),
                           borderRadius: BorderRadius.circular(8),
                         ),
-                        child: const Icon(
-                          Icons.add_a_photo,
-                          size: 40,
-                          color: Colors.grey,
-                        ),
+                        child:
+                            const Icon(Icons.add_a_photo, color: Colors.grey),
                       ),
                     ),
                 ],
@@ -1180,17 +1284,20 @@ class _ProductChangePageState extends State<ProductChangePage> {
           const SizedBox(height: 10),
 
           // Цена
-          CustomDropdownField(
-            title: 'Цена',
-            value:
-                '${(_product!.variants!.first.price?.amount ?? 0) / 100} KZT',
-            onTap: () {},
-          ),
-          const SizedBox(height: 10),
+          // EditableDropdownField(
+          //   title: 'Цена',
+          //   value: '${(_product!.variants!.first.price?.amount ?? 0) / 100}',
+          //   onChanged: (newValue) {
+          //     setState(() {
+          //       _product?.vendorCode = newValue; // Обновляем код товара
+          //     });
+          //   },
+          // ),
+          // const SizedBox(height: 10),
 
           // Код товара
           EditableDropdownField(
-            title: 'Код товара',
+            title: 'Артикул товара',
             value: _product?.vendorCode ?? '',
             onChanged: (newValue) {
               setState(() {
@@ -1203,7 +1310,7 @@ class _ProductChangePageState extends State<ProductChangePage> {
 
           // Артикул товара
           EditableDropdownField(
-            title: 'Артикул товара',
+            title: 'Код товара',
             value: _product?.variants?.first.sku ?? '',
             onChanged: (newValue) {
               print("Новое значение: $newValue");

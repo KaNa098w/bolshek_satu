@@ -149,7 +149,7 @@ class ProductService {
 
       print('Creating product with data: ${jsonEncode(body)}');
 
-      final response = await http.post(
+      final response = await httpClient.post(
         Uri.parse(_baseUrl),
         headers: {
           'Authorization': 'Bearer $token',

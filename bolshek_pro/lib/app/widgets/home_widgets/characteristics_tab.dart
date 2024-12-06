@@ -77,6 +77,12 @@ class _CharacteristicsTabState extends State<CharacteristicsTab>
 
   void _createProduct() async {
     try {
+      final authProvider = context.read<GlobalProvider>();
+      print('descriptionText: ${authProvider.descriptionText}');
+      print('categoryId: ${authProvider.selectedCategoryId}');
+      print('brandId: ${authProvider.brandId}');
+      print('images: ${authProvider.images}');
+      print('_propertyValues: $_propertyValues');
       // Показать индикатор загрузки
       showDialog(
         context: context,
@@ -88,7 +94,6 @@ class _CharacteristicsTabState extends State<CharacteristicsTab>
         },
       );
 
-      final authProvider = context.read<GlobalProvider>();
       final imagesService = ImagesService();
       final propertiesService = PropertiesService();
 
@@ -98,7 +103,7 @@ class _CharacteristicsTabState extends State<CharacteristicsTab>
       final categoryId = authProvider.selectedCategoryId ?? '';
       final deliveryType = authProvider.deliveryType;
       final vendorCode = authProvider.vendorCode;
-      final descriptionText = authProvider.descriptionText;
+      final descriptionText = authProvider.descriptionText ?? '';
 
       // Создание продукта
       final response = await ProductService().createProduct(
@@ -183,7 +188,10 @@ class _CharacteristicsTabState extends State<CharacteristicsTab>
                     (route) => false, // Удалить все предыдущие маршруты
                   );
                 },
-                child: const Text('Перейти к товарам'),
+                child: const Text(
+                  'Перейти к товарам',
+                  style: TextStyle(color: ThemeColors.orange),
+                ),
               ),
             ],
           );

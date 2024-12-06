@@ -23,12 +23,19 @@ class EditableDropdownField extends StatefulWidget {
 
 class _EditableDropdownFieldState extends State<EditableDropdownField> {
   late TextEditingController _controller;
+  late FocusNode _focusNode;
   bool _isEditing = false;
 
   @override
   void initState() {
     super.initState();
     _controller = TextEditingController(text: widget.value);
+    _focusNode = FocusNode();
+    _focusNode.addListener(() {
+      if (!_focusNode.hasFocus && _isEditing) {
+        _confirmEdit(); // Завершение редактирования при потере фокуса
+      }
+    });
   }
 
   @override
@@ -43,79 +50,75 @@ class _EditableDropdownFieldState extends State<EditableDropdownField> {
   Widget build(BuildContext context) {
     final double fieldHeight =
         widget.maxLines * 24.0 + 8.0; // Высота для maxLines
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10),
-        color: Colors.grey.shade100,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            widget.title,
-            style: TextStyle(
-              fontSize: 12,
-              color: ThemeColors.grey5,
+    return GestureDetector(
+      onTap: _startEditing,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10),
+          color: Colors.grey.shade100,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              widget.title,
+              style: TextStyle(
+                fontSize: 12,
+                color: ThemeColors.grey5,
+              ),
             ),
-          ),
-          SizedBox(
-            height: fieldHeight, // Высота остаётся постоянной
-            child: _isEditing
-                ? TextField(
-                    controller: _controller,
-                    autofocus: true,
-                    maxLines: widget.maxLines,
-                    textInputAction: TextInputAction.done,
-                    onSubmitted: (value) => _confirmEdit(),
-                    decoration: InputDecoration(
-                      hintText: widget.hint,
-                      hintStyle: const TextStyle(color: Colors.grey),
-                      border: InputBorder.none,
-                    ),
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  )
-                : GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        _isEditing = true; // Включаем режим редактирования
-                      });
-
-                      // Добавляем следующий кадр для автоматического фокуса
-                      Future.microtask(() {
-                        FocusScope.of(context).requestFocus(
-                          FocusNode(), // Сбрасываем фокус
-                        );
-                        FocusScope.of(context).requestFocus(
-                          FocusNode(),
-                        );
-                        _controller.selection = TextSelection.collapsed(
-                          offset:
-                              _controller.text.length, // Ставим курсор в конец
-                        );
-                      });
-                    },
-                    child: Align(
+            SizedBox(
+              height: fieldHeight, // Высота остаётся постоянной
+              child: _isEditing
+                  ? TextField(
+                      controller: _controller,
+                      focusNode: _focusNode,
+                      autofocus: true,
+                      maxLines: widget.maxLines,
+                      textInputAction: TextInputAction.done,
+                      onSubmitted: (_) => _confirmEdit(),
+                      decoration: InputDecoration(
+                        hintText: widget.hint,
+                        hintStyle: const TextStyle(color: Colors.grey),
+                        border: InputBorder.none,
+                      ),
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    )
+                  : Align(
                       alignment: Alignment.topLeft,
                       child: Text(
-                        widget.value.isEmpty ? widget.hint : widget.value,
+                        _controller.text.isEmpty
+                            ? widget.hint
+                            : _controller.text,
                         maxLines: widget.maxLines,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w500,
-                          color:
-                              widget.value.isEmpty ? Colors.grey : Colors.black,
+                          color: _controller.text.isEmpty
+                              ? Colors.grey
+                              : Colors.black,
                         ),
                       ),
                     ),
-                  ),
-          ),
-        ],
+            ),
+          ],
+        ),
       ),
+    );
+  }
+
+  void _startEditing() {
+    setState(() {
+      _isEditing = true;
+    });
+    _focusNode.requestFocus();
+    _controller.selection = TextSelection.collapsed(
+      offset: _controller.text.length, // Ставим курсор в конец текста
     );
   }
 
@@ -123,13 +126,15 @@ class _EditableDropdownFieldState extends State<EditableDropdownField> {
     setState(() {
       _isEditing = false; // Выходим из режима редактирования
     });
-    widget.onChanged(_controller.text); // Передаём значение
+    final trimmedValue = _controller.text.trim();
+    widget.onChanged(trimmedValue); // Передаём обновлённое значение
     FocusScope.of(context).unfocus(); // Закрываем клавиатуру
   }
 
   @override
   void dispose() {
     _controller.dispose();
+    _focusNode.dispose();
     super.dispose();
   }
 }

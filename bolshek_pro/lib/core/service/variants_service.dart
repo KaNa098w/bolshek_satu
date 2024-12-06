@@ -100,6 +100,8 @@ class VariantsService {
     required String productId,
     required String variantId,
     required double newAmount,
+    required String? manufacturerId,
+    required String? sku,
   }) async {
     try {
       final token = _getToken(context);
@@ -115,6 +117,8 @@ class VariantsService {
           "precision": 2,
           "currency": "KZT",
         },
+        "sku": sku,
+        "manufacturerId": manufacturerId,
       };
 
       print(

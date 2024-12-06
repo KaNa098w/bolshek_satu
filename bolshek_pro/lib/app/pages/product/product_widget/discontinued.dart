@@ -89,7 +89,7 @@ class _Discontinued extends State<Discontinued> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: ThemeColors.white,
+      backgroundColor: ThemeColors.greyF,
       body: Column(
         children: [
           Expanded(
@@ -111,13 +111,25 @@ class _Discontinued extends State<Discontinued> {
                           child: Center(
                             child: Column(
                               children: List.generate(
-                                3, // Количество повторений
-                                (index) => const Padding(
-                                  padding: EdgeInsets.only(
+                                6, // Количество повторений
+                                (index) => Padding(
+                                  padding: const EdgeInsets.only(
                                       bottom: 10), // Отступ между строками
-                                  child: LoadingWidget(
-                                    width: 380, // Занимает всю ширину строки
-                                    height: 75, // Высота строки товара
+                                  child: Row(
+                                    children: [
+                                      // Левая часть загрузочного индикатора
+                                      LoadingWidget(
+                                        width: 80, // Меньшая ширина
+                                        height: 70, // Высота строки товара
+                                      ),
+                                      const SizedBox(
+                                          width: 10), // Отступ между частями
+                                      // Правая часть загрузочного индикатора
+                                      LoadingWidget(
+                                        width: 280, // Большая ширина
+                                        height: 70, // Высота строки товара
+                                      ),
+                                    ],
                                   ),
                                 ),
                               ),
@@ -145,7 +157,7 @@ class _Discontinued extends State<Discontinued> {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.only(bottom: 8.0, top: 5),
             child: CustomButton(
               text: 'Добавить новый товар',
               onPressed: () {
@@ -171,37 +183,61 @@ class _Discontinued extends State<Discontinued> {
   }) {
     final imageUrl = image?.getBestFitImage() ?? '';
 
-    return ListTile(
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-      leading: Container(
-        width: 80,
-        height: 80,
-        color: Colors.white,
-        child: imageUrl.isEmpty
-            ? const Icon(Icons.image, size: 40, color: Colors.grey)
-            : Image.network(imageUrl, fit: BoxFit.contain),
-      ),
-      title: Text(
-        name,
-        style: const TextStyle(fontWeight: FontWeight.w400, fontSize: 14),
-      ),
-      subtitle: Padding(
-        padding: const EdgeInsets.only(top: 10),
-        child: Text(
-          price,
-          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white, // Белый фон
+          borderRadius: BorderRadius.circular(12), // Слегка овальные края
+          // boxShadow: [
+          //   BoxShadow(
+          //     color: Colors.black.withOpacity(0.1),
+          //     blurRadius: 6,
+          //     offset: const Offset(0, 3), // Слегка приподнятая тень
+          //   ),
+          // ],
+        ),
+        child: ListTile(
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+          leading: Container(
+            width: 80,
+            height: 80,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius:
+                  BorderRadius.circular(8), // Овальные края для изображения
+            ),
+            child: imageUrl.isEmpty
+                ? const Icon(Icons.image, size: 40, color: Colors.grey)
+                : ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: Image.network(imageUrl, fit: BoxFit.contain),
+                  ),
+          ),
+          title: Text(
+            name,
+            style: const TextStyle(fontWeight: FontWeight.w400, fontSize: 14),
+          ),
+          subtitle: Padding(
+            padding: const EdgeInsets.only(top: 10),
+            child: Text(
+              price,
+              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+            ),
+          ),
+          trailing: const Icon(Icons.more_vert),
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ShopProductDetailScreen(
+                    productId: productId), // Передаем productId
+              ),
+            );
+          },
         ),
       ),
-      trailing: const Icon(Icons.more_vert),
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => ShopProductDetailScreen(
-                productId: productId), // Передаем productId
-          ),
-        );
-      },
     );
   }
 }

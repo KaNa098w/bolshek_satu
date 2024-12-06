@@ -15,24 +15,17 @@ class _LoginPageState extends State<LoginPage> {
   final AuthService authService = AuthService();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+  late Future<bool> _isAuthenticated;
 
   @override
   void initState() {
     super.initState();
-    _checkAuthStatus();
+    _isAuthenticated = _checkAuthStatus();
   }
 
-  Future<void> _checkAuthStatus() async {
-    // Загрузка сохраненных данных авторизации
+  Future<bool> _checkAuthStatus() async {
     await context.read<GlobalProvider>().loadAuthData();
-
-    // Если пользователь авторизован, перенаправляем на главную
-    if (context.read<GlobalProvider>().authResponse != null) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => MainControllerNavigator()),
-      );
-    }
+    return context.read<GlobalProvider>().authResponse != null;
   }
 
   Future<void> _register() async {
@@ -47,10 +40,7 @@ class _LoginPageState extends State<LoginPage> {
     }
 
     try {
-      final authResponse = await authService.registerUser(
-        email,
-        password,
-      );
+      final authResponse = await authService.registerUser(email, password);
 
       // Сохранение данных в провайдер
       context.read<GlobalProvider>().setAuthData(authResponse);
@@ -59,7 +49,6 @@ class _LoginPageState extends State<LoginPage> {
         context,
         MaterialPageRoute(builder: (context) => MainControllerNavigator()),
       );
-      print(authResponse.token);
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Ошибка регистрации: ${e.toString()}")),
@@ -69,90 +58,100 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.blueGrey[900],
-      body: Center(
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 32.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              SvgPicture.asset(
-                'assets/svg/logo_3.svg',
-                width: 90, // Задайте нужные размеры
-                height: 90,
+    return FutureBuilder<bool>(
+      future: _isAuthenticated,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Scaffold(
+            backgroundColor: Colors.blueGrey[900],
+            body: Center(
+              child: CircularProgressIndicator(
+                color: ThemeColors.orange,
               ),
-              SizedBox(height: 70),
-              TextField(
-                controller: emailController,
-                decoration: InputDecoration(
-                  hintText: 'Email',
-                  hintStyle: TextStyle(color: Colors.white54),
-                  filled: true,
-                  fillColor: Colors.white10,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide: BorderSide.none,
+            ),
+          );
+        }
+
+        if (snapshot.data == true) {
+          return MainControllerNavigator();
+        }
+
+        return Scaffold(
+          backgroundColor: Colors.blueGrey[900],
+          body: Center(
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 32.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SvgPicture.asset(
+                    'assets/svg/logo_3.svg',
+                    width: 90,
+                    height: 90,
                   ),
-                  contentPadding:
-                      EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                ),
-                style: TextStyle(color: Colors.white),
-              ),
-              SizedBox(height: 20),
-              TextField(
-                controller: passwordController,
-                obscureText: true,
-                decoration: InputDecoration(
-                  hintText: 'Пароль',
-                  hintStyle: TextStyle(color: Colors.white54),
-                  filled: true,
-                  fillColor: Colors.white10,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide: BorderSide.none,
+                  SizedBox(height: 70),
+                  TextField(
+                    controller: emailController,
+                    decoration: InputDecoration(
+                      hintText: 'Email',
+                      hintStyle: TextStyle(color: Colors.white54),
+                      filled: true,
+                      fillColor: Colors.white10,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: BorderSide.none,
+                      ),
+                      contentPadding:
+                          EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    ),
+                    style: TextStyle(color: Colors.white),
                   ),
-                  contentPadding:
-                      EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                ),
-                style: TextStyle(color: Colors.white),
-              ),
-              SizedBox(height: 30),
-              ElevatedButton(
-                onPressed: _register,
-                style: ElevatedButton.styleFrom(
-                  padding: EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
+                  SizedBox(height: 20),
+                  TextField(
+                    controller: passwordController,
+                    obscureText: true,
+                    decoration: InputDecoration(
+                      hintText: 'Пароль',
+                      hintStyle: TextStyle(color: Colors.white54),
+                      filled: true,
+                      fillColor: Colors.white10,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: BorderSide.none,
+                      ),
+                      contentPadding:
+                          EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    ),
+                    style: TextStyle(color: Colors.white),
                   ),
-                  backgroundColor: ThemeColors.orange,
-                  elevation: 10,
-                ),
-                child: Center(
-                  child: Text(
-                    'Войти',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                  SizedBox(height: 30),
+                  ElevatedButton(
+                    onPressed: _register,
+                    style: ElevatedButton.styleFrom(
+                      padding: EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      backgroundColor: ThemeColors.orange,
+                      elevation: 10,
+                    ),
+                    child: Center(
+                      child: Text(
+                        'Войти',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
                     ),
                   ),
-                ),
+                ],
               ),
-              SizedBox(height: 20),
-              // TextButton(
-              //   onPressed: () {
-              //     // Логика восстановления пароля
-              //   },
-              //   child: Text(
-              //     'Забыли пароль?',
-              //     style: TextStyle(color: ThemeColors.orange, fontSize: 16),
-              //   ),
-              // ),
-            ],
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }

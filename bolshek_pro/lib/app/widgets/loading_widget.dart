@@ -17,7 +17,7 @@ class LoadingWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Shimmer.fromColors(
-      baseColor: Colors.grey.shade100,
+      baseColor: Colors.grey.shade200,
       highlightColor: Colors.white,
       child: Container(
         width: width,

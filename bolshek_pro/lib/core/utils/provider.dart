@@ -10,7 +10,7 @@ class GlobalProvider extends ChangeNotifier {
   String? _status;
   String _deliveryType = 'standard';
   String _vendorCode = '';
-  String? _descriptionText;
+  String? _descriptionText = '';
 
   // Новые поля
   double _price = 0.0;
@@ -108,6 +108,7 @@ class GlobalProvider extends ChangeNotifier {
   }
 
   void setDescriptionText(String descriptionText) {
+    print('Установлено descriptionText: $descriptionText');
     _descriptionText = descriptionText;
     notifyListeners();
   }

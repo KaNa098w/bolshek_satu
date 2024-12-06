@@ -69,18 +69,18 @@ class _MyOrganizationPageState extends State<MyOrganizationPage> {
                   title: "Владелец:",
                   value: '${data.user?.firstName} ${data.user?.lastName}',
                 ),
-                _buildInfoRow(
-                  title: "Тип:",
-                  value:
-                      organization.isMaster == true ? "Головная" : "Дочерняя",
-                ),
-                _buildInfoRow(
-                  title: "Активность:",
-                  value:
-                      organization.isActive == true ? "Активна" : "Неактивна",
-                  valueColor:
-                      organization.isActive == true ? Colors.green : Colors.red,
-                ),
+                // _buildInfoRow(
+                //   title: "Тип:",
+                //   value:
+                //       organization.isMaster == true ? "Головная" : "Дочерняя",
+                // ),
+                // _buildInfoRow(
+                //   title: "Активность:",
+                //   value:
+                //       organization.isActive == true ? "Активна" : "Неактивна",
+                //   valueColor:
+                //       organization.isActive == true ? Colors.green : Colors.red,
+                // ),
                 _buildInfoRow(
                   title: "Логин:",
                   value: data.user?.email ?? "Неизвестно",

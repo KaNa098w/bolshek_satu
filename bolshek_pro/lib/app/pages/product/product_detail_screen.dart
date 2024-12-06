@@ -36,6 +36,7 @@ class _ShopProductDetailScreenState extends State<ShopProductDetailScreen> {
   int selectedVariantIndex = 0;
   int? _variants_lenght;
   String? _variant_kind;
+  String? _manufacturerId;
 
   @override
   void initState() {
@@ -50,6 +51,7 @@ class _ShopProductDetailScreenState extends State<ShopProductDetailScreen> {
         id: widget.productId,
       );
       setState(() {
+        _manufacturerId = product.variants?.first.manufacturerId;
         _variant_kind = product.variants?.first.kind;
         _variants_lenght = product.variants?.length;
         _variants_kod = product.variants?.first?.sku!;
@@ -359,12 +361,12 @@ class _ShopProductDetailScreenState extends State<ShopProductDetailScreen> {
                   try {
                     // Вызываем сервис обновления цены
                     final variantsService = VariantsService();
-                    await variantsService.updateProductVariant(
-                      context,
-                      productId: productId,
-                      variantId: variantId,
-                      newAmount: newPrice,
-                    );
+                    await variantsService.updateProductVariant(context,
+                        productId: productId,
+                        variantId: variantId,
+                        newAmount: newPrice,
+                        sku: _variants_kod,
+                        manufacturerId: _manufacturerId);
 
                     setState(() {
                       _productPrice = newPrice; // Обновляем локальное состояние
@@ -425,7 +427,7 @@ class _ShopProductDetailScreenState extends State<ShopProductDetailScreen> {
         "value": productCode.isNotEmpty ? productCode : "Не указан",
       },
       {
-        "title": "Название бренда",
+        "title": "Производитель",
         "value": brandName.isNotEmpty ? brandName : "Не указан",
       },
       ..._productCharacteristics, // Остальные характеристики
@@ -549,21 +551,30 @@ class _ShopProductDetailScreenState extends State<ShopProductDetailScreen> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Подтверждение'),
+          title: const Text(
+            'Подтверждение',
+            style: TextStyle(fontSize: 19),
+          ),
           content: const Text('Вы уверены, что хотите опубликовать товар?'),
           actions: [
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop(); // Закрываем диалог
               },
-              child: const Text('Отмена'),
+              child: const Text(
+                'Отмена',
+                style: TextStyle(color: ThemeColors.blackWithPath),
+              ),
             ),
             TextButton(
               onPressed: () async {
                 Navigator.of(context).pop(); // Закрываем диалог
                 await _publishProduct(context);
               },
-              child: const Text('Да'),
+              child: const Text(
+                'Да',
+                style: TextStyle(color: ThemeColors.orange),
+              ),
             ),
           ],
         );

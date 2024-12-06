@@ -30,7 +30,7 @@ class _GoodsPageState extends State<GoodsPage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Colors.grey.shade200,
       body: Column(
         children: [
           // Используем PreferredSize для кастомного отображения TabBar без AppBar
@@ -48,7 +48,7 @@ class _GoodsPageState extends State<GoodsPage>
                 tabs: const [
                   Tab(text: 'В продаже'),
                   Tab(text: 'Ожидает'),
-                  Tab(text: 'Снять с продаж'),
+                  Tab(text: 'Неактивные'),
                 ],
               ),
             ),

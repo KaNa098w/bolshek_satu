@@ -76,7 +76,7 @@ class CustomButton extends StatelessWidget {
       style: ElevatedButton.styleFrom(
         foregroundColor: isPrimary ? Colors.white : Colors.black54,
         backgroundColor: isPrimary ? ThemeColors.orange : Colors.grey[300],
-        minimumSize: const Size(360, 45), // Фиксированный размер кнопок
+        minimumSize: const Size(372, 45), // Фиксированный размер кнопок
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12), // Немного квадратные углы
         ),

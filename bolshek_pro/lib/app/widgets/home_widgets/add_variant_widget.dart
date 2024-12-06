@@ -19,6 +19,7 @@ class _ProductDetailsWidgetState extends State<ProductDetailsWidget> {
   int _quantity = 0;
   String selectedType = 'Оригинал'; // Значение по умолчанию
   String selectedDelivery = 'Стандартная';
+  String? descriptionText = '';
 
   @override
   void initState() {
@@ -390,7 +391,7 @@ class _ProductDetailsWidgetState extends State<ProductDetailsWidget> {
               Expanded(
                 child: EditableDropdownField(
                   title: 'Описание',
-                  value: context.read<GlobalProvider>().descriptionText ?? '',
+                  value: '',
                   hint: 'Описание товара',
                   maxLines: 4, // Поле ввода занимает до 4 строк
                   onChanged: (value) {
@@ -407,7 +408,7 @@ class _ProductDetailsWidgetState extends State<ProductDetailsWidget> {
               Expanded(
                 child: EditableDropdownField(
                   title: 'SKU',
-                  value: context.read<GlobalProvider>().sku ?? '',
+                  value: '',
                   hint: 'Введите артикул',
                   maxLines: 1, // Поле для ввода одной строки
                   onChanged: (value) {
@@ -424,7 +425,7 @@ class _ProductDetailsWidgetState extends State<ProductDetailsWidget> {
               Expanded(
                 child: EditableDropdownField(
                   title: 'Код запчасти',
-                  value: context.read<GlobalProvider>().vendorCode ?? '',
+                  value: '',
                   hint: 'Введите код запчасти',
                   maxLines: 1, // Поле для ввода одной строки
                   onChanged: (value) {
