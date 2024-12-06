@@ -383,7 +383,7 @@ class _ProductDetailsWidgetState extends State<ProductDetailsWidget> {
           // ),
           CustomDropdownField(
               title: 'Производитель',
-              value: _selectedManufacturer?.name ?? 'Выберите производителя',
+              value: _selectedManufacturer?.name ?? '',
               onTap: _showManufacturers),
           const SizedBox(height: 12.0),
           Row(

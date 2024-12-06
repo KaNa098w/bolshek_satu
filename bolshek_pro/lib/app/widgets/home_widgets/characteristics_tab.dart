@@ -89,7 +89,9 @@ class _CharacteristicsTabState extends State<CharacteristicsTab>
         barrierDismissible: false, // Запретить закрытие по клику вне окна
         builder: (context) {
           return const Center(
-            child: CircularProgressIndicator(),
+            child: CircularProgressIndicator(
+              color: ThemeColors.grey4,
+            ),
           );
         },
       );
@@ -164,6 +166,16 @@ class _CharacteristicsTabState extends State<CharacteristicsTab>
         }
       }
 
+      authProvider.setCategoryId(null);
+      authProvider.setName(null);
+      authProvider.setBrandId(null);
+      authProvider.setDescriptionText('');
+      authProvider.setVendorCode('');
+      authProvider.setPrice(0.0);
+      authProvider.setSku('');
+      authProvider.clearImages();
+      authProvider.setPropertyValues({});
+
       // Закрыть индикатор загрузки
       Navigator.pop(context);
 
@@ -212,7 +224,10 @@ class _CharacteristicsTabState extends State<CharacteristicsTab>
     super.build(context); // Для работы AutomaticKeepAliveClientMixin
 
     if (isLoading) {
-      return const Center(child: CircularProgressIndicator());
+      return const Center(
+          child: CircularProgressIndicator(
+        color: ThemeColors.grey4,
+      ));
     }
 
     return SingleChildScrollView(
