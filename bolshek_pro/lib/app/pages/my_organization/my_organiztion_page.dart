@@ -39,7 +39,10 @@ class _MyOrganizationPageState extends State<MyOrganizationPage> {
         future: _authSessionFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
+            return Center(
+                child: CircularProgressIndicator(
+              color: ThemeColors.orange,
+            ));
           } else if (snapshot.hasError) {
             return Center(child: Text("Ошибка: ${snapshot.error}"));
           } else if (!snapshot.hasData) {

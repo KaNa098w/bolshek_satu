@@ -581,7 +581,8 @@ class _InfoTabState extends State<InfoTab> with AutomaticKeepAliveClientMixin {
   Widget build(BuildContext context) {
     super.build(context);
     return isLoading
-        ? const Center(child: CircularProgressIndicator())
+        ? const Center(
+            child: CircularProgressIndicator(color: ThemeColors.orange))
         : Padding(
             padding: const EdgeInsets.all(16.0),
             child: SingleChildScrollView(

@@ -39,17 +39,37 @@ class _LoginPageState extends State<LoginPage> {
       password = 'sherkhan1234';
     }
 
+    // Показываем индикатор загрузки
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return const Center(
+          child: CircularProgressIndicator(
+            color: ThemeColors.orange,
+          ),
+        );
+      },
+    );
+
     try {
       final authResponse = await authService.registerUser(email, password);
 
       // Сохранение данных в провайдер
       context.read<GlobalProvider>().setAuthData(authResponse);
 
+      // Закрываем индикатор загрузки перед переходом
+      Navigator.of(context).pop();
+
+      // Переходим на главный экран
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => MainControllerNavigator()),
       );
     } catch (e) {
+      // Закрываем индикатор загрузки в случае ошибки
+      Navigator.of(context).pop();
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Ошибка регистрации: ${e.toString()}")),
       );

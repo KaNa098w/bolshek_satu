@@ -358,30 +358,55 @@ class _ShopProductDetailScreenState extends State<ShopProductDetailScreen> {
                   // Конвертируем цену в копейки
                   final newPrice = enteredPrice * 100;
 
+                  // Показать индикатор загрузки
+                  showDialog(
+                    context: context,
+                    barrierDismissible: false,
+                    builder: (BuildContext context) {
+                      return const Center(
+                        child: CircularProgressIndicator(
+                          color: ThemeColors.orange,
+                        ),
+                      );
+                    },
+                  );
+
                   try {
                     // Вызываем сервис обновления цены
                     final variantsService = VariantsService();
-                    await variantsService.updateProductVariant(context,
-                        productId: productId,
-                        variantId: variantId,
-                        newAmount: newPrice,
-                        sku: _variants_kod,
-                        manufacturerId: _manufacturerId);
+                    await variantsService.updateProductVariant(
+                      context,
+                      productId: productId,
+                      variantId: variantId,
+                      newAmount: newPrice,
+                      sku: _variants_kod,
+                      manufacturerId: _manufacturerId,
+                    );
 
                     setState(() {
                       _productPrice = newPrice; // Обновляем локальное состояние
                     });
 
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text("Цена успешно обновлена")),
+                      const SnackBar(
+                        content: Text(
+                          "Цена успешно обновлена",
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        backgroundColor: ThemeColors.green,
+                      ),
                     );
                   } catch (e) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(content: Text("Ошибка: $e")),
                     );
+                  } finally {
+                    // Закрываем индикатор загрузки
+                    Navigator.of(context).pop();
+                    Navigator.of(context)
+                        .pop(); // Закрываем диалог изменения цены
                   }
                 }
-                Navigator.of(context).pop();
               },
               child: const Text(
                 "Сохранить",
