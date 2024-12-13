@@ -6,7 +6,7 @@
     
     <!-- Manifest body -->
     <application
-        android:label="bolshek_pro"
+        android:label="Bolshek Satu"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
