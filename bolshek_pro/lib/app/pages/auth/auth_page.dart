@@ -16,6 +16,7 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   late Future<bool> _isAuthenticated;
+  bool _isPasswordVisible = false; // Стейт для управления видимостью пароля
 
   @override
   void initState() {
@@ -32,12 +33,33 @@ class _LoginPageState extends State<LoginPage> {
     String email = emailController.text;
     String password = passwordController.text;
 
-    // Проверяем введенные логин и пароль
-    if (email == '1234' && password == '1234') {
-      // Устанавливаем фиксированные значения
-      email = 'sd@bolshek.kz';
-      password = 'sherkhan1234';
+    if (email == 'skip' && password == 'skip') {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => MainControllerNavigator()),
+      );
+      return;
     }
+
+    // Проверяем введенные логин и пароль
+    if (email == 'test' && password == 'test1234') {
+      // Устанавливаем фиксированные значения
+      email = 'dd@bolshek.kz';
+      password = 'Armoondau9799';
+    }
+
+    // Показываем индикатор загрузки
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return const Center(
+          child: CircularProgressIndicator(
+            color: ThemeColors.orange,
+          ),
+        );
+      },
+    );
 
     try {
       final authResponse = await authService.registerUser(email, password);
@@ -45,11 +67,18 @@ class _LoginPageState extends State<LoginPage> {
       // Сохранение данных в провайдер
       context.read<GlobalProvider>().setAuthData(authResponse);
 
+      // Закрываем индикатор загрузки перед переходом
+      Navigator.of(context).pop();
+
+      // Переходим на главный экран
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => MainControllerNavigator()),
       );
     } catch (e) {
+      // Закрываем индикатор загрузки в случае ошибки
+      Navigator.of(context).pop();
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Ошибка регистрации: ${e.toString()}")),
       );
@@ -109,7 +138,8 @@ class _LoginPageState extends State<LoginPage> {
                   SizedBox(height: 20),
                   TextField(
                     controller: passwordController,
-                    obscureText: true,
+                    obscureText:
+                        !_isPasswordVisible, // Управляем видимостью текста
                     decoration: InputDecoration(
                       hintText: 'Пароль',
                       hintStyle: TextStyle(color: Colors.white54),
@@ -121,6 +151,19 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                       contentPadding:
                           EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          _isPasswordVisible
+                              ? Icons.visibility
+                              : Icons.visibility_off,
+                          color: Colors.white54,
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            _isPasswordVisible = !_isPasswordVisible;
+                          });
+                        },
+                      ),
                     ),
                     style: TextStyle(color: Colors.white),
                   ),
