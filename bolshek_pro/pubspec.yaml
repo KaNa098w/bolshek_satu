@@ -2,7 +2,7 @@ name: bolshek_pro
 description: "A new Flutter project."
 
 
-version: 1.0.0+1
+version: 1.0.1+2
 
 environment:
   sdk: ^3.5.1
@@ -39,7 +39,9 @@ dev_dependencies:
 flutter_launcher_icons:
   android: true
   ios: true
-  image_path_android: "assets/icons/icon_bolshek_2.png"
+  image_path: "assets/icons/icon_bolshek_2.png"
+  adaptive_icon_background: "#555555"
+  adaptive_icon_foreground: "assets/icons/icon_bolshek_2.png"
   image_path_ios: "assets/icons/icon_bolshek_2.png"
   remove_alpha_ios: true
 
