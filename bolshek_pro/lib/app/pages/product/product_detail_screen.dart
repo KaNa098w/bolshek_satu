@@ -7,6 +7,7 @@ import 'package:bolshek_pro/core/service/variants_service.dart';
 import 'package:bolshek_pro/core/utils/constants.dart';
 import 'package:bolshek_pro/core/utils/theme.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class ShopProductDetailScreen extends StatefulWidget {
   final String productId;
@@ -104,9 +105,27 @@ class _ShopProductDetailScreenState extends State<ShopProductDetailScreen> {
         scrolledUnderElevation: 0,
         automaticallyImplyLeading: false,
         backgroundColor: Colors.white,
-        leading: const Padding(
-          padding: EdgeInsets.only(left: 16),
-          child: BackButton(color: Colors.black),
+        toolbarHeight: 32, // Уменьшаем высоту AppBar
+        leading: Padding(
+          padding: const EdgeInsets.only(left: 16),
+          child: Padding(
+            padding: const EdgeInsets.only(bottom: 0.0),
+            child: IconButton(
+              icon: const Icon(
+                Icons.arrow_back_ios,
+                color: Colors.black,
+                size: 25, // Уменьшаем размер иконки
+              ),
+              onPressed: () {
+                Navigator.of(context).pop(); // Действие для кнопки назад
+              },
+              constraints: const BoxConstraints(
+                minWidth: 32, // Минимальная ширина кнопки
+                minHeight: 32, // Минимальная высота кнопки
+              ),
+              padding: EdgeInsets.zero, // Убираем дополнительные отступы
+            ),
+          ),
         ),
       ),
       body: _isLoading
@@ -123,7 +142,7 @@ class _ShopProductDetailScreenState extends State<ShopProductDetailScreen> {
     return Container(
       color: ThemeColors.white,
       child: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 15),
+        padding: const EdgeInsets.symmetric(horizontal: 12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -154,8 +173,8 @@ class _ShopProductDetailScreenState extends State<ShopProductDetailScreen> {
             },
             child: Center(
               child: Container(
-                width: 355,
-                height: 355,
+                width: 365,
+                height: 365,
                 decoration: BoxDecoration(
                   borderRadius:
                       BorderRadius.circular(12), // Более овальная форма
@@ -184,8 +203,8 @@ class _ShopProductDetailScreenState extends State<ShopProductDetailScreen> {
           )
         : Center(
             child: Container(
-              width: 355,
-              height: 355,
+              width: 365,
+              height: 365,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(30), // Более овальная форма
                 color: Colors.grey[200],
@@ -239,7 +258,7 @@ class _ShopProductDetailScreenState extends State<ShopProductDetailScreen> {
           children: [
             Text(
               _productPrice != null
-                  ? "${_formatPrice(_productPrice! / 100)} ₸"
+                  ? "${_formatPriceWithSpaces(_productPrice! / 100)} ₸"
                   : "Цена отсутствует",
               style: ThemeTextMontserratBold.size21.copyWith(
                 fontSize: 17,
@@ -304,6 +323,13 @@ class _ShopProductDetailScreenState extends State<ShopProductDetailScreen> {
         ),
       ],
     );
+  }
+
+  String _formatPriceWithSpaces(double price) {
+    final formatter = NumberFormat("#,###", "ru_RU"); // Формат с пробелами
+    return formatter
+        .format(price)
+        .replaceAll(',', ' '); // Заменяем запятые на пробелы
   }
 
   /// Метод для форматирования цены без лишних нулей
@@ -535,10 +561,8 @@ class _ShopProductDetailScreenState extends State<ShopProductDetailScreen> {
                     }
                   },
                   bgColor: _status == 'inactive'
-                      ? ThemeColors
-                          .green // Зеленый фон для кнопки "Опубликовать"
-                      : ThemeColors
-                          .grey2, // Серый фон для кнопки "Снять с продажи"
+                      ? ThemeColors.green
+                      : ThemeColors.grey2,
                 ),
               ),
               const SizedBox(width: 10),

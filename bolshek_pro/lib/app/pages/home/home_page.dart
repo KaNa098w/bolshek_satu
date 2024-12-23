@@ -61,7 +61,7 @@ class _HomePageState extends State<HomePage> {
                 );
               },
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 13),
             CustomButton(
               text: 'Открыть чат с Bolshek',
               onPressed: () {

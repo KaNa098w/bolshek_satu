@@ -7,6 +7,7 @@ import 'package:bolshek_pro/app/widgets/home_widgets/add_name_product_page.dart'
 import 'package:bolshek_pro/app/widgets/custom_button.dart';
 import 'package:bolshek_pro/core/utils/theme.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class Discontinued extends StatefulWidget {
   const Discontinued({Key? key}) : super(key: key);
@@ -38,7 +39,13 @@ class _Discontinued extends State<Discontinued> {
     });
   }
 
-  @override
+  String _formatPriceWithSpaces(double price) {
+    final formatter = NumberFormat("#,###", "ru_RU"); // Формат с пробелами
+    return formatter
+        .format(price)
+        .replaceAll(',', ' '); // Заменяем запятые на пробелы
+  }
+
   void dispose() {
     _scrollController.dispose(); // Очищаем контроллер
     super.dispose();
@@ -90,87 +97,90 @@ class _Discontinued extends State<Discontinued> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: ThemeColors.greyF,
-      body: Column(
-        children: [
-          Expanded(
-            child: Stack(
-              children: [
-                // Оборачиваем ListView в RefreshIndicator
-                RefreshIndicator(
-                  color: ThemeColors.orange,
-                  onRefresh: _refreshProducts, // Метод обновления данных
-                  child: ListView.builder(
-                    controller: _scrollController, // Привязываем контроллер
-                    itemCount: _products.length + (_hasMore ? 1 : 0),
-                    itemBuilder: (context, index) {
-                      if (index == _products.length) {
-                        // Загрузчик внизу списка
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 16.0, horizontal: 10),
-                          child: Center(
-                            child: Column(
-                              children: List.generate(
-                                6, // Количество повторений
-                                (index) => Padding(
-                                  padding: const EdgeInsets.only(
-                                      bottom: 10), // Отступ между строками
-                                  child: Row(
-                                    children: [
-                                      // Левая часть загрузочного индикатора
-                                      LoadingWidget(
-                                        width: 80, // Меньшая ширина
-                                        height: 70, // Высота строки товара
-                                      ),
-                                      const SizedBox(
-                                          width: 10), // Отступ между частями
-                                      // Правая часть загрузочного индикатора
-                                      LoadingWidget(
-                                        width: 280, // Большая ширина
-                                        height: 70, // Высота строки товара
-                                      ),
-                                    ],
+      body: Padding(
+        padding: const EdgeInsets.only(top: 5.0),
+        child: Column(
+          children: [
+            Expanded(
+              child: Stack(
+                children: [
+                  // Оборачиваем ListView в RefreshIndicator
+                  RefreshIndicator(
+                    color: ThemeColors.orange,
+                    onRefresh: _refreshProducts, // Метод обновления данных
+                    child: ListView.builder(
+                      controller: _scrollController, // Привязываем контроллер
+                      itemCount: _products.length + (_hasMore ? 1 : 0),
+                      itemBuilder: (context, index) {
+                        if (index == _products.length) {
+                          // Загрузчик внизу списка
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 16.0, horizontal: 10),
+                            child: Center(
+                              child: Column(
+                                children: List.generate(
+                                  6, // Количество повторений
+                                  (index) => Padding(
+                                    padding: const EdgeInsets.only(
+                                        bottom: 10), // Отступ между строками
+                                    child: Row(
+                                      children: [
+                                        // Левая часть загрузочного индикатора
+                                        LoadingWidget(
+                                          width: 80, // Меньшая ширина
+                                          height: 70, // Высота строки товара
+                                        ),
+                                        const SizedBox(
+                                            width: 10), // Отступ между частями
+                                        // Правая часть загрузочного индикатора
+                                        LoadingWidget(
+                                          width: 280, // Большая ширина
+                                          height: 70, // Высота строки товара
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ),
                             ),
-                          ),
-                        );
-                      }
+                          );
+                        }
 
-                      final product = _products[index];
-                      return _buildProductItem(
-                        name: product.name ?? 'Без названия',
-                        price: product.variants != null &&
-                                product.variants!.isNotEmpty
-                            ? '${(product.variants!.first.price?.amount ?? 0) / 100} ₸'
-                            : 'Цена не указана',
-                        image: product.images?.isNotEmpty == true
-                            ? product.images!.first
-                            : null,
-                        productId: product.id ?? '', // Передаем productId
-                      );
-                    },
+                        final product = _products[index];
+                        return _buildProductItem(
+                          name: product.name ?? 'Без названия',
+                          price: product.variants != null &&
+                                  product.variants!.isNotEmpty
+                              ? '${_formatPriceWithSpaces((product.variants!.first.price?.amount ?? 0) / 100)} ₸'
+                              : 'Цена не указана',
+                          image: product.images?.isNotEmpty == true
+                              ? product.images!.first
+                              : null,
+                          productId: product.id ?? '', // Передаем productId
+                        );
+                      },
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(bottom: 8.0, top: 5),
-            child: CustomButton(
-              text: 'Добавить новый товар',
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => ProductNameInputPage(),
-                  ),
-                );
-              },
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8.0, top: 5),
+              child: CustomButton(
+                text: 'Добавить новый товар',
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ProductNameInputPage(),
+                    ),
+                  );
+                },
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -179,7 +189,7 @@ class _Discontinued extends State<Discontinued> {
     required String name,
     required String price,
     required Images? image,
-    required String productId, // Добавляем параметр productId
+    required String productId,
   }) {
     final imageUrl = image?.getBestFitImage() ?? '';
 
@@ -187,52 +197,58 @@ class _Discontinued extends State<Discontinued> {
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white, // Белый фон
-          borderRadius: BorderRadius.circular(12), // Слегка овальные края
-          // boxShadow: [
-          //   BoxShadow(
-          //     color: Colors.black.withOpacity(0.1),
-          //     blurRadius: 6,
-          //     offset: const Offset(0, 3), // Слегка приподнятая тень
-          //   ),
-          // ],
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
         ),
         child: ListTile(
           contentPadding:
-              const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-          leading: Container(
-            width: 80,
-            height: 80,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius:
-                  BorderRadius.circular(8), // Овальные края для изображения
+              const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+          leading: AspectRatio(
+            aspectRatio: 1, // Соотношение сторон 1:1 (квадрат)
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.grey[200],
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: imageUrl.isEmpty
+                    ? const Icon(Icons.image, size: 50, color: Colors.grey)
+                    : Image.network(
+                        imageUrl,
+                        fit: BoxFit.cover, // Важно!
+                      ),
+              ),
             ),
-            child: imageUrl.isEmpty
-                ? const Icon(Icons.image, size: 40, color: Colors.grey)
-                : ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: Image.network(imageUrl, fit: BoxFit.contain),
-                  ),
           ),
-          title: Text(
-            name,
-            style: const TextStyle(fontWeight: FontWeight.w400, fontSize: 14),
-          ),
-          subtitle: Padding(
-            padding: const EdgeInsets.only(top: 10),
-            child: Text(
-              price,
-              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-            ),
+          title: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                name,
+                style: const TextStyle(
+                  fontWeight: FontWeight.w400,
+                  fontSize: 14,
+                  height: 1.3,
+                ),
+              ),
+              Text(
+                price,
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
           ),
           trailing: const Icon(Icons.more_vert),
           onTap: () {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => ShopProductDetailScreen(
-                    productId: productId), // Передаем productId
+                builder: (context) =>
+                    ShopProductDetailScreen(productId: productId),
               ),
             );
           },

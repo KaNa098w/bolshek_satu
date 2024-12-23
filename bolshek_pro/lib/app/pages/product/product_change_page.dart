@@ -443,7 +443,7 @@ class _ProductChangePageState extends State<ProductChangePage> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Нет изменений для сохранения')),
       );
-      Navigator.pop(context); // Закрываем экран загрузки
+      Navigator.pop(context); // Закрываем экран загрузкиx
       return;
     }
 
@@ -558,7 +558,7 @@ class _ProductChangePageState extends State<ProductChangePage> {
       await _fetchProduct();
       Navigator.pop(context); // Гарантированно закрываем страницу
     } catch (e) {
-      Navigator.pop(context); // Закрываем страницу при ошибке
+      // Navigator.pop(context); // Закрываем страницу при ошибке
       _showError('Ошибка при обновлении товара: $e');
     }
   }

@@ -62,7 +62,7 @@ class _OrdersPageState extends State<OrdersPage>
               controller: _tabController,
               children: const [
                 OnSale(), // Вкладка "В продаже"
-                Discontinued(),
+                // Discontinued(),
                 OnSale(),
                 OnSale(),
                 OnSale(),

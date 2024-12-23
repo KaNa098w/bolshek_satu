@@ -74,14 +74,25 @@ class CustomButton extends StatelessWidget {
     return ElevatedButton(
       onPressed: () => _showInputDialog(context),
       style: ElevatedButton.styleFrom(
+        elevation: 0, // Убираем тень
+        shadowColor:
+            Colors.transparent, // Дополнительно делаем цвет тени прозрачным
         foregroundColor: isPrimary ? Colors.white : Colors.black54,
-        backgroundColor: isPrimary ? ThemeColors.orange : Colors.grey[300],
-        minimumSize: const Size(372, 45), // Фиксированный размер кнопок
+        backgroundColor: isPrimary ? ThemeColors.orange : Colors.grey[200],
+        minimumSize: const Size(355, 53), // Фиксированный размер кнопок
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12), // Немного квадратные углы
+          borderRadius: BorderRadius.circular(10), // Немного квадратные углы
         ),
       ),
-      child: Text(text),
+      child: isPrimary
+          ? Text(
+              text,
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+            )
+          : Text(
+              text,
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w400),
+            ),
     );
   }
 }

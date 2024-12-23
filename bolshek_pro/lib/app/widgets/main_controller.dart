@@ -41,7 +41,7 @@ class _MainControllerNavigatorState extends State<MainControllerNavigator> {
     const HomePage(),
     // const OrdersPage(),
     const GoodsPage(),
-    const SettingsPage(), // Настройки
+    MyOrganizationPage(), // Настройки
   ];
   Future<void> _fetchOrganizationName() async {
     try {
@@ -72,71 +72,71 @@ class _MainControllerNavigatorState extends State<MainControllerNavigator> {
               color: ThemeColors.blackWithPath),
         ),
         centerTitle: false,
-        actions: [
-          IconButton(
-            icon: Icon(
-              Icons.business_rounded, // Иконка профиля
-              size: 30,
-              color: ThemeColors.grey5, // Цвет иконки
-            ),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => MyOrganizationPage(
-                      // organizationName: "Tech Corp", // Пример данных
-                      // organizationType: "Головная",
-                      // isActive: true,
-                      // creationDate: "01.12.2023",
-                      // city: "Алматы",
-                      // address: "ул. Абая, д. 123, офис 456",
-                      ),
-                ),
-              );
-            },
-          ),
-        ],
       ),
       body: IndexedStack(
         index: _currentIndex, // Показываем выбранную страницу
         children: _pages, // Страницы, которые мы хотим переключать
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: Colors.white,
-        type: BottomNavigationBarType.fixed,
-        currentIndex: _currentIndex, // Выбранный индекс
-        iconSize: 25, // Уменьшаем размер иконок
-        selectedLabelStyle: const TextStyle(
-          fontSize: 12, // Уменьшаем шрифт для выбранных элементов
-          height: 1.2, // Делаем текст ближе к иконке
+      bottomNavigationBar: Theme(
+        data: Theme.of(context).copyWith(
+          splashColor: Colors.transparent, // Отключаем ripple-анимацию
+          highlightColor: Colors.transparent, // Отключаем подсветку при нажатии
+          hoverColor: Colors.transparent, // На всякий случай отключаем hover
         ),
-        unselectedLabelStyle: const TextStyle(
-          fontSize: 12, // Уменьшаем шрифт для невыбранных элементов
-          height: 1.2, // Делаем текст ближе к иконке
+        child: BottomNavigationBar(
+          backgroundColor: Colors.white,
+          type: BottomNavigationBarType.fixed,
+          currentIndex: _currentIndex,
+          iconSize: 25,
+          selectedLabelStyle: const TextStyle(
+            fontSize: 12,
+            height: 1.2,
+          ),
+          unselectedLabelStyle: const TextStyle(
+            fontSize: 12,
+            height: 1.2,
+          ),
+          onTap: (index) {
+            setState(() {
+              _currentIndex = index;
+            });
+          },
+          items: [
+            BottomNavigationBarItem(
+              icon: SvgPicture.asset(
+                _currentIndex == 0
+                    ? 'assets/svg/home_icon_on.svg'
+                    : 'assets/svg/home_icon2.svg',
+                width: 24,
+                height: 24,
+                color: _currentIndex == 0 ? ThemeColors.orange : Colors.grey,
+              ),
+              label: 'Главная',
+            ),
+            BottomNavigationBarItem(
+              icon: SvgPicture.asset(
+                _currentIndex == 1
+                    ? 'assets/svg/orders_off.svg'
+                    : 'assets/svg/orders_on.svg',
+                width: 24,
+                height: 24,
+                color: _currentIndex == 1 ? ThemeColors.orange : Colors.grey,
+              ),
+              label: 'Товары',
+            ),
+            BottomNavigationBarItem(
+              icon: SvgPicture.asset(
+                _currentIndex == 2
+                    ? 'assets/svg/settings_off.svg'
+                    : 'assets/svg/settings_on.svg',
+                width: 24,
+                height: 24,
+                color: _currentIndex == 2 ? ThemeColors.orange : Colors.grey,
+              ),
+              label: 'Настройки',
+            ),
+          ],
         ),
-        onTap: (index) {
-          setState(() {
-            _currentIndex = index; // Изменение текущего индекса при нажатии
-          });
-        },
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.add_home_outlined),
-            label: 'Главная',
-          ),
-          // BottomNavigationBarItem(
-          //   icon: Icon(Icons.list_alt),
-          //   label: 'Заказы',
-          // ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.inventory_2_outlined),
-            label: 'Товары',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.settings_outlined),
-            label: 'Настройки',
-          ),
-        ],
       ),
     );
   }
