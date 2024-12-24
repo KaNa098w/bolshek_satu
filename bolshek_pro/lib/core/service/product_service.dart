@@ -34,7 +34,7 @@ class ProductService {
       final token = _getToken(context);
       final response = await http.get(
         Uri.parse(
-            '$_baseUrl?take=$take&skip=$skip&status=$status&categoryWithChildren=true'),
+            '$_baseUrl?take=$take&skip=$skip&$status&categoryWithChildren=true'),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',

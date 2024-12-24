@@ -1,8 +1,7 @@
-import 'package:bolshek_pro/app/pages/product/product_widget/discontinued.dart';
-import 'package:bolshek_pro/app/pages/product/product_widget/inactive.dart';
-import 'package:bolshek_pro/app/pages/product/product_widget/on_sale.dart';
+import 'package:bolshek_pro/core/utils/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:bolshek_pro/core/utils/theme.dart';
+import 'package:bolshek_pro/app/pages/product/product_widget/product_list_page.dart';
 
 class GoodsPage extends StatefulWidget {
   const GoodsPage({Key? key}) : super(key: key);
@@ -33,7 +32,6 @@ class _GoodsPageState extends State<GoodsPage>
       backgroundColor: Colors.grey.shade200,
       body: Column(
         children: [
-          // Используем PreferredSize для кастомного отображения TabBar без AppBar
           PreferredSize(
             preferredSize: const Size.fromHeight(50.0),
             child: Container(
@@ -42,9 +40,8 @@ class _GoodsPageState extends State<GoodsPage>
                 labelColor: ThemeColors.orange,
                 indicatorColor: ThemeColors.orange,
                 controller: _tabController,
-                indicatorWeight: 4.0, // Устанавливаем толщину индикатора
-                indicatorSize:
-                    TabBarIndicatorSize.tab, // Индикатор на всю ширину
+                indicatorWeight: 4.0,
+                indicatorSize: TabBarIndicatorSize.tab,
                 tabs: const [
                   Tab(text: 'В продаже'),
                   Tab(text: 'Ожидает'),
@@ -56,10 +53,10 @@ class _GoodsPageState extends State<GoodsPage>
           Expanded(
             child: TabBarView(
               controller: _tabController,
-              children: [
-                OnSale(),
-                Discontinued(), //
-                Inactive(),
+              children: const [
+                ProductListPage(status: Constants.activeStatus),
+                ProductListPage(status: Constants.awaitingStatus),
+                ProductListPage(status: Constants.inactiveStatus),
               ],
             ),
           ),

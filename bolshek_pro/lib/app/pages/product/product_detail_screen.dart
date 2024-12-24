@@ -1,4 +1,5 @@
 import 'package:bolshek_pro/app/pages/product/product_change_page.dart';
+import 'package:bolshek_pro/app/widgets/full_screen_image_widget.dart';
 import 'package:bolshek_pro/app/widgets/widget_from_bolshek/common_text_button.dart';
 import 'package:bolshek_pro/app/widgets/widget_from_bolshek/theme_text_style.dart';
 import 'package:bolshek_pro/core/service/product_service.dart';
@@ -168,8 +169,18 @@ class _ShopProductDetailScreenState extends State<ShopProductDetailScreen> {
     return _productImages.isNotEmpty
         ? GestureDetector(
             onTap: () {
-              // Реализуйте открытие полноэкранного просмотра изображения
-              print('Открыть изображения: $_productImages');
+              if (_productImages.isNotEmpty) {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => FullScreenImage(
+                      imageUrl: _productImages[
+                          0], // Вы можете изменить индекс или передать нужное изображение
+                    ),
+                  ),
+                );
+              } else {
+                print('Нет доступных изображений для отображения.');
+              }
             },
             child: Center(
               child: Container(

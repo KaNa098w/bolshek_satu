@@ -1,5 +1,6 @@
 import 'package:bolshek_pro/app/pages/product/product_widget/discontinued.dart';
 import 'package:bolshek_pro/app/pages/product/product_widget/on_sale.dart';
+import 'package:bolshek_pro/app/pages/product/product_widget/product_list_page.dart';
 import 'package:flutter/material.dart';
 import 'package:bolshek_pro/core/utils/theme.dart';
 
@@ -61,12 +62,7 @@ class _OrdersPageState extends State<OrdersPage>
             child: TabBarView(
               controller: _tabController,
               children: const [
-                OnSale(), // Вкладка "В продаже"
-                // Discontinued(),
-                OnSale(),
-                OnSale(),
-                OnSale(),
-                OnSale(),
+                ProductListPage(status: 'active')
                 // Добавьте содержимое для каждой вкладки по необходимости
               ],
             ),
