@@ -8,6 +8,8 @@ import 'package:bolshek_pro/app/widgets/home_widgets/add_name_product_page.dart'
 import 'package:bolshek_pro/app/widgets/custom_button.dart';
 import 'package:bolshek_pro/core/utils/theme.dart';
 import 'package:bolshek_pro/app/widgets/loading_widget.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
 
 class ProductListPage extends StatefulWidget {
   final String status;
@@ -33,6 +35,7 @@ class _ProductListPageState extends State<ProductListPage> {
   @override
   void initState() {
     super.initState();
+    _loadCachedProducts();
     _fetchProducts();
 
     _scrollController.addListener(() {
@@ -47,6 +50,28 @@ class _ProductListPageState extends State<ProductListPage> {
   void dispose() {
     _scrollController.dispose();
     super.dispose();
+  }
+
+  /// Загрузка данных из кэша
+  Future<void> _loadCachedProducts() async {
+    final prefs = await SharedPreferences.getInstance();
+    final cachedData = prefs.getString('cached_products_${widget.status}');
+    if (cachedData != null) {
+      final List<dynamic> cachedList = jsonDecode(cachedData);
+      setState(() {
+        _products.addAll(
+          cachedList.map((e) => ProductItems.fromJson(e)).toList(),
+        );
+        _skip = _products.length;
+      });
+    }
+  }
+
+  /// Сохранение данных в кэш
+  Future<void> _cacheProducts() async {
+    final prefs = await SharedPreferences.getInstance();
+    final data = _products.map((e) => e.toJson()).toList();
+    await prefs.setString('cached_products_${widget.status}', jsonEncode(data));
   }
 
   Future<void> _fetchProducts() async {
@@ -74,6 +99,9 @@ class _ProductListPageState extends State<ProductListPage> {
         _skip += _take;
         _hasMore = (response.items?.length ?? 0) == _take;
       });
+
+      // Сохраняем обновлённый список в кэш
+      await _cacheProducts();
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Ошибка загрузки: $e')),
@@ -94,6 +122,15 @@ class _ProductListPageState extends State<ProductListPage> {
     await _fetchProducts();
   }
 
+  void _addNewProduct(ProductItems newProduct) {
+    if (!_products.any((product) => product.id == newProduct.id)) {
+      setState(() {
+        _products.insert(0, newProduct);
+      });
+      _cacheProducts(); // Обновляем кэш
+    }
+  }
+
   String _formatPriceWithSpaces(double price) {
     final formatter = NumberFormat("#,###", "ru_RU");
     return formatter.format(price).replaceAll(',', ' ');
@@ -103,14 +140,15 @@ class _ProductListPageState extends State<ProductListPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: ThemeColors.greyF,
-      body: Padding(
-        padding: const EdgeInsets.only(top: 5.0),
-        child: Column(
-          children: [
-            Expanded(
-              child: Stack(
-                children: [
-                  RefreshIndicator(
+      body: Stack(
+        children: [
+          // Список товаров с обновлением через RefreshIndicator
+          Padding(
+            padding: const EdgeInsets.only(top: 5.0),
+            child: Column(
+              children: [
+                Expanded(
+                  child: RefreshIndicator(
                     color: ThemeColors.orange,
                     onRefresh: _refreshProducts,
                     child: ListView.builder(
@@ -126,40 +164,30 @@ class _ProductListPageState extends State<ProductListPage> {
                                   children:
                                       widget.status == Constants.activeStatus
                                           ? List.generate(
-                                              1,
-                                              (index) => Padding(
-                                                padding: const EdgeInsets.only(
-                                                    bottom: 10),
+                                              2,
+                                              (index) => const Padding(
+                                                padding:
+                                                    EdgeInsets.only(bottom: 10),
                                                 child: Row(
                                                   children: [
                                                     LoadingWidget(
-                                                      width: 80,
-                                                      height: 70,
-                                                    ),
-                                                    const SizedBox(width: 10),
-                                                    LoadingWidget(
-                                                      width: 280,
-                                                      height: 70,
+                                                      width: 360,
+                                                      height: 90,
                                                     ),
                                                   ],
                                                 ),
                                               ),
                                             )
                                           : List.generate(
-                                              3,
-                                              (index) => Padding(
-                                                padding: const EdgeInsets.only(
-                                                    bottom: 10),
+                                              2,
+                                              (index) => const Padding(
+                                                padding:
+                                                    EdgeInsets.only(bottom: 10),
                                                 child: Row(
                                                   children: [
                                                     LoadingWidget(
-                                                      width: 80,
-                                                      height: 70,
-                                                    ),
-                                                    const SizedBox(width: 10),
-                                                    LoadingWidget(
-                                                      width: 280,
-                                                      height: 70,
+                                                      width: 360,
+                                                      height: 90,
                                                     ),
                                                   ],
                                                 ),
@@ -184,25 +212,33 @@ class _ProductListPageState extends State<ProductListPage> {
                       },
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-            Padding(
-              padding: const EdgeInsets.only(bottom: 8.0, top: 5),
-              child: CustomButton(
-                text: Constants.addNewGood,
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => ProductNameInputPage(),
-                    ),
-                  );
-                },
-              ),
+          ),
+
+          // Плавающая кнопка добавления нового товара
+          Positioned(
+            bottom: 8,
+            left: 16,
+            right: 16,
+            child: CustomButton(
+              text: Constants.addNewGood,
+              onPressed: () async {
+                final newProduct = await Navigator.push<ProductItems>(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ProductNameInputPage(),
+                  ),
+                );
+
+                if (newProduct != null) {
+                  _addNewProduct(newProduct);
+                }
+              },
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -243,14 +279,15 @@ class _ProductListPageState extends State<ProductListPage> {
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(8),
                   child: imageUrl.isEmpty
-                      ? const Icon(
-                          Icons.image,
-                          size: 50,
-                          color: Colors.grey,
-                        )
+                      ? Image.asset('assets/icons/error_image.png',
+                          fit: BoxFit.cover)
                       : Image.network(
                           imageUrl,
                           fit: BoxFit.contain,
+                          errorBuilder: (context, error, stackTrace) {
+                            return Image.asset('assets/icons/error_image.png',
+                                fit: BoxFit.cover);
+                          },
                         ),
                 ),
               ),
@@ -277,6 +314,9 @@ class _ProductListPageState extends State<ProductListPage> {
                     ),
                   ],
                 ),
+              ),
+              SizedBox(
+                width: 20,
               ),
               IconButton(
                 icon: const Icon(Icons.more_vert),

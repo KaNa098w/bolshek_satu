@@ -290,46 +290,63 @@ class _ShopProductDetailScreenState extends State<ShopProductDetailScreen> {
                 ),
               ),
             ),
-            SizedBox(
-              width: 10,
-            ),
-            Text(
-              'Артикул: $_articul',
-              style: ThemeTextMontserratBold.size21.copyWith(
-                  fontSize: 12,
-                  color: ThemeColors.black,
-                  fontWeight: FontWeight.w400),
-            ),
+            // SizedBox(
+            //   width: 1,
+            // ),
+            // Text(
+            //   'Артикул: $_articul',
+            //   style: ThemeTextMontserratBold.size21.copyWith(
+            //       fontSize: 12,
+            //       color: ThemeColors.black,
+            //       fontWeight: FontWeight.w400),
+            // ),
           ],
         ),
         Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            GestureDetector(
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
-                width: 105, // Фиксированная ширина
-                height: 25, // Фиксированная высота
-                decoration: BoxDecoration(
-                  color: ThemeColors.orange,
-                  borderRadius: BorderRadius.circular(5), // Квадратный вид
-                  border: Border.all(color: ThemeColors.orange),
-                ),
-                child: Center(
-                  child: Text(
-                    _variant_kind == 'original'
-                        ? 'Оригинал'
-                        : _variant_kind == 'sub_original'
-                            ? 'Под оригинал'
-                            : _variant_kind ?? '',
-                    style: ThemeTextInterRegular.size11.copyWith(
-                      color: ThemeColors.black,
-                      fontSize: 13,
-                      fontWeight: FontWeight.w500,
+            Row(
+              children: [
+                GestureDetector(
+                  child: Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                    width: 105, // Фиксированная ширина
+                    height: 25, // Фиксированная высота
+                    decoration: BoxDecoration(
+                      color: ThemeColors.orange,
+                      borderRadius: BorderRadius.circular(5), // Квадратный вид
+                      border: Border.all(color: ThemeColors.orange),
+                    ),
+                    child: Center(
+                      child: Text(
+                        _variant_kind == 'original'
+                            ? 'Оригинал'
+                            : _variant_kind == 'sub_original'
+                                ? 'Под оригинал'
+                                : _variant_kind ?? '',
+                        style: ThemeTextInterRegular.size11.copyWith(
+                          color: ThemeColors.black,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
                     ),
                   ),
                 ),
-              ),
+              ],
             ),
+            Row(
+              children: [
+                Text(
+                  'Артикул: $_articul',
+                  style: ThemeTextMontserratBold.size21.copyWith(
+                      fontSize: 12,
+                      color: ThemeColors.black,
+                      fontWeight: FontWeight.w400),
+                ),
+              ],
+            )
           ],
         ),
       ],

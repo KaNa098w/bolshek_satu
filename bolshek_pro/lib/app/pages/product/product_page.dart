@@ -1,7 +1,7 @@
 import 'package:bolshek_pro/core/utils/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:bolshek_pro/core/utils/theme.dart';
-import 'package:bolshek_pro/app/pages/product/product_widget/product_list_page.dart';
+import 'package:bolshek_pro/app/pages/product/product_list_page.dart';
 
 class GoodsPage extends StatefulWidget {
   const GoodsPage({Key? key}) : super(key: key);
@@ -29,7 +29,6 @@ class _GoodsPageState extends State<GoodsPage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey.shade200,
       body: Column(
         children: [
           PreferredSize(
@@ -38,7 +37,9 @@ class _GoodsPageState extends State<GoodsPage>
               color: Colors.white,
               child: TabBar(
                 labelColor: ThemeColors.orange,
-                indicatorColor: ThemeColors.orange,
+                unselectedLabelColor: Colors.black,
+                indicatorColor:
+                    ThemeColors.orange, // Линия индикатора белого цвета
                 controller: _tabController,
                 indicatorWeight: 4.0,
                 indicatorSize: TabBarIndicatorSize.tab,

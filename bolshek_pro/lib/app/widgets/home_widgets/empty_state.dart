@@ -1,16 +1,29 @@
+import 'package:bolshek_pro/app/widgets/home_widgets/add_name_product_page.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 
 class EmptyState extends StatelessWidget {
-  const EmptyState({Key? key}) : super(key: key);
+  const EmptyState({
+    Key? key,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Icon(
-          Icons.shopping_bag_outlined,
-          size: 100,
-          color: Colors.grey.shade300,
+        GestureDetector(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => ProductNameInputPage()),
+            );
+          },
+          child: SvgPicture.asset(
+            'assets/svg/add_good.svg',
+            width: 100,
+            height: 100,
+          ),
         ),
         const SizedBox(height: 20),
         Text(

@@ -2,6 +2,7 @@ import 'package:bolshek_pro/core/service/city_service.dart';
 import 'package:bolshek_pro/app/widgets/home_widgets/add_name_product_page.dart';
 import 'package:bolshek_pro/app/pages/settings/settings_widget/city_widgets/city_selection.dart';
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../widgets/custom_button.dart';
 import '../../widgets/home_widgets/empty_state.dart';
 
@@ -41,6 +42,20 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  Future<void> _openWhatsAppChat() async {
+    const phoneNumber = '77027538077';
+    final whatsappUrl = 'https://wa.me/$phoneNumber';
+    if (await canLaunch(whatsappUrl)) {
+      await launch(whatsappUrl);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Не удалось открыть WhatsApp'),
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -64,9 +79,7 @@ class _HomePageState extends State<HomePage> {
             const SizedBox(height: 13),
             CustomButton(
               text: 'Открыть чат с Bolshek',
-              onPressed: () {
-                // Логика открытия чата
-              },
+              onPressed: _openWhatsAppChat,
               isPrimary: false,
             ),
           ],

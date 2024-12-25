@@ -86,7 +86,7 @@ class ProductService {
       print('Запрос к сервису: $_baseUrl/$id'); // Лог URL
       print('Токен: $token'); // Лог токена
 
-      final response = await httpClient.get(
+      final response = await http.get(
         Uri.parse('$_baseUrl/$id'),
         headers: {
           'Authorization': 'Bearer $token',
@@ -149,7 +149,7 @@ class ProductService {
 
       print('Creating product with data: ${jsonEncode(body)}');
 
-      final response = await httpClient.post(
+      final response = await http.post(
         Uri.parse(_baseUrl),
         headers: {
           'Authorization': 'Bearer $token',
@@ -181,7 +181,7 @@ class ProductService {
     try {
       final token = _getToken(context);
 
-      final response = await httpClient.put(
+      final response = await http.put(
         Uri.parse('$_baseUrl/$id'),
         headers: {
           'Authorization': 'Bearer $token',

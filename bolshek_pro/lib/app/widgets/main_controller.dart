@@ -1,6 +1,7 @@
 import 'package:bolshek_pro/app/pages/home/home_page.dart';
 import 'package:bolshek_pro/app/pages/my_organization/my_organiztion_page.dart';
 import 'package:bolshek_pro/app/pages/orders/orders_page.dart';
+import 'package:bolshek_pro/app/pages/orders/orders_list_page.dart';
 import 'package:bolshek_pro/app/pages/product/product_page.dart';
 import 'package:bolshek_pro/app/pages/settings/settings_page.dart';
 import 'package:bolshek_pro/core/service/auth_service.dart';
@@ -39,7 +40,7 @@ class _MainControllerNavigatorState extends State<MainControllerNavigator> {
   // Список страниц для переключения
   final List<Widget> _pages = [
     const HomePage(),
-    // const OrdersPage(),
+    const OrdersPage(),
     const GoodsPage(),
     MyOrganizationPage(), // Настройки
   ];
@@ -122,16 +123,27 @@ class _MainControllerNavigatorState extends State<MainControllerNavigator> {
                 height: 24,
                 color: _currentIndex == 1 ? ThemeColors.orange : Colors.grey,
               ),
-              label: 'Товары',
+              label: 'Заказы',
             ),
             BottomNavigationBarItem(
               icon: SvgPicture.asset(
                 _currentIndex == 2
+                    ? 'assets/svg/goods_off.svg'
+                    : 'assets/svg/goods_on.svg',
+                width: 24,
+                height: 24,
+                color: _currentIndex == 2 ? ThemeColors.orange : Colors.grey,
+              ),
+              label: 'Товары',
+            ),
+            BottomNavigationBarItem(
+              icon: SvgPicture.asset(
+                _currentIndex == 3
                     ? 'assets/svg/settings_off.svg'
                     : 'assets/svg/settings_on.svg',
                 width: 24,
                 height: 24,
-                color: _currentIndex == 2 ? ThemeColors.orange : Colors.grey,
+                color: _currentIndex == 3 ? ThemeColors.orange : Colors.grey,
               ),
               label: 'Настройки',
             ),
