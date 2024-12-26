@@ -1,7 +1,10 @@
 import 'dart:convert';
+import 'package:bolshek_pro/app/widgets/colors_enum_widget.dart';
 import 'package:bolshek_pro/app/widgets/custom_dropdown_field.dart';
 import 'package:bolshek_pro/app/widgets/editable_dropdown_field.dart';
 import 'package:bolshek_pro/app/widgets/home_widgets/add_variant_widget.dart';
+import 'package:bolshek_pro/app/widgets/home_widgets/category_colors_widget.dart';
+import 'package:bolshek_pro/app/widgets/home_widgets/color_picker_widget.dart';
 import 'package:bolshek_pro/app/widgets/main_controller.dart';
 import 'package:bolshek_pro/core/service/images_service.dart';
 import 'package:bolshek_pro/core/service/product_service.dart';
@@ -83,7 +86,6 @@ class _CharacteristicsTabState extends State<CharacteristicsTab>
       print('brandId: ${authProvider.brandId}');
       print('images: ${authProvider.images}');
       print('_propertyValues: $_propertyValues');
-      // Показать индикатор загрузки
       showDialog(
         context: context,
         barrierDismissible: false, // Запретить закрытие по клику вне окна
@@ -195,7 +197,7 @@ class _CharacteristicsTabState extends State<CharacteristicsTab>
                     MaterialPageRoute(
                       builder: (context) => const MainControllerNavigator(),
                       settings:
-                          const RouteSettings(arguments: 1), // Индекс "Товары"
+                          const RouteSettings(arguments: 2), // Индекс "Товары"
                     ),
                     (route) => false, // Удалить все предыдущие маршруты
                   );
@@ -250,26 +252,50 @@ class _CharacteristicsTabState extends State<CharacteristicsTab>
                 }
                 return Column(
                   children: properties.map((property) {
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        EditableDropdownField(
-                          title: property.unit == null
-                              ? '${property.name}'
-                              : '${property.name} (${property.unit})',
-                          value: _propertyValues[property.id ?? ''] ?? '',
-                          hint: 'Введите значение',
-                          onChanged: (value) {
-                            _propertyValues[property.id ?? ''] = value;
-                          },
-                        ),
-                        const SizedBox(height: 12),
-                      ],
-                    );
+                    if (property.type == 'color') {
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Text(
+                          //   property.name ?? 'Цвет',
+                          //   style: const TextStyle(fontWeight: FontWeight.bold),
+                          // ),
+                          // const SizedBox(height: 8),
+                          ColorPicker(
+                            propertyId: property.id ?? '',
+                            onColorSelected: (selectedColor) {
+                              setState(() {
+                                _propertyValues[property.id ?? ''] =
+                                    selectedColor;
+                              });
+                            },
+                          ),
+                          const SizedBox(height: 12),
+                        ],
+                      );
+                    } else {
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          EditableDropdownField(
+                            title: property.unit == null
+                                ? '${property.name}'
+                                : '${property.name} (${property.unit})',
+                            value: _propertyValues[property.id ?? ''] ?? '',
+                            hint: 'Введите значение',
+                            onChanged: (value) {
+                              _propertyValues[property.id ?? ''] = value;
+                            },
+                          ),
+                          const SizedBox(height: 12),
+                        ],
+                      );
+                    }
                   }).toList(),
                 );
               },
             ),
+
             ProductDetailsWidget(),
             const SizedBox(height: 12),
             Center(

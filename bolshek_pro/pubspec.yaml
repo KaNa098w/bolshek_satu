@@ -2,7 +2,7 @@ name: bolshek_pro
 description: "A new Flutter project."
 
 
-version: 1.0.1+5
+version: 1.0.1+7
 
 environment:
   sdk: ^3.5.1

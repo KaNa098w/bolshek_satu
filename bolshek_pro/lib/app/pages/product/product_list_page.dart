@@ -142,7 +142,6 @@ class _ProductListPageState extends State<ProductListPage> {
       backgroundColor: ThemeColors.greyF,
       body: Stack(
         children: [
-          // Список товаров с обновлением через RefreshIndicator
           Padding(
             padding: const EdgeInsets.only(top: 5.0),
             child: Column(
@@ -151,18 +150,45 @@ class _ProductListPageState extends State<ProductListPage> {
                   child: RefreshIndicator(
                     color: ThemeColors.orange,
                     onRefresh: _refreshProducts,
-                    child: ListView.builder(
-                      controller: _scrollController,
-                      itemCount: _products.length + (_hasMore ? 1 : 0),
-                      itemBuilder: (context, index) {
-                        if (index == _products.length) {
-                          return Padding(
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 16.0, horizontal: 10),
-                            child: Center(
-                              child: Column(
-                                  children:
-                                      widget.status == Constants.activeStatus
+                    child: _products.isEmpty && !_isLoading
+                        ? Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Image.asset(
+                                  'assets/icons/empty-box.png',
+                                  width: 100,
+                                  height: 100,
+                                  color: Colors.grey.shade400,
+                                ),
+
+                                const SizedBox(
+                                    height:
+                                        15), // Расстояние между иконкой и текстом
+                                Text(
+                                  'В данном разделе \nнет товаров',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: Colors.grey,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ],
+                            ),
+                          )
+                        : ListView.builder(
+                            controller: _scrollController,
+                            padding: EdgeInsets.only(bottom: 62),
+                            itemCount: _products.length + (_hasMore ? 1 : 0),
+                            itemBuilder: (context, index) {
+                              if (index == _products.length) {
+                                return Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 16.0, horizontal: 10),
+                                  child: Center(
+                                    child: Column(
+                                      children: widget.status ==
+                                              Constants.activeStatus
                                           ? List.generate(
                                               2,
                                               (index) => const Padding(
@@ -192,32 +218,32 @@ class _ProductListPageState extends State<ProductListPage> {
                                                   ],
                                                 ),
                                               ),
-                                            )),
-                            ),
-                          );
-                        }
+                                            ),
+                                    ),
+                                  ),
+                                );
+                              }
 
-                        final product = _products[index];
-                        return _buildProductItem(
-                          name: product.name ?? 'Без названия',
-                          price: product.variants != null &&
-                                  product.variants!.isNotEmpty
-                              ? '${_formatPriceWithSpaces((product.variants!.first.price?.amount ?? 0) / 100)} ₸'
-                              : 'Цена не указана',
-                          imageUrl: product.images?.isNotEmpty == true
-                              ? product.images!.first.getBestFitImage() ?? ''
-                              : '',
-                          productId: product.id ?? '',
-                        );
-                      },
-                    ),
+                              final product = _products[index];
+                              return _buildProductItem(
+                                name: product.name ?? 'Без названия',
+                                price: product.variants != null &&
+                                        product.variants!.isNotEmpty
+                                    ? '${_formatPriceWithSpaces((product.variants!.first.price?.amount ?? 0) / 100)} ₸'
+                                    : 'Цена не указана',
+                                imageUrl: product.images?.isNotEmpty == true
+                                    ? product.images!.first.getBestFitImage() ??
+                                        ''
+                                    : '',
+                                productId: product.id ?? '',
+                              );
+                            },
+                          ),
                   ),
                 ),
               ],
             ),
           ),
-
-          // Плавающая кнопка добавления нового товара
           Positioned(
             bottom: 8,
             left: 16,
