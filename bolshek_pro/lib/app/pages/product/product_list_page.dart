@@ -1,5 +1,8 @@
+import 'package:bolshek_pro/app/pages/product/product_change_page.dart';
+import 'package:bolshek_pro/core/service/variants_service.dart';
 import 'package:bolshek_pro/core/utils/constants.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:intl/intl.dart';
 import 'package:bolshek_pro/core/service/product_service.dart';
 import 'package:bolshek_pro/core/models/product_response.dart';
@@ -131,6 +134,132 @@ class _ProductListPageState extends State<ProductListPage> {
     }
   }
 
+  String _formatPrice(double price) {
+    if (price == price.toInt()) {
+      // Если число целое, убираем дробную часть
+      return price.toInt().toString();
+    } else {
+      // Если дробная часть есть, оставляем её
+      return price
+          .toStringAsFixed(2)
+          .replaceAll(RegExp(r"0+$"), "")
+          .replaceAll(RegExp(r"\.$"), "");
+    }
+  }
+
+  void _showPriceEditDialog(
+    String productId,
+    String variantId,
+    double currentPrice,
+    String sku,
+    String manufacturerId,
+    String kind,
+  ) {
+    final TextEditingController _priceController = TextEditingController(
+      text: _formatPrice(currentPrice),
+    );
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text(
+            "Изменить цену",
+            style: TextStyle(fontSize: 18),
+          ),
+          content: TextField(
+            controller: _priceController,
+            keyboardType: TextInputType.number,
+            decoration: const InputDecoration(
+              hintText: "Введите новую цену",
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text(
+                "Отмена",
+                style:
+                    TextStyle(color: Colors.grey, fontWeight: FontWeight.bold),
+              ),
+            ),
+            TextButton(
+              onPressed: () async {
+                final enteredPrice = double.tryParse(_priceController.text);
+                if (enteredPrice != null) {
+                  final newPrice = enteredPrice * 100;
+
+                  // Показать индикатор загрузки
+                  showDialog(
+                    context: context,
+                    barrierDismissible: false,
+                    builder: (BuildContext context) {
+                      return const Center(
+                        child: CircularProgressIndicator(
+                          color: ThemeColors.orange,
+                        ),
+                      );
+                    },
+                  );
+
+                  try {
+                    // Обновить цену через сервис
+                    final variantsService = VariantsService();
+                    await variantsService.updateProductVariant(
+                      context,
+                      productId: productId,
+                      variantId: variantId,
+                      newAmount: newPrice,
+                      sku: sku,
+                      manufacturerId: manufacturerId,
+                      kind: kind,
+                    );
+
+                    setState(() {
+                      // Найдите и обновите товар в списке
+                      final productIndex = _products.indexWhere(
+                        (product) => product.id == productId,
+                      );
+                      if (productIndex != -1) {
+                        _products[productIndex].variants?.first.price?.amount =
+                            newPrice.toInt();
+                      }
+                    });
+
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text(
+                          "Цена успешно обновлена",
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        backgroundColor: ThemeColors.green,
+                      ),
+                    );
+                  } catch (e) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text("Ошибка: $e")),
+                    );
+                  } finally {
+                    Navigator.of(context).pop(); // Закрываем индикатор загрузки
+                    Navigator.of(context)
+                        .pop(); // Закрываем диалог изменения цены
+                  }
+                }
+              },
+              child: const Text(
+                "Сохранить",
+                style: TextStyle(
+                    color: ThemeColors.orange, fontWeight: FontWeight.bold),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   String _formatPriceWithSpaces(double price) {
     final formatter = NumberFormat("#,###", "ru_RU");
     return formatter.format(price).replaceAll(',', ' ');
@@ -155,11 +284,11 @@ class _ProductListPageState extends State<ProductListPage> {
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Image.asset(
-                                  'assets/icons/empty-box.png',
+                                SvgPicture.asset(
+                                  'assets/svg/empty_goods.svg',
                                   width: 100,
                                   height: 100,
-                                  color: Colors.grey.shade400,
+                                  // color: Colors.grey.shade400,
                                 ),
 
                                 const SizedBox(
@@ -226,6 +355,8 @@ class _ProductListPageState extends State<ProductListPage> {
 
                               final product = _products[index];
                               return _buildProductItem(
+                                index: index, // Передаём индекс
+                                product: product, // Передаём продукт
                                 name: product.name ?? 'Без названия',
                                 price: product.variants != null &&
                                         product.variants!.isNotEmpty
@@ -270,6 +401,8 @@ class _ProductListPageState extends State<ProductListPage> {
   }
 
   Widget _buildProductItem({
+    required int index,
+    required ProductItems product,
     required String name,
     required String price,
     required String imageUrl,
@@ -341,14 +474,75 @@ class _ProductListPageState extends State<ProductListPage> {
                   ],
                 ),
               ),
-              SizedBox(
-                width: 20,
-              ),
-              IconButton(
-                icon: const Icon(Icons.more_vert),
-                onPressed: () {
-                  // Обработка нажатия на троеточие
+              // SizedBox(
+              //   width: 50,
+              // ),
+              PopupMenuButton<String>(
+                icon: const Icon(Icons.more_horiz),
+                elevation: 1,
+                onSelected: (value) {
+                  // Обработка выбранного действия
+                  switch (value) {
+                    case 'view_product':
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              ShopProductDetailScreen(productId: productId),
+                        ),
+                      );
+                      break;
+                    case 'change_price':
+                      final variant = _products[index].variants?.first;
+                      if (variant != null) {
+                        final variantId = variant.id ?? '';
+                        final currentPrice = (variant.price?.amount ?? 0) / 100;
+                        final sku = variant.sku ?? '';
+                        final manufacturerId = variant.manufacturerId ?? '';
+                        final kind = variant.kind ?? '';
+
+                        _showPriceEditDialog(product.id ?? '', variantId,
+                            currentPrice, sku, manufacturerId, kind);
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('У товара нет вариантов с ценой'),
+                          ),
+                        );
+                      }
+                      break;
+                    case 'edit_product':
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ProductChangePage(
+                            productId: productId,
+                            productService: _productService,
+                          ),
+                        ),
+                      );
+                      break;
+                  }
                 },
+                itemBuilder: (context) => [
+                  const PopupMenuItem(
+                    value: 'view_product',
+                    child: Text('Показать товар'),
+                  ),
+                  const PopupMenuItem(
+                    value: 'change_price',
+                    child: Text('Изменить цену'),
+                  ),
+                  const PopupMenuItem(
+                    value: 'edit_product',
+                    child: Text('Редактировать товар'),
+                  ),
+                ],
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                color: Colors.white,
+                offset: const Offset(0, 40),
               ),
             ],
           ),

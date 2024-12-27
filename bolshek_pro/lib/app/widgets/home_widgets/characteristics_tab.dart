@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:bolshek_pro/app/widgets/colors_enum_widget.dart';
 import 'package:bolshek_pro/app/widgets/custom_dropdown_field.dart';
@@ -29,6 +30,7 @@ class _CharacteristicsTabState extends State<CharacteristicsTab>
     with AutomaticKeepAliveClientMixin {
   Map<String, String> _propertyValues = {};
   ValueNotifier<List<PropertyItems>> propertiesNotifier = ValueNotifier([]);
+  ValueNotifier<double> uploadProgressNotifier = ValueNotifier(0.0);
   bool isLoading = true;
 
   @override
@@ -86,14 +88,112 @@ class _CharacteristicsTabState extends State<CharacteristicsTab>
       print('brandId: ${authProvider.brandId}');
       print('images: ${authProvider.images}');
       print('_propertyValues: $_propertyValues');
+
+      // Инициализация прогресса загрузки
+      const totalSteps = 4.0; // Количество этапов
+      ValueNotifier<double> uploadProgressNotifier = ValueNotifier(0.0);
+      ValueNotifier<List<String>> completedStepsNotifier = ValueNotifier([]);
+      ValueNotifier<String> currentStepNotifier =
+          ValueNotifier('Инициализация');
+      ValueNotifier<int> dotsNotifier = ValueNotifier(0);
+
+      // Анимация для мигающих точек
+      Timer.periodic(const Duration(milliseconds: 500), (timer) {
+        if (dotsNotifier.value >= 3) {
+          dotsNotifier.value = 0;
+        } else {
+          dotsNotifier.value += 1;
+        }
+      });
+
+      // Отображение прогресса загрузки
       showDialog(
         context: context,
-        barrierDismissible: false, // Запретить закрытие по клику вне окна
+        barrierDismissible: false,
         builder: (context) {
-          return const Center(
-            child: CircularProgressIndicator(
-              color: ThemeColors.grey4,
-            ),
+          return StatefulBuilder(
+            builder: (context, setState) {
+              return AlertDialog(
+                title: const Text('Создание товара'),
+                content: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        ValueListenableBuilder<double>(
+                          valueListenable: uploadProgressNotifier,
+                          builder: (context, progress, child) {
+                            return SizedBox(
+                              width: 100,
+                              height: 100,
+                              child: CircularProgressIndicator(
+                                value: progress,
+                                color: ThemeColors.orange,
+                                strokeWidth: 8.0,
+                              ),
+                            );
+                          },
+                        ),
+                        ValueListenableBuilder<double>(
+                          valueListenable: uploadProgressNotifier,
+                          builder: (context, progress, child) {
+                            return Text(
+                              '${(progress * 100).toInt()}%',
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    ValueListenableBuilder<String>(
+                      valueListenable: currentStepNotifier,
+                      builder: (context, currentStep, child) {
+                        return ValueListenableBuilder<int>(
+                          valueListenable: dotsNotifier,
+                          builder: (context, dots, child) {
+                            return Text(
+                              '$currentStep${'.' * dots}',
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            );
+                          },
+                        );
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                    ValueListenableBuilder<List<String>>(
+                      valueListenable: completedStepsNotifier,
+                      builder: (context, completedSteps, child) {
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: completedSteps.map((step) {
+                            return Row(
+                              children: [
+                                const Icon(Icons.check_circle,
+                                    color: Colors.green, size: 20),
+                                const SizedBox(width: 8),
+                                Text(
+                                  step,
+                                  style: const TextStyle(fontSize: 14),
+                                ),
+                              ],
+                            );
+                          }).toList(),
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              );
+            },
           );
         },
       );
@@ -101,7 +201,8 @@ class _CharacteristicsTabState extends State<CharacteristicsTab>
       final imagesService = ImagesService();
       final propertiesService = PropertiesService();
 
-      // Данные для создания продукта
+      // 1. Создание продукта
+      currentStepNotifier.value = 'Создание товара';
       final productName = authProvider.name ?? 'Не указано';
       final brandId = authProvider.brandId ?? '';
       final categoryId = authProvider.selectedCategoryId ?? '';
@@ -109,7 +210,6 @@ class _CharacteristicsTabState extends State<CharacteristicsTab>
       final vendorCode = authProvider.vendorCode;
       final descriptionText = authProvider.descriptionText ?? '';
 
-      // Создание продукта
       final response = await ProductService().createProduct(
           context,
           productName,
@@ -118,45 +218,50 @@ class _CharacteristicsTabState extends State<CharacteristicsTab>
           deliveryType,
           categoryId,
           vendorCode,
-          descriptionText!);
+          descriptionText);
 
-      // Парсинг ответа
       final Map<String, dynamic> responseData = jsonDecode(response.body);
       final String productId = responseData['id'] ?? '';
 
       if (productId.isEmpty) {
         throw Exception('ID продукта не найден в ответе');
       }
+      uploadProgressNotifier.value += 1.0 / totalSteps;
+      completedStepsNotifier.value.add('Товар создан');
 
-      // Загрузка фотографий
+      // 2. Загрузка фотографий
+      currentStepNotifier.value = 'Загрузка фотографий';
       final images = authProvider.images;
-      for (final image in images) {
+      for (var i = 0; i < images.length; i++) {
         await imagesService.createProductImage(
           context,
           productId: productId,
-          imageSize: image['size'].toDouble(),
-          imageData: image['data'],
-          imageName: image['name'],
+          imageSize: images[i]['size'].toDouble(),
+          imageData: images[i]['data'],
+          imageName: images[i]['name'],
         );
+        uploadProgressNotifier.value += (1.0 / totalSteps) / images.length;
       }
+      completedStepsNotifier.value.add('Фотографии загружены');
 
-      // Создание варианта
-      final price = authProvider.price;
-      final sku = authProvider.sku;
-      final manufacturerId = authProvider.manufacturerId;
-
+      // 3. Создание варианта
+      currentStepNotifier.value = 'Создание варианта товара';
       await VariantsService().createProductVariant(
         context,
         productId: productId,
-        priceAmount: price,
-        sku: sku,
-        manufacturerId: manufacturerId ?? '',
+        priceAmount: authProvider.price,
+        sku: authProvider.sku,
+        manufacturerId: authProvider.manufacturerId ?? '',
+        kind: authProvider.kind ?? 'original',
       );
+      uploadProgressNotifier.value += 1.0 / totalSteps;
+      completedStepsNotifier.value.add('Вариант товара создан');
 
-      // Отправка свойств продукта
+      // 4. Отправка свойств
+      currentStepNotifier.value = 'Сохранение характеристик';
       for (final entry in _propertyValues.entries) {
-        final propertyId = entry.key; // ID свойства
-        final value = entry.value; // Значение свойства
+        final propertyId = entry.key;
+        final value = entry.value;
 
         if (value.isNotEmpty) {
           await propertiesService.createProductProperties(
@@ -167,7 +272,10 @@ class _CharacteristicsTabState extends State<CharacteristicsTab>
           );
         }
       }
+      uploadProgressNotifier.value = 1.0;
+      completedStepsNotifier.value.add('Характеристики сохранены');
 
+      // Очистка данных
       authProvider.setCategoryId(null);
       authProvider.setName(null);
       authProvider.setBrandId(null);
@@ -178,28 +286,27 @@ class _CharacteristicsTabState extends State<CharacteristicsTab>
       authProvider.clearImages();
       authProvider.setPropertyValues({});
 
-      // Закрыть индикатор загрузки
+      // Закрыть диалог загрузки
       Navigator.pop(context);
 
-      // Уведомление об успехе с кнопкой перехода
+      // Уведомление об успехе
       showDialog(
         context: context,
         builder: (context) {
           return AlertDialog(
-            title: const Text('Успех'),
+            // title: const Text('Успех'),
             content: const Text('Товар успешно создан!'),
             actions: [
               TextButton(
                 onPressed: () {
-                  Navigator.pop(context); // Закрыть диалог
+                  Navigator.pop(context);
                   Navigator.pushAndRemoveUntil(
                     context,
                     MaterialPageRoute(
                       builder: (context) => const MainControllerNavigator(),
-                      settings:
-                          const RouteSettings(arguments: 2), // Индекс "Товары"
+                      settings: const RouteSettings(arguments: 2),
                     ),
-                    (route) => false, // Удалить все предыдущие маршруты
+                    (route) => false,
                   );
                 },
                 child: const Text(
@@ -212,7 +319,7 @@ class _CharacteristicsTabState extends State<CharacteristicsTab>
         },
       );
     } catch (e) {
-      // Закрыть индикатор загрузки
+      // Закрыть диалог загрузки
       Navigator.pop(context);
 
       ScaffoldMessenger.of(context).showSnackBar(

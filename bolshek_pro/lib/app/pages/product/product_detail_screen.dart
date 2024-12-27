@@ -238,24 +238,24 @@ class _ShopProductDetailScreenState extends State<ShopProductDetailScreen> {
             ),
           ),
         ),
-        Row(
-          children: [
-            IconButton(
-              onPressed: () {
-                // Реализуйте добавление в избранное
-                print('Добавить в избранное');
-              },
-              icon: Icon(Icons.favorite_border, color: Colors.grey[600]),
-            ),
-            IconButton(
-              onPressed: () {
-                // Реализуйте логику для "Поделиться"
-                print('Поделиться товаром');
-              },
-              icon: Icon(Icons.share, color: Colors.grey[600]),
-            ),
-          ],
-        ),
+        // Row(
+        //   children: [
+        //     IconButton(
+        //       onPressed: () {
+        //         // Реализуйте добавление в избранное
+        //         print('Добавить в избранное');
+        //       },
+        //       icon: Icon(Icons.favorite_border, color: Colors.grey[600]),
+        //     ),
+        //     IconButton(
+        //       onPressed: () {
+        //         // Реализуйте логику для "Поделиться"
+        //         print('Поделиться товаром');
+        //       },
+        //       icon: Icon(Icons.share, color: Colors.grey[600]),
+        //     ),
+        //   ],
+        // ),
       ],
     );
   }
@@ -311,7 +311,7 @@ class _ShopProductDetailScreenState extends State<ShopProductDetailScreen> {
                   child: Container(
                     padding:
                         const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
-                    width: 105, // Фиксированная ширина
+                    width: 110, // Фиксированная ширина
                     height: 25, // Фиксированная высота
                     decoration: BoxDecoration(
                       color: ThemeColors.orange,
@@ -324,7 +324,9 @@ class _ShopProductDetailScreenState extends State<ShopProductDetailScreen> {
                             ? 'Оригинал'
                             : _variant_kind == 'sub_original'
                                 ? 'Под оригинал'
-                                : _variant_kind ?? '',
+                                : _variant_kind == 'disassemble'
+                                    ? 'Авторазбор'
+                                    : 'Неизвестный',
                         style: ThemeTextInterRegular.size11.copyWith(
                           color: ThemeColors.black,
                           fontSize: 13,
@@ -428,14 +430,13 @@ class _ShopProductDetailScreenState extends State<ShopProductDetailScreen> {
                   try {
                     // Вызываем сервис обновления цены
                     final variantsService = VariantsService();
-                    await variantsService.updateProductVariant(
-                      context,
-                      productId: productId,
-                      variantId: variantId,
-                      newAmount: newPrice,
-                      sku: _variants_kod,
-                      manufacturerId: _manufacturerId,
-                    );
+                    await variantsService.updateProductVariant(context,
+                        productId: productId,
+                        variantId: variantId,
+                        newAmount: newPrice,
+                        sku: _variants_kod,
+                        manufacturerId: _manufacturerId,
+                        kind: _variant_kind);
 
                     setState(() {
                       _productPrice = newPrice; // Обновляем локальное состояние

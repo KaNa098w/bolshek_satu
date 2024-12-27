@@ -1,4 +1,5 @@
 import 'package:bolshek_pro/app/pages/auth/auth_page.dart';
+import 'package:bolshek_pro/app/widgets/custom_alert_dialog_widget.dart';
 import 'package:bolshek_pro/app/widgets/loading_widget.dart';
 import 'package:bolshek_pro/core/service/address_service.dart';
 import 'package:bolshek_pro/core/service/auth_service.dart';
@@ -31,24 +32,16 @@ class _MyOrganizationPageState extends State<MyOrganizationPage> {
   Future<void> _logout() async {
     bool confirm = await showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Выход из аккаунта'),
-        content: const Text('Вы уверены, что хотите выйти?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Отмена'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Выйти'),
-          ),
-        ],
+      builder: (context) => CustomAlertDialog(
+        title: 'Выход из аккаунта',
+        content: 'Вы уверены, что хотите выйти?',
+        onConfirm: () => Navigator.of(context).pop(true),
+        onCancel: () => Navigator.of(context).pop(false),
       ),
     );
 
     if (confirm) {
-      await context.read<GlobalProvider>().logout(); // Теперь метод асинхронный
+      await context.read<GlobalProvider>().logout();
       Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(builder: (context) => LoginPage()),
@@ -234,12 +227,17 @@ class _MyOrganizationPageState extends State<MyOrganizationPage> {
                     child: ElevatedButton(
                       onPressed: _logout,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.white, // Фон кнопки
-                        side: BorderSide(color: Colors.red), // Обводка кнопки
+                        backgroundColor: Colors.white,
+                        elevation: 0.1,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(
+                              12), // Радиус скругления углов
+                        ),
                       ),
                       child: Text(
                         'Выйти из аккаунта',
-                        style: TextStyle(color: Colors.red),
+                        style: TextStyle(
+                            color: Colors.red, fontWeight: FontWeight.w500),
                       ),
                     ),
                   ),

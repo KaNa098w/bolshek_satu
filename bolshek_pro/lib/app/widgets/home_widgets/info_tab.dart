@@ -70,6 +70,14 @@ class _InfoTabState extends State<InfoTab> with AutomaticKeepAliveClientMixin {
       final pickedFile = await _picker.pickImage(source: source);
       if (pickedFile != null) {
         final file = File(pickedFile.path);
+        final fileSize = await file.length(); // Получаем размер файла в байтах
+
+        // Проверяем, не превышает ли размер 1 МБ
+        if (fileSize > 1 * 1024 * 1024) {
+          // 1 МБ = 1024 * 1024 байт
+          _showError('Размер файла не должен превышать 1 МБ');
+          return;
+        }
 
         if (_images.length < 5) {
           // Подготовка данных изображения

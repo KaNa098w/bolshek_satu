@@ -220,14 +220,14 @@ class _OrderListPageState extends State<OrderListPage> {
   }) {
     return GestureDetector(
       onTap: () {
-        if (orderId.isNotEmpty) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => ShopProductDetailScreen(productId: orderId),
-            ),
-          );
-        }
+        // if (orderId.isNotEmpty) {
+        //   Navigator.push(
+        //     context,
+        //     MaterialPageRoute(
+        //       builder: (context) => ShopProductDetailScreen(productId: orderId),
+        //     ),
+        //   );
+        // }
       },
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -301,12 +301,12 @@ class _OrderListPageState extends State<OrderListPage> {
                   ],
                 ),
               ),
-              IconButton(
-                icon: const Icon(Icons.more_vert),
-                onPressed: () {
-                  // Обработка нажатия на троеточие
-                },
-              ),
+              // IconButton(
+              //   icon: const Icon(Icons.more_vert),
+              //   onPressed: () {
+              //     // Обработка нажатия на троеточие
+              //   },
+              // ),
             ],
           ),
         ),

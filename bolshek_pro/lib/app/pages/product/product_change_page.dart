@@ -75,6 +75,16 @@ class _ProductChangePageState extends State<ProductChangePage> {
     _loadManufacturers();
     _loadBrands();
     _selectedBrandId = _product?.brandId;
+    if (_product?.variants?.isNotEmpty ?? false) {
+      final variantKind = _product?.variants?.first.kind;
+      selectedType = variantKind == 'original'
+          ? 'Оригинал'
+          : variantKind == 'sub_original'
+              ? 'Под оригинал'
+              : 'Авторазбор';
+    } else {
+      selectedType = 'Оригинал'; // Значение по умолчанию
+    }
   }
 
   Future<void> _loadCategories() async {
@@ -261,42 +271,28 @@ class _ProductChangePageState extends State<ProductChangePage> {
       ),
       backgroundColor: Colors.white,
       builder: (context) {
-        String searchQuery = ''; // Локальная переменная для поиска
         return StatefulBuilder(
           builder: (context, setStateModal) {
-            final filteredTypes = typeOptions
-                .where((type) =>
-                    type.toLowerCase().contains(searchQuery.toLowerCase()))
-                .toList();
             return SizedBox(
               height: MediaQuery.of(context).size.height * 0.3,
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
                   children: [
-                    const SizedBox(height: 14),
-                    Row(
-                      children: [Text('Тип товара')],
-                    ),
+                    const Text('Выберите тип товара'),
                     const SizedBox(height: 10),
                     Expanded(
                       child: ListView.builder(
-                        itemCount: filteredTypes.length,
+                        itemCount: typeOptions.length,
                         itemBuilder: (context, index) {
-                          final type = filteredTypes[index];
+                          final type = typeOptions[index];
                           return ListTile(
                             title: Text(type),
                             onTap: () {
-                              Navigator.pop(context);
                               setState(() {
                                 selectedType = type;
-                                String kind = '';
-                                if (type == 'Оригинал') kind = 'original';
-                                if (type == 'Под оригинал')
-                                  kind = 'sub_original';
-                                if (type == 'Авторазбор') kind = 'autorazbor';
-                                context.read<GlobalProvider>().setKind(kind);
                               });
+                              Navigator.pop(context);
                             },
                           );
                         },
@@ -339,6 +335,11 @@ class _ProductChangePageState extends State<ProductChangePage> {
       updatedFields['vendorCode'] = _product?.vendorCode;
     }
 
+    final currentKind = _product?.variants?.first.kind;
+    final originalKind = _originalProduct?.variants?.first.kind;
+    if (currentKind != originalKind) {
+      updatedFields['kind'] = currentKind;
+    }
     // Сравнение описания
     if (_product?.description?.blocks !=
         _originalProduct?.description?.blocks) {
@@ -373,6 +374,11 @@ class _ProductChangePageState extends State<ProductChangePage> {
         _originalProduct = FetchProductResponse.fromJson(
             product.toJson()); // Сохраняем оригинал
         _originalImages = List.from(product.images ?? []);
+        selectedType = product.variants?.first.kind == 'original'
+            ? 'Оригинал'
+            : product.variants?.first.kind == 'sub_original'
+                ? 'Под оригинал'
+                : 'Авторазбор';
         _isLoading = false;
       });
 
@@ -434,6 +440,11 @@ class _ProductChangePageState extends State<ProductChangePage> {
     final hasVariantChanges = currentVariant != null &&
         (updatedManufacturerId != currentVariant.manufacturerId ||
             updatedSku != currentVariant.sku);
+    String updatedKind = selectedType == 'Оригинал'
+        ? 'original'
+        : selectedType == 'Под оригинал'
+            ? 'sub_original'
+            : 'disassemble';
 
     // Если нет изменений, выводим сообщение
     if (updatedFields.isEmpty &&
@@ -528,6 +539,12 @@ class _ProductChangePageState extends State<ProductChangePage> {
 
       // Обновляем variant, если есть изменения
       if (hasVariantChanges && currentVariant != null) {
+        final updatedKind = selectedType == 'Оригинал'
+            ? 'original'
+            : selectedType == 'Под оригинал'
+                ? 'sub_original'
+                : 'disassemble';
+
         final variantsService = VariantsService();
         await variantsService.updateProductVariant(
           context,
@@ -536,6 +553,7 @@ class _ProductChangePageState extends State<ProductChangePage> {
           newAmount: (currentVariant.price?.amount ?? 0).toDouble(),
           manufacturerId: updatedManufacturerId,
           sku: updatedSku,
+          kind: updatedKind, // Передаем обновленный тип
         );
       }
 
