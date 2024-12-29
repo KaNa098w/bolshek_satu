@@ -1,5 +1,5 @@
-import 'package:bolshek_pro/app/widgets/home_widgets/characteristics_tab.dart';
-import 'package:bolshek_pro/app/widgets/home_widgets/info_tab.dart';
+import 'package:bolshek_pro/app/pages/home/characteristics_tab_page.dart';
+import 'package:bolshek_pro/app/pages/home/info_tab_page.dart';
 import 'package:bolshek_pro/core/models/properties_response.dart';
 import 'package:bolshek_pro/core/utils/provider.dart';
 import 'package:flutter/material.dart';

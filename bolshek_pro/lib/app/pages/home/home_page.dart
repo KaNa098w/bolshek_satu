@@ -1,7 +1,9 @@
 import 'package:bolshek_pro/core/service/city_service.dart';
-import 'package:bolshek_pro/app/widgets/home_widgets/add_name_product_page.dart';
+import 'package:bolshek_pro/app/pages/home/add_name_product_page.dart';
 import 'package:bolshek_pro/app/pages/settings/settings_widget/city_widgets/city_selection.dart';
+import 'package:bolshek_pro/core/utils/provider.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../widgets/custom_button.dart';
 import '../../widgets/home_widgets/empty_state.dart';
@@ -69,10 +71,16 @@ class _HomePageState extends State<HomePage> {
             CustomButton(
               text: 'Добавить первый товар',
               onPressed: () {
+                final globalProvider =
+                    Provider.of<GlobalProvider>(context, listen: false);
+                globalProvider
+                    .clearProductData(); // Очистка данных в провайдере
+
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => ProductNameInputPage()),
+                    builder: (context) => ProductNameInputPage(),
+                  ),
                 );
               },
             ),

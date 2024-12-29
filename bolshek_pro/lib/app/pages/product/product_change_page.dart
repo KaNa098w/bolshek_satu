@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:bolshek_pro/app/widgets/animation_rotation_widget.dart';
+import 'package:bolshek_pro/app/widgets/custom_alert_dialog_widget.dart';
 import 'package:bolshek_pro/app/widgets/editable_dropdown_field.dart';
 import 'package:bolshek_pro/core/models/category_response.dart' as category;
 import 'package:bolshek_pro/app/widgets/custom_button.dart';
@@ -289,9 +290,19 @@ class _ProductChangePageState extends State<ProductChangePage> {
                           return ListTile(
                             title: Text(type),
                             onTap: () {
+                              // 1. Запоминаем выбранное значение «по-человечески»
                               setState(() {
                                 selectedType = type;
                               });
+                              // 2. Преобразуем его в нужный формат для API
+                              final updatedKind = type == 'Оригинал'
+                                  ? 'original'
+                                  : (type == 'Под оригинал'
+                                      ? 'sub_original'
+                                      : 'disassemble');
+                              // 3. Ставим значение во внутреннем объекте
+                              _product?.variants?.first.kind = updatedKind;
+
                               Navigator.pop(context);
                             },
                           );
@@ -334,12 +345,12 @@ class _ProductChangePageState extends State<ProductChangePage> {
     if (_product?.vendorCode != _originalProduct?.vendorCode) {
       updatedFields['vendorCode'] = _product?.vendorCode;
     }
+    // final currentKind = _product?.variants?.first.kind;
+    // final originalKind = _originalProduct?.variants?.first.kind;
 
-    final currentKind = _product?.variants?.first.kind;
-    final originalKind = _originalProduct?.variants?.first.kind;
-    if (currentKind != originalKind) {
-      updatedFields['kind'] = currentKind;
-    }
+    // if (currentKind != originalKind) {
+    //   updatedFields['kind'] = currentKind;
+    // }
     // Сравнение описания
     if (_product?.description?.blocks !=
         _originalProduct?.description?.blocks) {
@@ -403,68 +414,51 @@ class _ProductChangePageState extends State<ProductChangePage> {
     }
 
     Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => const UpdatingAnimationPage(),
-      ),
+      MaterialPageRoute(builder: (context) => const UpdatingAnimationPage()),
     );
 
-    // Получаем изменённые поля для обновления товара
     final updatedFields = _getUpdatedFields();
 
-    // Проверяем, изменились ли свойства
-    final updatedProperties = _propertyValues.entries.where((entry) {
-      // Ищем существующее свойство по ID
-      final existingProperty = _product?.properties?.firstWhereOrNull(
-        (id) => id == entry.key, // Используем properties.id
-      );
-
-      // Если свойства нет или значение изменилось
-      return existingProperty == null || entry.value != existingProperty.value;
-    }).map((entry) {
-      // Формируем список обновленных данных с использованием properties.id
-      return {
-        'id': entry.key, // Это ID свойства (properties.id)
-        'value': entry.value, // Новое значение
-      };
-    }).toList();
+    final updatedProperties = _propertyValues.entries
+        .where((entry) {
+          final existing = _product?.properties
+              ?.firstWhereOrNull((prop) => prop.id == entry.key);
+          return existing == null || entry.value != existing.value;
+        })
+        .map((entry) => {
+              'id': entry.key,
+              'value': entry.value,
+            })
+        .toList();
 
     final bool hasImageChanges =
         _newImages.isNotEmpty || _deletedImages.isNotEmpty;
-
-    // Проверяем изменения в вариантах (производитель и SKU)
     final currentVariant = _product?.variants?.first;
-    final updatedManufacturerId = _selectedManufacturer?.id ??
-        currentVariant?.manufacturerId; // Новый ID производителя
-    final updatedSku = _product?.variants?.first.sku; // Новый SKU
-
+    final updatedManufacturerId = currentVariant?.manufacturerId;
+    final updatedSku = currentVariant?.sku;
+    final updatedKind = currentVariant?.kind;
+    final originalVariant = _originalProduct?.variants?.first;
     final hasVariantChanges = currentVariant != null &&
-        (updatedManufacturerId != currentVariant.manufacturerId ||
-            updatedSku != currentVariant.sku);
-    String updatedKind = selectedType == 'Оригинал'
-        ? 'original'
-        : selectedType == 'Под оригинал'
-            ? 'sub_original'
-            : 'disassemble';
+        (updatedManufacturerId != originalVariant?.manufacturerId ||
+            updatedSku != originalVariant?.sku ||
+            updatedKind != originalVariant?.kind);
 
-    // Если нет изменений, выводим сообщение
     if (updatedFields.isEmpty &&
         updatedProperties.isEmpty &&
         !hasImageChanges &&
         !hasVariantChanges) {
+      Navigator.pop(context);
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Нет изменений для сохранения')),
       );
-      Navigator.pop(context); // Закрываем экран загрузкиx
       return;
     }
 
     try {
-      // Загружаем новые фотографии
       for (final newImage in _newImages) {
         final file = File(newImage.path);
         final bytes = await file.readAsBytes();
         final base64Image = base64Encode(bytes);
-
         await _imagesService.createProductImage(
           context,
           productId: widget.productId,
@@ -474,20 +468,13 @@ class _ProductChangePageState extends State<ProductChangePage> {
         );
       }
 
-      // Удаляем фотографии
       for (final imageUrl in _deletedImages) {
-        final images = await _imagesService.fetchProductImages(
-          context,
-          productId: widget.productId,
-        );
-
+        final images = await _imagesService.fetchProductImages(context,
+            productId: widget.productId);
         final imageHash = images
-            .firstWhere(
-              (image) => image.url == imageUrl,
-              orElse: () => throw Exception('Image hash not found for URL'),
-            )
+            .firstWhere((img) => img.url == imageUrl,
+                orElse: () => throw Exception('Image hash not found'))
             .hash;
-
         if (imageHash != null) {
           await _imagesService.deleteProductImage(
             context,
@@ -497,86 +484,62 @@ class _ProductChangePageState extends State<ProductChangePage> {
         }
       }
 
-      // Очистка локальных списков
       setState(() {
         _newImages.clear();
         _deletedImages.clear();
       });
 
-      // Обновляем свойства
       if (updatedProperties.isNotEmpty) {
         final propertiesService = PropertiesService();
-
-        for (final updatedProperty in updatedProperties) {
-          // Получаем ID свойства (properties.id) из updatedProperty
-          final propertyId =
-              updatedProperty['id']; // Это ID свойства property.id
-
-          // Ищем соответствующий объект в _product?.properties
-          final propertiesItem = _product?.properties?.firstWhere(
-            (property) =>
-                property.property?.id == propertyId, // Сравнение по property.id
+        for (final prop in updatedProperties) {
+          final propertyId = prop['id'];
+          final newValue = prop['value'];
+          final pItem = _product?.properties?.firstWhereOrNull(
+            (p) => p.property?.id == propertyId,
           );
-
-          if (propertiesItem != null) {
-            // Если объект найден, получаем его `properties.id` (ID свойства на уровне объекта)
-            final propertiesId =
-                propertiesItem.id; // Берём ID из объекта `properties`
-            final newValue = updatedProperty['value']; // Новое значение
-
-            // Обновляем свойство через сервис
+          if (pItem != null && pItem.id != null) {
             await propertiesService.updateProductProperty(
               context,
               productId: widget.productId,
-              propertiesId: propertiesId ?? '',
+              propertiesId: pItem.id!,
               value: newValue ?? '',
             );
-          } else {
-            print('Свойство с property.id $propertyId не найдено.');
           }
         }
       }
 
-      // Обновляем variant, если есть изменения
-      if (hasVariantChanges && currentVariant != null) {
-        final updatedKind = selectedType == 'Оригинал'
-            ? 'original'
-            : selectedType == 'Под оригинал'
-                ? 'sub_original'
-                : 'disassemble';
-
+      if (hasVariantChanges &&
+          currentVariant != null &&
+          originalVariant != null) {
         final variantsService = VariantsService();
+        final newAmount = currentVariant.price?.amount?.toDouble() ?? 0.0;
         await variantsService.updateProductVariant(
           context,
           productId: widget.productId,
           variantId: currentVariant.id ?? '',
-          newAmount: (currentVariant.price?.amount ?? 0).toDouble(),
+          newAmount: newAmount,
           manufacturerId: updatedManufacturerId,
           sku: updatedSku,
-          kind: updatedKind, // Передаем обновленный тип
+          kind: updatedKind,
         );
       }
 
-      // Обновляем остальные поля товара
       if (updatedFields.isNotEmpty) {
         final response = await widget.productService.updateProduct(
           context: context,
           id: widget.productId,
           updatedFields: updatedFields,
         );
-
-        if (response.statusCode == 200 || response.statusCode == 204) {
-          Navigator.pop(context, true);
-          _showSuccessDialog();
-        } else {
+        if (response.statusCode != 200 && response.statusCode != 204) {
           throw Exception('Ошибка обновления товара: ${response.body}');
         }
       }
 
       await _fetchProduct();
-      Navigator.pop(context); // Гарантированно закрываем страницу
+      Navigator.pop(context);
+      _showSuccessDialog();
     } catch (e) {
-      // Navigator.pop(context); // Закрываем страницу при ошибке
+      Navigator.pop(context);
       _showError('Ошибка при обновлении товара: $e');
     }
   }
@@ -716,51 +679,53 @@ class _ProductChangePageState extends State<ProductChangePage> {
 
   Future<void> _showAddManufacturerDialog() async {
     final TextEditingController nameController = TextEditingController();
-    final result = await showDialog<String>(
+
+    await showCustomAlertDialog(
       context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('Добавить производителя'),
-          content: TextField(
-            controller: nameController,
-            decoration: const InputDecoration(
-              labelText: 'Название производителя',
-              hintText: 'Введите название',
-              border: OutlineInputBorder(),
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Отмена'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                final name = nameController.text.trim();
-                if (name.isNotEmpty) {
-                  Navigator.of(context).pop(name);
-                }
-              },
-              child: const Text('Добавить'),
-            ),
-          ],
-        );
+      title: 'Добавить производителя',
+      content: TextField(
+        controller: nameController,
+        decoration: const InputDecoration(
+          // labelText: 'Название производителя',
+          hintText: 'Введите название',
+          // border: OutlineInputBorder(),
+        ),
+      ),
+      onCancel: () {
+        Navigator.pop(context);
+      },
+      onConfirm: () async {
+        final name = nameController.text.trim();
+        if (name.isNotEmpty) {
+          try {
+            // Создание производителя через сервис
+            await _service.createManufacturers(context, name);
+
+            // Показываем уведомление об успешном добавлении
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Производитель "$name" успешно добавлен')),
+            );
+
+            // Обновляем список производителей
+            await _loadManufacturers();
+
+            // Закрываем диалог
+            Navigator.pop(context);
+          } catch (e) {
+            // Показываем ошибку
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Ошибка добавления производителя: $e')),
+            );
+          }
+        } else {
+          // Показываем ошибку, если поле ввода пустое
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+                content: Text('Название производителя не может быть пустым')),
+          );
+        }
       },
     );
-
-    if (result != null && result.isNotEmpty) {
-      try {
-        await _service.createManufacturers(context, result);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Производитель "$result" успешно добавлен')),
-        );
-        await _loadManufacturers();
-      } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Ошибка добавления производителя: $e')),
-        );
-      }
-    }
   }
 
   Future<void> _loadBrands() async {
@@ -898,70 +863,52 @@ class _ProductChangePageState extends State<ProductChangePage> {
   }
 
   void _showAddBrandDialog() {
-    showDialog(
+    String newBrandName = '';
+    String selectedType = 'product'; // Значение по умолчанию
+
+    showCustomAlertDialog(
       context: context,
-      builder: (context) {
-        String newBrandName = '';
-        String selectedType = 'product'; // Значение по умолчанию
-
-        return StatefulBuilder(
-          builder: (context, setState) {
-            return AlertDialog(
-              title: const Text(
-                'Добавить бренд',
-                style: TextStyle(fontSize: 18),
-              ),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  TextField(
-                    decoration: const InputDecoration(
-                        hintText: 'Введите название бренда'),
-                    onChanged: (value) {
-                      newBrandName = value;
-                    },
-                  ),
-                  const SizedBox(height: 10),
-                ],
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  child: const Text('Отмена'),
-                ),
-                ElevatedButton(
-                  onPressed: () async {
-                    if (newBrandName.isNotEmpty) {
-                      try {
-                        // Выполняем POST-запрос для добавления бренда
-                        await _brandsService.createBrand(
-                          context,
-                          selectedType,
-                          newBrandName,
-                          newBrandName,
-                        );
-
-                        // Загружаем обновленный список брендов
-                        await _loadBrands();
-
-                        // Закрываем диалоговое окно после успешной операции
-                        Navigator.pop(context);
-                      } catch (e) {
-                        _showError('Ошибка при добавлении бренда: $e');
-                        print('Ошибка при добавлении бренда: $e');
-                      }
-                    } else {
-                      _showError('Название бренда не может быть пустым');
-                    }
-                  },
-                  child: const Text('Добавить'),
-                ),
-              ],
+      title: 'Добавить бренд',
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          TextField(
+            decoration: const InputDecoration(
+              hintText: 'Введите название бренда',
+            ),
+            onChanged: (value) {
+              newBrandName = value;
+            },
+          ),
+          const SizedBox(height: 10),
+        ],
+      ),
+      onCancel: () {
+        Navigator.pop(context);
+      },
+      onConfirm: () async {
+        if (newBrandName.isNotEmpty) {
+          try {
+            // Выполняем POST-запрос для добавления бренда
+            await _brandsService.createBrand(
+              context,
+              selectedType,
+              newBrandName,
+              newBrandName,
             );
-          },
-        );
+
+            // Загружаем обновленный список брендов
+            await _loadBrands();
+
+            // Закрываем диалоговое окно после успешной операции
+            Navigator.pop(context);
+          } catch (e) {
+            _showError('Ошибка при добавлении бренда: $e');
+            print('Ошибка при добавлении бренда: $e');
+          }
+        } else {
+          _showError('Название бренда не может быть пустым');
+        }
       },
     );
   }
@@ -1060,6 +1007,8 @@ class _ProductChangePageState extends State<ProductChangePage> {
                               Navigator.pop(context);
                               setState(() {
                                 _selectedManufacturer = manufacturer;
+                                _product?.variants?.first.manufacturerId =
+                                    manufacturer.id;
                                 // Сохраняем ID производителя в AuthProvider
                                 context
                                     .read<GlobalProvider>()
@@ -1151,11 +1100,12 @@ class _ProductChangePageState extends State<ProductChangePage> {
           // Статус
           CustomDropdownField(
             title: 'Статус товара',
-            value: _product!.status == 'created'
-                ? 'Ожидает модерации'
-                : (_product!.status == 'active'
-                    ? 'Активный'
-                    : (_product!.status ?? 'Не указано')),
+            value:
+                (_product!.status == 'created' || _product!.status == 'updated')
+                    ? 'Ожидает модерации'
+                    : (_product!.status == 'active'
+                        ? 'Активный'
+                        : (_product!.status ?? 'Не указано')),
             onTap: () {
               print('Нажата строка со статусом товара');
             },
@@ -1331,9 +1281,13 @@ class _ProductChangePageState extends State<ProductChangePage> {
             title: 'Код товара',
             value: _product?.variants?.first.sku ?? '',
             onChanged: (newValue) {
-              print("Новое значение: $newValue");
+              setState(() {
+                // Обновляем реальное поле SKU в _product
+                _product?.variants?.first.sku = newValue;
+              });
             },
           ),
+
           const SizedBox(height: 10),
 
           // Тип

@@ -18,7 +18,7 @@ class GlobalProvider extends ChangeNotifier {
   String _sku = '';
   String? _manufacturerId;
 
-  // Геттеры
+  // Геттерый
   double get price => _price;
   String get kind => _kind;
   String get sku => _sku;
@@ -175,6 +175,23 @@ class GlobalProvider extends ChangeNotifier {
       );
       notifyListeners();
     }
+  }
+
+  void clearProductData() {
+    _selectedCategoryId = null;
+    _name = null;
+    _brandId = null;
+    _status = 'awaiting_approval';
+    _deliveryType = 'standard';
+    _vendorCode = '';
+    _descriptionText = null;
+    _price = 0.0;
+    _kind = 'original';
+    _sku = '';
+    _manufacturerId = null;
+    _images.clear();
+    _propertyValues.clear();
+    notifyListeners();
   }
 
   static of(BuildContext context, {required bool listen}) {}

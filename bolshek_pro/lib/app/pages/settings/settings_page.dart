@@ -34,7 +34,7 @@ class _MyOrganizationPageState extends State<MyOrganizationPage> {
       context: context,
       builder: (context) => CustomAlertDialog(
         title: 'Выход из аккаунта',
-        content: 'Вы уверены, что хотите выйти?',
+        content: Text('Вы уверены, что хотите выйти?'),
         onConfirm: () => Navigator.of(context).pop(true),
         onCancel: () => Navigator.of(context).pop(false),
       ),

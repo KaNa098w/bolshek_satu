@@ -1,4 +1,4 @@
-import 'package:bolshek_pro/app/widgets/home_widgets/add_name_product_page.dart';
+import 'package:bolshek_pro/app/pages/home/add_name_product_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 

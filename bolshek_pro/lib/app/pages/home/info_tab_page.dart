@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:bolshek_pro/app/widgets/custom_alert_dialog_widget.dart';
 import 'package:bolshek_pro/core/utils/theme.dart';
 import 'package:path/path.dart' as path;
 
@@ -9,7 +10,7 @@ import 'package:bolshek_pro/core/models/properties_response.dart';
 import 'package:bolshek_pro/core/service/brands_service.dart';
 import 'package:bolshek_pro/core/service/category_service.dart';
 import 'package:bolshek_pro/core/service/properties_service.dart';
-import 'package:bolshek_pro/app/widgets/home_widgets/add_name_product_page.dart';
+import 'package:bolshek_pro/app/pages/home/add_name_product_page.dart';
 import 'package:bolshek_pro/app/widgets/home_widgets/add_variant_widget.dart';
 import 'package:bolshek_pro/app/widgets/custom_input_widget.dart';
 import 'package:bolshek_pro/core/utils/provider.dart';
@@ -238,19 +239,19 @@ class _InfoTabState extends State<InfoTab> with AutomaticKeepAliveClientMixin {
         // Используем StatefulBuilder для управления состоянием модального окна
         return StatefulBuilder(
           builder: (context, setStateModal) {
-            // Проверяем состояние загрузки
+            // 1. Если категории всё ещё грузятся, показываем индикатор
             if (isLoadingCategories) {
-              // Пока данные загружаются, показываем индикатор
               return SizedBox(
                 height: MediaQuery.of(context).size.height * 0.4,
                 child: const Center(
-                    child: CircularProgressIndicator(
-                  color: ThemeColors.orange,
-                )),
+                  child: CircularProgressIndicator(
+                    color: ThemeColors.orange,
+                  ),
+                ),
               );
             }
 
-            // Если данные загружены, проверяем их наличие
+            // 2. Если загрузка завершилась, но список категорий пуст, пишем об этом
             if (categories.isEmpty) {
               return SizedBox(
                 height: MediaQuery.of(context).size.height * 0.4,
@@ -260,9 +261,13 @@ class _InfoTabState extends State<InfoTab> with AutomaticKeepAliveClientMixin {
               );
             }
 
-            // Если категории загружены, отображаем список
+            // 3. Иначе — рендерим список категорий
+            // Переменная для поиска (локальная внутри builder)
             String searchQuery = '';
-            final filteredCategories = categories;
+
+            // Создадим копию списка, который будем фильтровать
+            List<category.CategoryItems> filteredCategories =
+                categories.toList();
 
             return SizedBox(
               height: MediaQuery.of(context).size.height * 0.9,
@@ -287,15 +292,12 @@ class _InfoTabState extends State<InfoTab> with AutomaticKeepAliveClientMixin {
                             ),
                             onChanged: (value) {
                               setStateModal(() {
-                                searchQuery = value;
-                                filteredCategories.clear();
-                                filteredCategories.addAll(
-                                  categories.where((category) =>
-                                      category.name != null &&
-                                      category.name!
-                                          .toLowerCase()
-                                          .contains(searchQuery.toLowerCase())),
-                                );
+                                searchQuery = value.trim().toLowerCase();
+                                // Фильтруем заново при каждом вводе
+                                filteredCategories = categories.where((cat) {
+                                  final catName = cat.name?.toLowerCase() ?? '';
+                                  return catName.contains(searchQuery);
+                                }).toList();
                               });
                             },
                           ),
@@ -303,13 +305,12 @@ class _InfoTabState extends State<InfoTab> with AutomaticKeepAliveClientMixin {
                         const SizedBox(width: 10),
                         IconButton(
                           icon: const Icon(Icons.close),
-                          onPressed: () {
-                            Navigator.pop(context);
-                          },
+                          onPressed: () => Navigator.pop(context),
                         ),
                       ],
                     ),
                     const SizedBox(height: 10),
+                    // Список родительских категорий с ExpansionTile
                     Expanded(
                       child: ListView.builder(
                         itemCount: filteredCategories.length,
@@ -322,10 +323,13 @@ class _InfoTabState extends State<InfoTab> with AutomaticKeepAliveClientMixin {
                               return Padding(
                                 padding: const EdgeInsets.only(left: 16.0),
                                 child: ListTile(
-                                  title:
-                                      Text(subcategory.name ?? 'Без названия'),
+                                  title: Text(
+                                    subcategory.name ?? 'Без названия',
+                                  ),
                                   onTap: () {
+                                    // Выбираем подкатегорию
                                     Navigator.pop(context);
+
                                     setState(() {
                                       selectedCategory =
                                           subcategory.name ?? 'Без названия';
@@ -348,20 +352,6 @@ class _InfoTabState extends State<InfoTab> with AutomaticKeepAliveClientMixin {
         );
       },
     );
-
-    // Проверяем, загружены ли данные, и при необходимости запускаем загрузку
-    if (categories.isEmpty) {
-      _loadCategories().then((_) {
-        // После завершения загрузки вызываем обновление состояния модального окна
-        if (context.mounted) {
-          Navigator.pop(context); // Закрываем текущее окно
-          _showCategories(); // Повторно открываем с загруженными данными
-        }
-      }).catchError((error) {
-        // Если произошла ошибка, отображаем сообщение
-        _showError('Ошибка загрузки категорий: $error');
-      });
-    }
   }
 
   void _showError(String message) {
@@ -517,70 +507,52 @@ class _InfoTabState extends State<InfoTab> with AutomaticKeepAliveClientMixin {
   }
 
   void _showAddBrandDialog() {
-    showDialog(
+    String newBrandName = '';
+    String selectedType = 'product'; // Значение по умолчанию
+
+    showCustomAlertDialog(
       context: context,
-      builder: (context) {
-        String newBrandName = '';
-        String selectedType = 'product'; // Значение по умолчанию
-
-        return StatefulBuilder(
-          builder: (context, setState) {
-            return AlertDialog(
-              title: const Text(
-                'Добавить бренд',
-                style: TextStyle(fontSize: 18),
-              ),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  TextField(
-                    decoration: const InputDecoration(
-                        hintText: 'Введите название бренда'),
-                    onChanged: (value) {
-                      newBrandName = value;
-                    },
-                  ),
-                  const SizedBox(height: 10),
-                ],
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  child: const Text('Отмена'),
-                ),
-                ElevatedButton(
-                  onPressed: () async {
-                    if (newBrandName.isNotEmpty) {
-                      try {
-                        // Выполняем POST-запрос для добавления бренда
-                        await _brandsService.createBrand(
-                          context,
-                          selectedType,
-                          newBrandName,
-                          newBrandName,
-                        );
-
-                        // Загружаем обновленный список брендов
-                        await _loadBrands();
-
-                        // Закрываем диалоговое окно после успешной операции
-                        Navigator.pop(context);
-                      } catch (e) {
-                        _showError('Ошибка при добавлении бренда: $e');
-                        print('Ошибка при добавлении бренда: $e');
-                      }
-                    } else {
-                      _showError('Название бренда не может быть пустым');
-                    }
-                  },
-                  child: const Text('Добавить'),
-                ),
-              ],
+      title: 'Добавить бренд',
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          TextField(
+            decoration: const InputDecoration(
+              hintText: 'Введите название бренда',
+            ),
+            onChanged: (value) {
+              newBrandName = value;
+            },
+          ),
+          const SizedBox(height: 10),
+        ],
+      ),
+      onCancel: () {
+        Navigator.pop(context);
+      },
+      onConfirm: () async {
+        if (newBrandName.isNotEmpty) {
+          try {
+            // Выполняем POST-запрос для добавления бренда
+            await _brandsService.createBrand(
+              context,
+              selectedType,
+              newBrandName,
+              newBrandName,
             );
-          },
-        );
+
+            // Загружаем обновленный список брендов
+            await _loadBrands();
+
+            // Закрываем диалоговое окно после успешной операции
+            Navigator.pop(context);
+          } catch (e) {
+            _showError('Ошибка при добавлении бренда: $e');
+            print('Ошибка при добавлении бренда: $e');
+          }
+        } else {
+          _showError('Название бренда не может быть пустым');
+        }
       },
     );
   }
@@ -758,16 +730,24 @@ class _InfoTabState extends State<InfoTab> with AutomaticKeepAliveClientMixin {
                     child: CustomButton(
                       text: 'Продолжить',
                       onPressed: () {
+                        FocusScope.of(context).unfocus();
+
+                        final price = context.read<GlobalProvider>().price;
+                        if (price == null || price <= 0) {
+                          widget.showError(
+                              'Пожалуйста, введите корректную цену.');
+                          return;
+                        }
+
                         if (widget.validateInfoTab()) {
-                          widget.tabController.index =
-                              1; // Переход на CharacteristicsTab
+                          widget.tabController.index = 1;
                         } else {
                           widget.showError(
                               'Пожалуйста, заполните все обязательные поля перед продолжением.');
                         }
                       },
                     ),
-                  ),
+                  )
                 ],
               ),
             ),

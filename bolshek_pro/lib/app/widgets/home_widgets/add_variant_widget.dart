@@ -1,3 +1,4 @@
+import 'package:bolshek_pro/app/widgets/custom_alert_dialog_widget.dart';
 import 'package:bolshek_pro/app/widgets/custom_dropdown_field.dart';
 import 'package:bolshek_pro/app/widgets/editable_dropdown_field.dart';
 import 'package:bolshek_pro/core/models/manufacturers_response.dart';
@@ -133,7 +134,7 @@ class _ProductDetailsWidgetState extends State<ProductDetailsWidget> {
                                 if (type == 'Оригинал') kind = 'original';
                                 if (type == 'Под оригинал')
                                   kind = 'sub_original';
-                                if (type == 'Авторазбор') kind = 'autorazbor';
+                                if (type == 'Авторазбор') kind = 'disassemble';
                                 context.read<GlobalProvider>().setKind(kind);
                               });
                             },
@@ -200,7 +201,7 @@ class _ProductDetailsWidgetState extends State<ProductDetailsWidget> {
                                   deliveryType = 'custom';
                                 context
                                     .read<GlobalProvider>()
-                                    .setKind(deliveryType);
+                                    .setDeliveryType(deliveryType);
                               });
                             },
                           );
@@ -234,7 +235,7 @@ class _ProductDetailsWidgetState extends State<ProductDetailsWidget> {
   void _showManufacturers() {
     if (_manufacturers.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Список производителей пуст')),
+        const SnackBar(content: Text('Список производителей пуст')),
       );
       return;
     }
@@ -247,6 +248,8 @@ class _ProductDetailsWidgetState extends State<ProductDetailsWidget> {
       ),
       backgroundColor: Colors.white,
       builder: (context) {
+        bool isloading = false;
+
         String searchQuery = ''; // Локальная переменная для поиска
         return StatefulBuilder(
           builder: (context, setStateModal) {
@@ -257,6 +260,7 @@ class _ProductDetailsWidgetState extends State<ProductDetailsWidget> {
                         .toLowerCase()
                         .contains(searchQuery.toLowerCase()))
                 .toList();
+
             return SizedBox(
               height: MediaQuery.of(context).size.height * 0.9,
               child: Padding(
@@ -307,7 +311,7 @@ class _ProductDetailsWidgetState extends State<ProductDetailsWidget> {
                               Navigator.pop(context);
                               setState(() {
                                 _selectedManufacturer = manufacturer;
-                                // Сохраняем ID производителя в AuthProvider
+                                // Сохраняем ID производителя в GlobalProvider
                                 context
                                     .read<GlobalProvider>()
                                     .setManufacturerId(manufacturer.id ?? '');
@@ -322,8 +326,56 @@ class _ProductDetailsWidgetState extends State<ProductDetailsWidget> {
                       alignment: Alignment.bottomCenter,
                       child: CustomButton(
                         text: 'Добавить производителя',
-                        onPressed: () {
-                          _showAddManufacturerDialog();
+                        onPressed: () async {
+                          final TextEditingController nameController =
+                              TextEditingController();
+
+                          await showCustomAlertDialog(
+                            context: context,
+                            title: 'Добавить производителя',
+                            content: TextField(
+                              controller: nameController,
+                              decoration: const InputDecoration(
+                                labelText: 'Название производителя',
+                                hintText: 'Введите название',
+                                border: OutlineInputBorder(),
+                              ),
+                            ),
+                            onCancel: () {
+                              Navigator.pop(context);
+                            },
+                            onConfirm: () async {
+                              final name = nameController.text.trim();
+                              if (name.isNotEmpty) {
+                                try {
+                                  await _service.createManufacturers(
+                                      context, name);
+
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                        content: Text(
+                                            'Производитель "$name" успешно добавлен')),
+                                  );
+
+                                  await _loadManufacturers();
+
+                                  Navigator.pop(context);
+                                } catch (e) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                        content: Text(
+                                            'Ошибка добавления производителя: $e')),
+                                  );
+                                }
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                      content: Text(
+                                          'Название производителя не может быть пустым')),
+                                );
+                              }
+                            },
+                          );
                         },
                       ),
                     ),

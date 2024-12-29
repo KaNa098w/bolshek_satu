@@ -32,6 +32,8 @@ class _CharacteristicsTabState extends State<CharacteristicsTab>
   ValueNotifier<List<PropertyItems>> propertiesNotifier = ValueNotifier([]);
   ValueNotifier<double> uploadProgressNotifier = ValueNotifier(0.0);
   bool isLoading = true;
+  Map<String, bool> _propertyErrors = {};
+  Map<String, bool> _fieldErrors = {};
 
   @override
   bool get wantKeepAlive => true; // Гарантирует сохранение состояния
@@ -62,6 +64,51 @@ class _CharacteristicsTabState extends State<CharacteristicsTab>
     }
   }
 
+  void _validateFields() {
+    _propertyErrors.clear(); // Сброс ошибок свойств
+    _fieldErrors.clear(); // Сброс ошибок ключевых полей
+
+    // Проверить свойства
+    propertiesNotifier.value.forEach((property) {
+      final propertyId = property.id ?? '';
+      final value = _propertyValues[propertyId] ?? '';
+
+      if (value.isEmpty) {
+        _propertyErrors[propertyId] = true;
+      } else {
+        _propertyErrors[propertyId] = false;
+      }
+    });
+
+    // Проверить ключевые поля
+    final authProvider = context.read<GlobalProvider>();
+    _fieldErrors['productName'] = (authProvider.name?.isEmpty ?? true);
+    _fieldErrors['brandId'] = (authProvider.brandId?.isEmpty ?? true);
+    _fieldErrors['deliveryType'] = (authProvider.deliveryType == null);
+    _fieldErrors['categoryId'] =
+        (authProvider.selectedCategoryId?.isEmpty ?? true);
+    _fieldErrors['vendorCode'] = (authProvider.vendorCode?.isEmpty ?? true);
+    _fieldErrors['descriptionText'] =
+        (authProvider.descriptionText?.isEmpty ?? true);
+    _fieldErrors['priceAmount'] =
+        (authProvider.price == null || authProvider.price <= 0);
+    _fieldErrors['sku'] = (authProvider.sku?.isEmpty ?? true);
+    _fieldErrors['manufacturerId'] =
+        (authProvider.manufacturerId?.isEmpty ?? true);
+
+    setState(() {}); // Обновить интерфейс
+  }
+
+  bool _areAllFieldsValid() {
+    _validateFields();
+
+    // Если есть хотя бы одно поле или свойство с ошибкой, вернуть false
+    final hasPropertyErrors =
+        _propertyErrors.values.any((hasError) => hasError);
+    final hasFieldErrors = _fieldErrors.values.any((hasError) => hasError);
+    return !hasPropertyErrors && !hasFieldErrors;
+  }
+
   void _showError(String message) {
     showDialog(
       context: context,
@@ -81,13 +128,20 @@ class _CharacteristicsTabState extends State<CharacteristicsTab>
   }
 
   void _createProduct() async {
+    if (!_areAllFieldsValid()) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Заполните все поля')),
+      );
+      return; // Остановить выполнение
+    }
+
     try {
       final authProvider = context.read<GlobalProvider>();
-      print('descriptionText: ${authProvider.descriptionText}');
-      print('categoryId: ${authProvider.selectedCategoryId}');
-      print('brandId: ${authProvider.brandId}');
-      print('images: ${authProvider.images}');
-      print('_propertyValues: $_propertyValues');
+      // print('descriptionText: ${authProvider.descriptionText}');
+      // print('categoryId: ${authProvider.selectedCategoryId}');
+      // print('brandId: ${authProvider.brandId}');
+      // print('images: ${authProvider.images}');
+      // print('_propertyValues: $_propertyValues');
 
       // Инициализация прогресса загрузки
       const totalSteps = 4.0; // Количество этапов
@@ -345,12 +399,11 @@ class _CharacteristicsTabState extends State<CharacteristicsTab>
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Основные характеристики',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 20),
-            // Используем ValueListenableBuilder
+            // const Text(
+            //   'Основные характеристики',
+            //   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            // ),
+            // const SizedBox(height: 20),
             ValueListenableBuilder<List<PropertyItems>>(
               valueListenable: propertiesNotifier,
               builder: (context, properties, child) {
@@ -359,24 +412,26 @@ class _CharacteristicsTabState extends State<CharacteristicsTab>
                 }
                 return Column(
                   children: properties.map((property) {
+                    final propertyId = property.id ?? '';
+                    final hasError = _propertyErrors[propertyId] ?? false;
+
                     if (property.type == 'color') {
                       return Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // Text(
-                          //   property.name ?? 'Цвет',
-                          //   style: const TextStyle(fontWeight: FontWeight.bold),
-                          // ),
-                          // const SizedBox(height: 8),
                           ColorPicker(
-                            propertyId: property.id ?? '',
+                            propertyId: propertyId,
                             onColorSelected: (selectedColor) {
                               setState(() {
-                                _propertyValues[property.id ?? ''] =
-                                    selectedColor;
+                                _propertyValues[propertyId] = selectedColor;
                               });
                             },
                           ),
+                          if (hasError)
+                            const Text(
+                              'Выберите цвет',
+                              style: TextStyle(color: Colors.red),
+                            ),
                           const SizedBox(height: 12),
                         ],
                       );
@@ -388,12 +443,17 @@ class _CharacteristicsTabState extends State<CharacteristicsTab>
                             title: property.unit == null
                                 ? '${property.name}'
                                 : '${property.name} (${property.unit})',
-                            value: _propertyValues[property.id ?? ''] ?? '',
+                            value: _propertyValues[propertyId] ?? '',
                             hint: 'Введите значение',
                             onChanged: (value) {
-                              _propertyValues[property.id ?? ''] = value;
+                              _propertyValues[propertyId] = value;
                             },
                           ),
+                          // if (hasError)
+                          //   const Text(
+                          //     'Заполните это поле',
+                          //     style: TextStyle(color: Colors.red),
+                          //   ),
                           const SizedBox(height: 12),
                         ],
                       );
@@ -402,7 +462,6 @@ class _CharacteristicsTabState extends State<CharacteristicsTab>
                 );
               },
             ),
-
             ProductDetailsWidget(),
             const SizedBox(height: 12),
             Center(

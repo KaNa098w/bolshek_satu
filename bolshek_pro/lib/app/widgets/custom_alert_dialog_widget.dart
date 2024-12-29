@@ -1,18 +1,22 @@
-import 'package:bolshek_pro/core/utils/theme.dart';
 import 'package:flutter/material.dart';
+import 'package:bolshek_pro/core/utils/theme.dart';
 
 class CustomAlertDialog extends StatelessWidget {
-  final String title;
-  final String content;
-  final VoidCallback onConfirm;
-  final VoidCallback onCancel;
+  final String title; // Заголовок диалога
+  final Widget content; // Кастомное содержимое
+  final VoidCallback? onConfirm; // Действие для кнопки "Подтвердить"
+  final VoidCallback? onCancel; // Действие для кнопки "Отмена"
+  final String confirmText; // Текст для кнопки "Подтвердить"
+  final String cancelText; // Текст для кнопки "Отмена"
 
   const CustomAlertDialog({
     Key? key,
     required this.title,
     required this.content,
-    required this.onConfirm,
-    required this.onCancel,
+    this.onConfirm,
+    this.onCancel,
+    this.confirmText = "Подтвердить",
+    this.cancelText = "Отмена",
   }) : super(key: key);
 
   @override
@@ -28,44 +32,44 @@ class CustomAlertDialog extends StatelessWidget {
           fontWeight: FontWeight.bold,
         ),
       ),
-      content: Text(
-        content,
-        style: const TextStyle(fontSize: 16),
-      ),
+      content: content,
       actions: [
-        TextButton(
-          onPressed: onCancel,
-          style: TextButton.styleFrom(
-            foregroundColor: ThemeColors.grey5,
+        if (onCancel != null)
+          TextButton(
+            onPressed: onCancel,
+            style: TextButton.styleFrom(
+              foregroundColor: ThemeColors.grey5,
+            ),
+            child: Text(cancelText),
           ),
-          child: const Text("Отмена"),
-        ),
-        ElevatedButton(
-          onPressed: onConfirm,
-          style: ElevatedButton.styleFrom(
-            backgroundColor: ThemeColors.orange,
-            shape: RoundedRectangleBorder(
-              borderRadius:
-                  BorderRadius.circular(12), // Радиус скругления углов
+        if (onConfirm != null)
+          ElevatedButton(
+            onPressed: onConfirm,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: ThemeColors.orange,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+            child: Text(
+              confirmText,
+              style: TextStyle(color: ThemeColors.white),
             ),
           ),
-          child: Text(
-            "Подтвердить",
-            style: TextStyle(color: ThemeColors.white),
-          ),
-        ),
       ],
     );
   }
 }
 
-// Использование диалога
+// Использование CustomAlertDialog
 Future<void> showCustomAlertDialog({
   required BuildContext context,
   required String title,
-  required String content,
-  required VoidCallback onConfirm,
-  required VoidCallback onCancel,
+  required Widget content, // Передача кастомного содержимого
+  VoidCallback? onConfirm,
+  VoidCallback? onCancel,
+  String confirmText = "Подтвердить",
+  String cancelText = "Отмена",
 }) async {
   return showDialog(
     context: context,
@@ -74,6 +78,8 @@ Future<void> showCustomAlertDialog({
       content: content,
       onConfirm: onConfirm,
       onCancel: onCancel,
+      confirmText: confirmText,
+      cancelText: cancelText,
     ),
   );
 }

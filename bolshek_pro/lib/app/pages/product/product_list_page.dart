@@ -7,7 +7,7 @@ import 'package:intl/intl.dart';
 import 'package:bolshek_pro/core/service/product_service.dart';
 import 'package:bolshek_pro/core/models/product_response.dart';
 import 'package:bolshek_pro/app/pages/product/product_detail_screen.dart';
-import 'package:bolshek_pro/app/widgets/home_widgets/add_name_product_page.dart';
+import 'package:bolshek_pro/app/pages/home/add_name_product_page.dart';
 import 'package:bolshek_pro/app/widgets/custom_button.dart';
 import 'package:bolshek_pro/core/utils/theme.dart';
 import 'package:bolshek_pro/app/widgets/loading_widget.dart';
