@@ -188,8 +188,9 @@ class _OrderListPageState extends State<OrderListPage> {
                               }
                               final order = _orders[index];
                               return _buildOrderItem(
-                                name:
-                                    order.address?.address ?? 'Адрес не указан',
+                                address:
+                                    order.address.address ?? 'Адрес не указан',
+                                name: order.items.first.product?.name ?? '',
                                 total:
                                     '${_formatPrice((order.totalPrice?.amount ?? 0) / 100)} ₸',
                                 orderId: order.id ?? 'Неизвестно',
@@ -197,6 +198,9 @@ class _OrderListPageState extends State<OrderListPage> {
                                 orderNumber: order.number ?? 0,
                                 count: order.items?.length ?? 0,
                                 status: order.status ?? '',
+                                imageUrl: order.items.first.product?.images
+                                        ?.first.sizes?.first.url ??
+                                    '',
                               );
                             }),
                   ),
@@ -210,6 +214,7 @@ class _OrderListPageState extends State<OrderListPage> {
   }
 
   Widget _buildOrderItem({
+    required String address,
     required String name,
     required String total,
     required String data,
@@ -217,6 +222,7 @@ class _OrderListPageState extends State<OrderListPage> {
     required int orderNumber,
     required int count,
     required String status,
+    required String imageUrl, // Добавлено поле для изображения
   }) {
     return GestureDetector(
       onTap: () {
@@ -237,76 +243,131 @@ class _OrderListPageState extends State<OrderListPage> {
         ),
         child: Padding(
           padding: const EdgeInsets.all(10.0),
-          child: Row(
+          child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Номер заказа: $orderNumber',
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w400,
-                        fontSize: 14,
-                        height: 1.3,
-                      ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    '№ $orderNumber',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 15,
+                      height: 1.3,
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'Адрес доставки: $name',
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w400,
-                        fontSize: 14,
-                        height: 1.3,
-                      ),
+                  ),
+                  Text(
+                    '$total',
+                    style: const TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'Стоимость: $total',
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w400,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: imageUrl.isNotEmpty
+                            ? Image.network(
+                                imageUrl,
+                                width: 80,
+                                height: 80,
+                                fit: BoxFit.contain,
+                              )
+                            : Image.asset(
+                                'assets/icons/error_image.png',
+                                width: 80,
+                                height: 80,
+                                fit: BoxFit.cover,
+                              ),
                       ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'Количество товаров: $count',
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w400,
+                      SizedBox(
+                          height: 4), // Отступ между изображением и текстом
+                      Text(
+                        count == 1 ? '' : '+${count - 1} товара',
+                        style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.grey.shade700),
                       ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'Дата: ${_formatDate(data)}',
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w400,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Row(
+                    ],
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'Статус: ',
-                          style: TextStyle(
+                        Text(
+                          '$name',
+                          style: const TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w400,
                           ),
                         ),
-                        OrderStatusWidget(status: status),
+                        SizedBox(height: 4),
+                        Text(
+                          'Адрес: $address',
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        // Text(
+                        //   'Количество товаров: $count',
+                        //   style: const TextStyle(
+                        //     fontSize: 14,
+                        //     fontWeight: FontWeight.w400,
+                        //   ),
+                        // ),
+                        // const SizedBox(height: 8),
+                        Row(
+                          children: [
+                            const Text(
+                              'Статус: ',
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w400,
+                              ),
+                            ),
+                            OrderStatusWidget(status: status),
+                          ],
+                        ),
                       ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              InkWell(
+                onTap: () {},
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Детали заказа',
+                      style: TextStyle(
+                        color: Colors.blue.shade700,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    Icon(
+                      Icons.chevron_right,
+                      color: Colors.blue.shade700,
+                      size: 30,
                     ),
                   ],
                 ),
               ),
-              // IconButton(
-              //   icon: const Icon(Icons.more_vert),
-              //   onPressed: () {
-              //     // Обработка нажатия на троеточие
-              //   },
-              // ),
             ],
           ),
         ),

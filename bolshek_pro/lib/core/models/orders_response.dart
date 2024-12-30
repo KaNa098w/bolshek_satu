@@ -43,7 +43,8 @@ class OrderItem {
   DeliveryFee totalPrice;
   Address address;
   List<OrderPayments> payments;
-  List<OrderProduct> items;
+  List<Items> items;
+  // List<Items> item;
   String? reservedTill;
   bool hasPayment;
 
@@ -92,8 +93,7 @@ class OrderItem {
       address: Address.fromJson(json['address']),
       payments: List<OrderPayments>.from(
           json['payments'].map((x) => OrderPayments.fromJson(x))),
-      items: List<OrderProduct>.from(
-          json['items'].map((x) => OrderProduct.fromJson(x))),
+      items: List<Items>.from(json['items'].map((x) => Items.fromJson(x))),
       reservedTill: json['reservedTill'],
       hasPayment: json['hasPayment'],
     );
@@ -206,6 +206,8 @@ class Items {
   String? productVariantId;
   DeliveryFee? price;
   DeliveryFee? totalPrice;
+  // List<OrderProduct> products;
+
   OrderProduct? product;
   ProductVariant? productVariant;
 
@@ -223,6 +225,7 @@ class Items {
       this.productVariantId,
       this.price,
       this.totalPrice,
+      //  required this.products,
       this.product,
       this.productVariant});
 
@@ -243,9 +246,8 @@ class Items {
     totalPrice = json['totalPrice'] != null
         ? new DeliveryFee.fromJson(json['totalPrice'])
         : null;
-    product = json['product'] != null
-        ? new OrderProduct.fromJson(json['product'])
-        : null;
+    product =
+        json['product'] != null ? OrderProduct.fromJson(json['product']) : null;
     productVariant = json['productVariant'] != null
         ? new ProductVariant.fromJson(json['productVariant'])
         : null;
@@ -284,9 +286,9 @@ class OrderProduct {
   String? id;
   String? createdAt;
   String? updatedAt;
-  Null? deletedAt;
+  String? deletedAt; // Null заменён на String?, так как Null устарело
   String? createdById;
-  Null? deletedById;
+  String? deletedById;
   String? organizationId;
   String? status;
   String? name;
@@ -298,73 +300,68 @@ class OrderProduct {
   String? brandId;
   String? categoryId;
 
-  OrderProduct(
-      {this.id,
-      this.createdAt,
-      this.updatedAt,
-      this.deletedAt,
-      this.createdById,
-      this.deletedById,
-      this.organizationId,
-      this.status,
-      this.name,
-      this.slug,
-      this.vendorCode,
-      this.deliveryType,
-      this.images,
-      this.compatibleVehicleIds,
-      this.brandId,
-      this.categoryId});
+  OrderProduct({
+    this.id,
+    this.createdAt,
+    this.updatedAt,
+    this.deletedAt,
+    this.createdById,
+    this.deletedById,
+    this.organizationId,
+    this.status,
+    this.name,
+    this.slug,
+    this.vendorCode,
+    this.deliveryType,
+    this.images,
+    this.compatibleVehicleIds,
+    this.brandId,
+    this.categoryId,
+  });
 
-  OrderProduct.fromJson(Map<String, dynamic> json) {
-    id = json['id'];
-    createdAt = json['createdAt'];
-    updatedAt = json['updatedAt'];
-    deletedAt = json['deletedAt'];
-    createdById = json['createdById'];
-    deletedById = json['deletedById'];
-    organizationId = json['organizationId'];
-    status = json['status'];
-    name = json['name'];
-    slug = json['slug'];
-    vendorCode = json['vendorCode'];
-    deliveryType = json['deliveryType'];
-    if (json['images'] != null) {
-      images = <Images>[];
-      json['images'].forEach((v) {
-        images!.add(new Images.fromJson(v));
-      });
-    }
-    if (json['compatibleVehicleIds'] != null) {
-      compatibleVehicleIds = List<String>.from(json['compatibleVehicleIds']);
-    }
-    brandId = json['brandId'];
-    categoryId = json['categoryId'];
+  factory OrderProduct.fromJson(Map<String, dynamic> json) {
+    return OrderProduct(
+      id: json['id'] as String?,
+      createdAt: json['createdAt'] as String?,
+      updatedAt: json['updatedAt'] as String?,
+      deletedAt: json['deletedAt'] as String?,
+      createdById: json['createdById'] as String?,
+      deletedById: json['deletedById'] as String?,
+      organizationId: json['organizationId'] as String?,
+      status: json['status'] as String?,
+      name: json['name'] as String?,
+      slug: json['slug'] as String?,
+      vendorCode: json['vendorCode'] as String?,
+      deliveryType: json['deliveryType'] as String?,
+      images: (json['images'] as List<dynamic>?)
+          ?.map((item) => Images.fromJson(item as Map<String, dynamic>))
+          .toList(),
+      compatibleVehicleIds:
+          (json['compatibleVehicleIds'] as List<dynamic>?)?.cast<String>(),
+      brandId: json['brandId'] as String?,
+      categoryId: json['categoryId'] as String?,
+    );
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['id'] = this.id;
-    data['createdAt'] = this.createdAt;
-    data['updatedAt'] = this.updatedAt;
-    data['deletedAt'] = this.deletedAt;
-    data['createdById'] = this.createdById;
-    data['deletedById'] = this.deletedById;
-    data['organizationId'] = this.organizationId;
-    data['status'] = this.status;
-    data['name'] = this.name;
-    data['slug'] = this.slug;
-    data['vendorCode'] = this.vendorCode;
-    data['deliveryType'] = this.deliveryType;
-    if (this.images != null) {
-      data['images'] = this.images!.map((v) => v.toJson()).toList();
-    }
-    if (this.compatibleVehicleIds != null) {
-      data['compatibleVehicleIds'] = this.compatibleVehicleIds;
-    }
-    data['brandId'] = this.brandId;
-    data['categoryId'] = this.categoryId;
-    return data;
+    return {
+      'id': id,
+      'createdAt': createdAt,
+      'updatedAt': updatedAt,
+      'deletedAt': deletedAt,
+      'createdById': createdById,
+      'deletedById': deletedById,
+      'organizationId': organizationId,
+      'status': status,
+      'name': name,
+      'slug': slug,
+      'vendorCode': vendorCode,
+      'deliveryType': deliveryType,
+      'images': images?.map((e) => e.toJson()).toList(),
+      'compatibleVehicleIds': compatibleVehicleIds,
+      'brandId': brandId,
+      'categoryId': categoryId,
+    };
   }
 }
 
@@ -395,7 +392,7 @@ class Images {
     if (json['sizes'] != null) {
       sizes = <Sizes>[];
       json['sizes'].forEach((v) {
-        sizes!.add(new Sizes.fromJson(v));
+        sizes!.add(Sizes.fromJson(v));
       });
     }
     width = json['width'];
@@ -405,18 +402,35 @@ class Images {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['url'] = this.url;
-    data['hash'] = this.hash;
-    data['size'] = this.size;
-    if (this.sizes != null) {
-      data['sizes'] = this.sizes!.map((v) => v.toJson()).toList();
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['url'] = url;
+    data['hash'] = hash;
+    data['size'] = size;
+    if (sizes != null) {
+      data['sizes'] = sizes!.map((v) => v.toJson()).toList();
     }
-    data['width'] = this.width;
-    data['format'] = this.format;
-    data['height'] = this.height;
-    data['blurhash'] = this.blurhash;
+    data['width'] = width;
+    data['format'] = format;
+    data['height'] = height;
+    data['blurhash'] = blurhash;
     return data;
+  }
+
+  /// Метод для получения самого подходящего URL
+  String? getBestFitImage({int maxWidth = 80, int maxHeight = 80}) {
+    if (sizes != null && sizes!.isNotEmpty) {
+      final filteredSizes = sizes!
+          .where((size) => size.width != null && size.height != null)
+          .where((size) => size.width! <= maxWidth && size.height! <= maxHeight)
+          .toList();
+
+      if (filteredSizes.isNotEmpty) {
+        filteredSizes.sort(
+            (a, b) => (a.width! * a.height!).compareTo(b.width! * b.height!));
+        return filteredSizes.first.url; // Самый маленький подходящий размер
+      }
+    }
+    return url; // Если подходящего размера нет, возвращаем основной URL
   }
 }
 

@@ -51,6 +51,32 @@ class OrdersService {
     }
   }
 
+  Future<OrdersResponse> fetchSelectOrder({
+    required BuildContext context,
+    required String id,
+  }) async {
+    try {
+      final token = _getToken(context);
+
+      final response = await httpClient.get(
+        Uri.parse('$_baseUrl/$id'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final json = jsonDecode(response.body);
+        return OrdersResponse.fromJson(json);
+      } else {
+        throw Exception('Failed to load orders: ${response.statusCode}');
+      }
+    } catch (e, stackTrace) {
+      throw Exception('Error fetching orders: $e');
+    }
+  }
+
   String _getToken(BuildContext context) {
     try {
       final authProvider = Provider.of<GlobalProvider>(context, listen: false);
