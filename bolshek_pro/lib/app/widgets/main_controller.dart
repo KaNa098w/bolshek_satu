@@ -1,13 +1,12 @@
 import 'package:bolshek_pro/app/pages/home/home_page.dart';
-import 'package:bolshek_pro/app/pages/my_organization/my_organiztion_page.dart';
 import 'package:bolshek_pro/app/pages/orders/orders_page.dart';
-import 'package:bolshek_pro/app/pages/orders/orders_list_page.dart';
 import 'package:bolshek_pro/app/pages/product/product_page.dart';
 import 'package:bolshek_pro/app/pages/settings/settings_page.dart';
 import 'package:bolshek_pro/core/service/auth_service.dart';
 import 'package:bolshek_pro/core/utils/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class MainControllerNavigator extends StatefulWidget {
   const MainControllerNavigator({Key? key}) : super(key: key);
@@ -24,7 +23,7 @@ class _MainControllerNavigatorState extends State<MainControllerNavigator> {
   @override
   void initState() {
     super.initState();
-    _fetchOrganizationName();
+    _loadOrganizationName();
 
     // Установка стартового индекса из переданных аргументов
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -44,13 +43,32 @@ class _MainControllerNavigatorState extends State<MainControllerNavigator> {
     const GoodsPage(),
     MyOrganizationPage(), // Настройки
   ];
-  Future<void> _fetchOrganizationName() async {
+
+  Future<void> _loadOrganizationName() async {
+    final prefs = await SharedPreferences.getInstance();
+    final cachedName = prefs.getString('organization_name');
+
+    if (cachedName != null) {
+      setState(() {
+        organizationName = cachedName;
+      });
+    } else {
+      _fetchAndCacheOrganizationName();
+    }
+  }
+
+  Future<void> _fetchAndCacheOrganizationName() async {
     try {
       final authSession = await AuthService().fetchAuthSession(context);
+      final fetchedName =
+          authSession.user?.organization?.name ?? 'Без названия';
+
       setState(() {
-        organizationName =
-            authSession.user?.organization?.name ?? 'Без названия';
+        organizationName = fetchedName;
       });
+
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('organization_name', fetchedName);
     } catch (e) {
       print('Error fetching organization name: $e');
       setState(() {
@@ -64,7 +82,6 @@ class _MainControllerNavigatorState extends State<MainControllerNavigator> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        // backgroundColor: ThemeColors.orange,
         title: Text(
           organizationName ?? '',
           style: TextStyle(
@@ -80,9 +97,9 @@ class _MainControllerNavigatorState extends State<MainControllerNavigator> {
       ),
       bottomNavigationBar: Theme(
         data: Theme.of(context).copyWith(
-          splashColor: Colors.transparent, // Отключаем ripple-анимацию
-          highlightColor: Colors.transparent, // Отключаем подсветку при нажатии
-          hoverColor: Colors.transparent, // На всякий случай отключаем hover
+          splashColor: Colors.transparent,
+          highlightColor: Colors.transparent,
+          hoverColor: Colors.transparent,
         ),
         child: BottomNavigationBar(
           backgroundColor: Colors.white,

@@ -150,19 +150,105 @@ class DeliveryFee {
 
 class Address {
   String? id;
+  String? createdAt;
+  String? updatedAt;
+  String? deletedAt;
+  String? createdById;
+  String? deletedById;
+  String? organizationId;
+  String? type;
+  double? latitude;
+  double? longitude;
   String? address;
+  String? zipCode;
+  String? entrance;
+  int? apartment;
+  int? floor;
+  String? intercom;
+  String? additionalInfo;
+  String? cityId;
+  String? customerId;
+  String? partnerId;
+  String? relatedOrganizationId;
 
-  Address({this.id, this.address});
+  Address({
+    this.id,
+    this.createdAt,
+    this.updatedAt,
+    this.deletedAt,
+    this.createdById,
+    this.deletedById,
+    this.organizationId,
+    this.type,
+    this.latitude,
+    this.longitude,
+    this.address,
+    this.zipCode,
+    this.entrance,
+    this.apartment,
+    this.floor,
+    this.intercom,
+    this.additionalInfo,
+    this.cityId,
+    this.customerId,
+    this.partnerId,
+    this.relatedOrganizationId,
+  });
 
   Address.fromJson(Map<String, dynamic> json) {
     id = json['id'];
+    createdAt = json['createdAt'];
+    updatedAt = json['updatedAt'];
+    deletedAt = json['deletedAt'];
+    createdById = json['createdById'];
+    deletedById = json['deletedById'];
+    organizationId = json['organizationId'];
+    type = json['type'];
+
+    // latitude / longitude могут прийти как double, int или null:
+    latitude = json['latitude'] == null ? null : json['latitude'].toDouble();
+    longitude = json['longitude'] == null ? null : json['longitude'].toDouble();
+
     address = json['address'];
+    zipCode = json['zipCode'];
+    entrance = json['entrance'];
+
+    // Если "apartment" может быть и int, и null:
+    apartment = json['apartment'] as int?; // Прямое приведение к int?
+    // Если "floor" может быть null:
+    floor = json['floor'] as int?;
+
+    intercom = json['intercom'];
+    additionalInfo = json['additionalInfo'];
+    cityId = json['cityId'];
+    customerId = json['customerId'];
+    partnerId = json['partnerId'];
+    relatedOrganizationId = json['relatedOrganizationId'];
   }
 
   Map<String, dynamic> toJson() {
     return {
       'id': id,
+      'createdAt': createdAt,
+      'updatedAt': updatedAt,
+      'deletedAt': deletedAt,
+      'createdById': createdById,
+      'deletedById': deletedById,
+      'organizationId': organizationId,
+      'type': type,
+      'latitude': latitude,
+      'longitude': longitude,
       'address': address,
+      'zipCode': zipCode,
+      'entrance': entrance,
+      'apartment': apartment,
+      'floor': floor,
+      'intercom': intercom,
+      'additionalInfo': additionalInfo,
+      'cityId': cityId,
+      'customerId': customerId,
+      'partnerId': partnerId,
+      'relatedOrganizationId': relatedOrganizationId,
     };
   }
 }

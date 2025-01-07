@@ -44,7 +44,7 @@ class _OrdersPageState extends State<OrdersPage>
                 isScrollable: true,
                 tabs: const [
                   Tab(text: 'Новые'),
-                  Tab(text: 'Ожидание оплаты'),
+                  // Tab(text: 'Ожидание оплаты'),
                   Tab(text: 'Оплаченный'),
                   Tab(text: 'В обработке'),
                   Tab(text: 'Доставлены'),
@@ -59,12 +59,14 @@ class _OrdersPageState extends State<OrdersPage>
               children: const [
                 OrderListPage(
                     statusFilter:
-                        'awaiting_confirmation&status=awaiting_payment'),
-                OrderListPage(statusFilter: 'awaiting_payment'),
+                        'awaiting_confirmation&status=awaiting_payment&status=new'),
+                // OrderListPage(statusFilter: 'awaiting_payment'),
                 OrderListPage(statusFilter: 'paid'),
                 OrderListPage(statusFilter: 'processing'),
-                OrderListPage(statusFilter: 'delivered'),
-                OrderListPage(statusFilter: 'cancelled'),
+                OrderListPage(
+                    statusFilter: 'delivered&status=partially_delivired'),
+                OrderListPage(
+                    statusFilter: 'cancelled&status=partially_cancelled'),
               ],
             ),
           ),

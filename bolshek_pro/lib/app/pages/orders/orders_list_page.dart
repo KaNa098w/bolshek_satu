@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:bolshek_pro/app/pages/orders/order_detail_page.dart';
 import 'package:bolshek_pro/app/widgets/%20order_status_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -65,11 +66,32 @@ class _OrderListPageState extends State<OrderListPage> {
   }
 
   /// Сохранение данных в кэш с учётом статуса
+  /// Сохранение данных в кэш с учётом статуса и проверкой актуальности
   Future<void> _cacheOrders() async {
     final prefs = await SharedPreferences.getInstance();
-    final data = _orders.map((e) => e.toJson()).toList();
-    await prefs.setString('cached_orders_${widget.statusFilter}',
-        jsonEncode(data)); // Сохраняем с уникальным ключом
+
+    // Загрузить текущие заказы из кэша
+    final cachedData = prefs.getString('cached_orders_${widget.statusFilter}');
+    final List<dynamic> cachedList =
+        cachedData != null ? jsonDecode(cachedData) : [];
+    final cachedOrders = cachedList.map((e) => OrderItem.fromJson(e)).toList();
+
+    // Сравнить загруженные заказы с кешированными и удалить отсутствующие
+    final updatedOrders = cachedOrders.where((cachedOrder) {
+      return _orders.any((order) => order.id == cachedOrder.id);
+    }).toList();
+
+    // Добавить новые заказы в кэш
+    for (var order in _orders) {
+      if (!updatedOrders.any((cachedOrder) => cachedOrder.id == order.id)) {
+        updatedOrders.add(order);
+      }
+    }
+
+    // Сохранить обновлённый список в кэш
+    final data = updatedOrders.map((e) => e.toJson()).toList();
+    await prefs.setString(
+        'cached_orders_${widget.statusFilter}', jsonEncode(data));
   }
 
   String _formatDate(String isoDate) {
@@ -94,15 +116,15 @@ class _OrderListPageState extends State<OrderListPage> {
 
     try {
       final response = await _ordersService.fetchOrders(
-          context: context,
-          take: _take,
-          skip: _skip,
-          status: widget.statusFilter);
+        context: context,
+        take: _take,
+        skip: _skip,
+        status: widget.statusFilter,
+      );
 
       setState(() {
         final newOrders = response.items ?? [];
         for (var order in newOrders) {
-          // Добавляем только уникальные заказы
           if (!_orders.any((o) => o.id == order.id)) {
             _orders.add(order);
           }
@@ -111,6 +133,7 @@ class _OrderListPageState extends State<OrderListPage> {
         _hasMore = newOrders.length == _take;
       });
 
+      // Проверить и обновить кэш
       await _cacheOrders();
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -266,28 +289,35 @@ class _OrderListPageState extends State<OrderListPage> {
                   ),
                 ],
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 15),
               Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(8),
-                        child: imageUrl.isNotEmpty
-                            ? Image.network(
-                                imageUrl,
-                                width: 80,
-                                height: 80,
-                                fit: BoxFit.contain,
-                              )
-                            : Image.asset(
-                                'assets/icons/error_image.png',
-                                width: 80,
-                                height: 80,
-                                fit: BoxFit.cover,
-                              ),
+                      ConstrainedBox(
+                        constraints: const BoxConstraints(
+                          minWidth: 80,
+                          minHeight: 80,
+                          maxWidth: 80,
+                          maxHeight: 80,
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(8),
+                          child: imageUrl.isEmpty
+                              ? Image.asset('assets/icons/error_image.png',
+                                  fit: BoxFit.cover)
+                              : Image.network(
+                                  imageUrl,
+                                  fit: BoxFit.contain,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return Image.asset(
+                                        'assets/icons/error_image.png',
+                                        fit: BoxFit.cover);
+                                  },
+                                ),
+                        ),
                       ),
                       SizedBox(
                           height: 4), // Отступ между изображением и текстом
@@ -320,7 +350,7 @@ class _OrderListPageState extends State<OrderListPage> {
                             fontWeight: FontWeight.w400,
                           ),
                         ),
-                        const SizedBox(height: 4),
+                        const SizedBox(height: 3),
                         // Text(
                         //   'Количество товаров: $count',
                         //   style: const TextStyle(
@@ -328,7 +358,6 @@ class _OrderListPageState extends State<OrderListPage> {
                         //     fontWeight: FontWeight.w400,
                         //   ),
                         // ),
-                        // const SizedBox(height: 8),
                         Row(
                           children: [
                             const Text(
@@ -341,6 +370,15 @@ class _OrderListPageState extends State<OrderListPage> {
                             OrderStatusWidget(status: status),
                           ],
                         ),
+                        const SizedBox(height: 3),
+
+                        Text(
+                          'Дата: ${_orders.first.createdAt != null ? _formatDate(_orders.first.createdAt!) : 'Дата не указана'}',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -348,7 +386,17 @@ class _OrderListPageState extends State<OrderListPage> {
               ),
               const SizedBox(height: 12),
               InkWell(
-                onTap: () {},
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => OrderDetailsPage(
+                        orderId: orderId,
+                        orderNumber: orderNumber,
+                      ),
+                    ),
+                  );
+                },
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [

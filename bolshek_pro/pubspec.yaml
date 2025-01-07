@@ -2,7 +2,7 @@ name: bolshek_pro
 description: "A new Flutter project."
 
 
-version: 1.0.1+10
+version: 1.0.1+11
 
 environment:
   sdk: ^3.5.1
@@ -30,6 +30,7 @@ dependencies:
   intl: ^0.20.1
   photo_view: ^0.15.0
   url_launcher: ^6.3.1
+  firebase_messaging: ^15.1.6
 
 
 dev_dependencies:
@@ -54,6 +55,7 @@ flutter:
   assets:
     - assets/svg/
     - assets/icons/
+
  
 
 

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:math';
 import 'package:bolshek_pro/core/models/fetch_product_response.dart';
+import 'package:bolshek_pro/core/models/order_detail_response.dart';
 import 'package:bolshek_pro/core/models/orders_response.dart';
 import 'package:bolshek_pro/core/models/product_response.dart';
 import 'package:bolshek_pro/core/utils/constants.dart';
@@ -51,12 +52,12 @@ class OrdersService {
     }
   }
 
-  Future<OrdersResponse> fetchSelectOrder({
+  Future<Order> fetchSelectOrder({
     required BuildContext context,
     required String id,
   }) async {
     try {
-      final token = _getToken(context);
+      final token = _getToken(context); // Предположим, вы получаете токен здесь
 
       final response = await httpClient.get(
         Uri.parse('$_baseUrl/$id'),
@@ -67,13 +68,72 @@ class OrdersService {
       );
 
       if (response.statusCode == 200) {
-        final json = jsonDecode(response.body);
-        return OrdersResponse.fromJson(json);
+        final jsonData = jsonDecode(response.body);
+        return Order.fromJson(jsonData);
       } else {
-        throw Exception('Failed to load orders: ${response.statusCode}');
+        throw Exception('Failed to load order: ${response.statusCode}');
       }
-    } catch (e, stackTrace) {
-      throw Exception('Error fetching orders: $e');
+    } catch (e) {
+      // Можете залогировать stackTrace, если нужно
+      throw Exception('Error fetching order: $e');
+    }
+  }
+
+  Future<http.Response> updateOrderStatus({
+    required BuildContext context,
+    required String id,
+    required Map<String, dynamic> updatedFields,
+  }) async {
+    try {
+      final token = _getToken(context);
+
+      final response = await httpClient.put(
+        Uri.parse('$_baseUrl/$id/items/status'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode(updatedFields),
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 204) {
+        return response;
+      } else {
+        throw Exception(
+            'Failed to update product: ${response.statusCode}, ${response.body}');
+      }
+    } catch (e) {
+      throw Exception('Error updating product: $e');
+    }
+  }
+
+  Future<http.Response> cancelGoodOrders({
+    required BuildContext context,
+    required List<String> ids,
+    required String id,
+  }) async {
+    try {
+      final token = _getToken(context);
+
+      final response = await httpClient.post(
+        Uri.parse('$_baseUrl/$id/items/cancel'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          "ids": ids,
+        }),
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 204) {
+        return response;
+      } else {
+        throw Exception(
+            'Failed to cancel orders: ${response.statusCode}, ${response.body}');
+      }
+    } catch (e) {
+      throw Exception('Error cancelling orders: $e');
     }
   }
 

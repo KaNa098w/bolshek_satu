@@ -21,6 +21,16 @@ class OrderStatusWidget extends StatelessWidget {
     'partially_returned': 'Частично возвращен',
     'returned': 'Возвращен',
     'cancelled': 'Отменен',
+    'shipped': 'Отправлен'
+  };
+
+  static const Map<String, String> statusforItems = {
+    // 'awaiting_confirmation': 'Ожидание подтверждения',
+    'processing': 'В обработке',
+    'shipped': 'Отправлен',
+    'delivered': 'Доставлен',
+    // 'returned': 'Возвращен',
+    // 'cancelled': 'Отменен',
   };
 
   static const Map<String, Color> statusColors = {
@@ -35,6 +45,7 @@ class OrderStatusWidget extends StatelessWidget {
     'partially_cancelled': Colors.redAccent,
     'partially_returned': Colors.deepOrange,
     'returned': Colors.red,
+    'shipped': Colors.greenAccent,
     'cancelled': Colors.red,
   };
 
@@ -45,7 +56,7 @@ class OrderStatusWidget extends StatelessWidget {
 
     return Text(
       translatedStatus,
-      style: TextStyle(color: statusColor),
+      style: TextStyle(color: statusColor, fontWeight: FontWeight.w500),
     );
   }
 }
