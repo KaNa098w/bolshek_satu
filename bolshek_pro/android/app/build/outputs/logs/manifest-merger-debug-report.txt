@@ -1,0 +1,1074 @@
+-- Merging decision tree log ---
+application
+INJECTED from /Users/beyinfotech/Documents/satu/bolshek_satu/bolshek_pro/android/app/src/main/AndroidManifest.xml:12:5-43:19
+MERGED from [:firebase_messaging] /Users/beyinfotech/.pub-cache/hosted/pub.dev/firebase_messaging-15.1.6/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:15:5-48:19
+MERGED from [:firebase_messaging] /Users/beyinfotech/.pub-cache/hosted/pub.dev/firebase_messaging-15.1.6/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:15:5-48:19
+MERGED from [:firebase_core] /Users/beyinfotech/.pub-cache/hosted/pub.dev/firebase_core-3.10.0/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:9:5-15:19
+MERGED from [:firebase_core] /Users/beyinfotech/.pub-cache/hosted/pub.dev/firebase_core-3.10.0/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:9:5-15:19
+MERGED from [:image_picker_android] /Users/beyinfotech/.pub-cache/hosted/pub.dev/image_picker_android-0.8.12+19/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:10:5-34:19
+MERGED from [:image_picker_android] /Users/beyinfotech/.pub-cache/hosted/pub.dev/image_picker_android-0.8.12+19/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:10:5-34:19
+MERGED from [:location] /Users/beyinfotech/.pub-cache/hosted/pub.dev/location-7.0.1/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:12:5-18:19
+MERGED from [:location] /Users/beyinfotech/.pub-cache/hosted/pub.dev/location-7.0.1/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:12:5-18:19
+MERGED from [:url_launcher_android] /Users/beyinfotech/.pub-cache/hosted/pub.dev/url_launcher_android-6.3.14/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:9:5-14:19
+MERGED from [:url_launcher_android] /Users/beyinfotech/.pub-cache/hosted/pub.dev/url_launcher_android-6.3.14/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:9:5-14:19
+MERGED from [com.yandex.android:maps.mobile:4.6.1-lite] /Users/beyinfotech/.gradle/caches/transforms-3/7bed2ede47ce6335ea39da418268ff73/transformed/jetified-maps.mobile-4.6.1-lite/AndroidManifest.xml:24:5-33:19
+MERGED from [com.yandex.android:maps.mobile:4.6.1-lite] /Users/beyinfotech/.gradle/caches/transforms-3/7bed2ede47ce6335ea39da418268ff73/transformed/jetified-maps.mobile-4.6.1-lite/AndroidManifest.xml:24:5-33:19
+MERGED from [com.google.android.gms:play-services-location:21.2.0] /Users/beyinfotech/.gradle/caches/transforms-3/4007430262196b41464b80a42c17d977/transformed/jetified-play-services-location-21.2.0/AndroidManifest.xml:7:5-20
+MERGED from [com.google.android.gms:play-services-location:21.2.0] /Users/beyinfotech/.gradle/caches/transforms-3/4007430262196b41464b80a42c17d977/transformed/jetified-play-services-location-21.2.0/AndroidManifest.xml:7:5-20
+MERGED from [com.google.firebase:firebase-messaging:24.1.0] /Users/beyinfotech/.gradle/caches/transforms-3/5af8d01459420ae26e80da0fb126b42b/transformed/jetified-firebase-messaging-24.1.0/AndroidManifest.xml:28:5-64:19
+MERGED from [com.google.firebase:firebase-messaging:24.1.0] /Users/beyinfotech/.gradle/caches/transforms-3/5af8d01459420ae26e80da0fb126b42b/transformed/jetified-firebase-messaging-24.1.0/AndroidManifest.xml:28:5-64:19
+MERGED from [com.google.android.gms:play-services-base:18.3.0] /Users/beyinfotech/.gradle/caches/transforms-3/d23b4c3f72f4e99a6a0f9c6dddc68f73/transformed/jetified-play-services-base-18.3.0/AndroidManifest.xml:19:5-23:19
+MERGED from [com.google.android.gms:play-services-base:18.3.0] /Users/beyinfotech/.gradle/caches/transforms-3/d23b4c3f72f4e99a6a0f9c6dddc68f73/transformed/jetified-play-services-base-18.3.0/AndroidManifest.xml:19:5-23:19
+MERGED from [com.google.firebase:firebase-installations:18.0.0] /Users/beyinfotech/.gradle/caches/transforms-3/f5b63f93ae7e9ff248ee8dcd7a9375a8/transformed/jetified-firebase-installations-18.0.0/AndroidManifest.xml:11:5-22:19
+MERGED from [com.google.firebase:firebase-installations:18.0.0] /Users/beyinfotech/.gradle/caches/transforms-3/f5b63f93ae7e9ff248ee8dcd7a9375a8/transformed/jetified-firebase-installations-18.0.0/AndroidManifest.xml:11:5-22:19
+MERGED from [com.google.firebase:firebase-common-ktx:21.0.0] /Users/beyinfotech/.gradle/caches/transforms-3/0a805f91dc0aeb2f438296be08a48754/transformed/jetified-firebase-common-ktx-21.0.0/AndroidManifest.xml:8:5-16:19
+MERGED from [com.google.firebase:firebase-common-ktx:21.0.0] /Users/beyinfotech/.gradle/caches/transforms-3/0a805f91dc0aeb2f438296be08a48754/transformed/jetified-firebase-common-ktx-21.0.0/AndroidManifest.xml:8:5-16:19
+MERGED from [com.google.firebase:firebase-common:21.0.0] /Users/beyinfotech/.gradle/caches/transforms-3/394d7bf93449c2bf84d07f7be55b1d51/transformed/jetified-firebase-common-21.0.0/AndroidManifest.xml:22:5-39:19
+MERGED from [com.google.firebase:firebase-common:21.0.0] /Users/beyinfotech/.gradle/caches/transforms-3/394d7bf93449c2bf84d07f7be55b1d51/transformed/jetified-firebase-common-21.0.0/AndroidManifest.xml:22:5-39:19
+MERGED from [com.google.android.play:integrity:1.1.0] /Users/beyinfotech/.gradle/caches/transforms-3/71c8478bb44ca3acdd799895d38c2903/transformed/jetified-integrity-1.1.0/AndroidManifest.xml:5:5-6:19
+MERGED from [com.google.android.play:integrity:1.1.0] /Users/beyinfotech/.gradle/caches/transforms-3/71c8478bb44ca3acdd799895d38c2903/transformed/jetified-integrity-1.1.0/AndroidManifest.xml:5:5-6:19
+MERGED from [com.google.firebase:firebase-iid-interop:17.1.0] /Users/beyinfotech/.gradle/caches/transforms-3/c8c65c12a91424e7229200ced8aba043/transformed/jetified-firebase-iid-interop-17.1.0/AndroidManifest.xml:7:5-8:19
+MERGED from [com.google.firebase:firebase-iid-interop:17.1.0] /Users/beyinfotech/.gradle/caches/transforms-3/c8c65c12a91424e7229200ced8aba043/transformed/jetified-firebase-iid-interop-17.1.0/AndroidManifest.xml:7:5-8:19
+MERGED from [androidx.window:window:1.2.0] /Users/beyinfotech/.gradle/caches/transforms-3/16077713545213a8db719838f55db4d4/transformed/jetified-window-1.2.0/AndroidManifest.xml:22:5-29:19
+MERGED from [androidx.window:window:1.2.0] /Users/beyinfotech/.gradle/caches/transforms-3/16077713545213a8db719838f55db4d4/transformed/jetified-window-1.2.0/AndroidManifest.xml:22:5-29:19
+MERGED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:28:5-143:19
+MERGED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:28:5-143:19
+MERGED from [com.google.android.gms:play-services-stats:17.0.2] /Users/beyinfotech/.gradle/caches/transforms-3/a55e49f608c45bf3f5bdb9360eda0dd2/transformed/jetified-play-services-stats-17.0.2/AndroidManifest.xml:7:5-20
+MERGED from [com.google.android.gms:play-services-stats:17.0.2] /Users/beyinfotech/.gradle/caches/transforms-3/a55e49f608c45bf3f5bdb9360eda0dd2/transformed/jetified-play-services-stats-17.0.2/AndroidManifest.xml:7:5-20
+MERGED from [com.google.android.gms:play-services-tasks:18.1.0] /Users/beyinfotech/.gradle/caches/transforms-3/8844e5cbb9caa6d2ecda073eb5b223a9/transformed/jetified-play-services-tasks-18.1.0/AndroidManifest.xml:5:5-20
+MERGED from [com.google.android.gms:play-services-tasks:18.1.0] /Users/beyinfotech/.gradle/caches/transforms-3/8844e5cbb9caa6d2ecda073eb5b223a9/transformed/jetified-play-services-tasks-18.1.0/AndroidManifest.xml:5:5-20
+MERGED from [com.google.firebase:firebase-measurement-connector:19.0.0] /Users/beyinfotech/.gradle/caches/transforms-3/65b4b5bc5e96f0e5a98c6290f9af2a70/transformed/jetified-firebase-measurement-connector-19.0.0/AndroidManifest.xml:22:5-23:19
+MERGED from [com.google.firebase:firebase-measurement-connector:19.0.0] /Users/beyinfotech/.gradle/caches/transforms-3/65b4b5bc5e96f0e5a98c6290f9af2a70/transformed/jetified-firebase-measurement-connector-19.0.0/AndroidManifest.xml:22:5-23:19
+MERGED from [com.google.android.gms:play-services-basement:18.3.0] /Users/beyinfotech/.gradle/caches/transforms-3/6435847f3df74685ebe9d552b555a53d/transformed/jetified-play-services-basement-18.3.0/AndroidManifest.xml:20:5-24:19
+MERGED from [com.google.android.gms:play-services-basement:18.3.0] /Users/beyinfotech/.gradle/caches/transforms-3/6435847f3df74685ebe9d552b555a53d/transformed/jetified-play-services-basement-18.3.0/AndroidManifest.xml:20:5-24:19
+MERGED from [androidx.core:core:1.13.1] /Users/beyinfotech/.gradle/caches/transforms-3/54f52c935db561500e0b4cff24018caf/transformed/core-1.13.1/AndroidManifest.xml:28:5-89
+MERGED from [androidx.core:core:1.13.1] /Users/beyinfotech/.gradle/caches/transforms-3/54f52c935db561500e0b4cff24018caf/transformed/core-1.13.1/AndroidManifest.xml:28:5-89
+MERGED from [androidx.lifecycle:lifecycle-process:2.7.0] /Users/beyinfotech/.gradle/caches/transforms-3/8f2bce3da87421ce56fd9e41c2512084/transformed/jetified-lifecycle-process-2.7.0/AndroidManifest.xml:23:5-33:19
+MERGED from [androidx.lifecycle:lifecycle-process:2.7.0] /Users/beyinfotech/.gradle/caches/transforms-3/8f2bce3da87421ce56fd9e41c2512084/transformed/jetified-lifecycle-process-2.7.0/AndroidManifest.xml:23:5-33:19
+MERGED from [androidx.profileinstaller:profileinstaller:1.3.1] /Users/beyinfotech/.gradle/caches/transforms-3/4a13a77c404f1e7dd55daa8c85a25f69/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:23:5-53:19
+MERGED from [androidx.profileinstaller:profileinstaller:1.3.1] /Users/beyinfotech/.gradle/caches/transforms-3/4a13a77c404f1e7dd55daa8c85a25f69/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:23:5-53:19
+MERGED from [androidx.startup:startup-runtime:1.1.1] /Users/beyinfotech/.gradle/caches/transforms-3/9722c8950630913e876bdfd6632a00c2/transformed/jetified-startup-runtime-1.1.1/AndroidManifest.xml:25:5-31:19
+MERGED from [androidx.startup:startup-runtime:1.1.1] /Users/beyinfotech/.gradle/caches/transforms-3/9722c8950630913e876bdfd6632a00c2/transformed/jetified-startup-runtime-1.1.1/AndroidManifest.xml:25:5-31:19
+MERGED from [androidx.versionedparcelable:versionedparcelable:1.1.1] /Users/beyinfotech/.gradle/caches/transforms-3/341d1402fc8bddfd6b10432156edd554/transformed/versionedparcelable-1.1.1/AndroidManifest.xml:24:5-25:19
+MERGED from [androidx.versionedparcelable:versionedparcelable:1.1.1] /Users/beyinfotech/.gradle/caches/transforms-3/341d1402fc8bddfd6b10432156edd554/transformed/versionedparcelable-1.1.1/AndroidManifest.xml:24:5-25:19
+MERGED from [com.google.firebase:firebase-datatransport:18.2.0] /Users/beyinfotech/.gradle/caches/transforms-3/1e00bc7059beebfb0bd689d2303cd48d/transformed/jetified-firebase-datatransport-18.2.0/AndroidManifest.xml:21:5-29:19
+MERGED from [com.google.firebase:firebase-datatransport:18.2.0] /Users/beyinfotech/.gradle/caches/transforms-3/1e00bc7059beebfb0bd689d2303cd48d/transformed/jetified-firebase-datatransport-18.2.0/AndroidManifest.xml:21:5-29:19
+MERGED from [com.google.android.datatransport:transport-backend-cct:3.1.9] /Users/beyinfotech/.gradle/caches/transforms-3/9b7da626314aec21a1be5f9bb199bbd9/transformed/jetified-transport-backend-cct-3.1.9/AndroidManifest.xml:27:5-35:19
+MERGED from [com.google.android.datatransport:transport-backend-cct:3.1.9] /Users/beyinfotech/.gradle/caches/transforms-3/9b7da626314aec21a1be5f9bb199bbd9/transformed/jetified-transport-backend-cct-3.1.9/AndroidManifest.xml:27:5-35:19
+MERGED from [com.google.android.datatransport:transport-runtime:3.1.9] /Users/beyinfotech/.gradle/caches/transforms-3/c7114b6d7522e330bad7aad670d0c285/transformed/jetified-transport-runtime-3.1.9/AndroidManifest.xml:25:5-39:19
+MERGED from [com.google.android.datatransport:transport-runtime:3.1.9] /Users/beyinfotech/.gradle/caches/transforms-3/c7114b6d7522e330bad7aad670d0c285/transformed/jetified-transport-runtime-3.1.9/AndroidManifest.xml:25:5-39:19
+MERGED from [androidx.room:room-runtime:2.5.0] /Users/beyinfotech/.gradle/caches/transforms-3/251ed882fad26f89d674f025a57a84a5/transformed/room-runtime-2.5.0/AndroidManifest.xml:23:5-29:19
+MERGED from [androidx.room:room-runtime:2.5.0] /Users/beyinfotech/.gradle/caches/transforms-3/251ed882fad26f89d674f025a57a84a5/transformed/room-runtime-2.5.0/AndroidManifest.xml:23:5-29:19
+	android:appComponentFactory
+		ADDED from [androidx.core:core:1.13.1] /Users/beyinfotech/.gradle/caches/transforms-3/54f52c935db561500e0b4cff24018caf/transformed/core-1.13.1/AndroidManifest.xml:28:18-86
+	tools:ignore
+		ADDED from [com.yandex.android:maps.mobile:4.6.1-lite] /Users/beyinfotech/.gradle/caches/transforms-3/7bed2ede47ce6335ea39da418268ff73/transformed/jetified-maps.mobile-4.6.1-lite/AndroidManifest.xml:24:18-44
+	android:name
+		INJECTED from /Users/beyinfotech/Documents/satu/bolshek_satu/bolshek_pro/android/app/src/main/AndroidManifest.xml
+manifest
+ADDED from /Users/beyinfotech/Documents/satu/bolshek_satu/bolshek_pro/android/app/src/main/AndroidManifest.xml:1:1-55:12
+INJECTED from /Users/beyinfotech/Documents/satu/bolshek_satu/bolshek_pro/android/app/src/main/AndroidManifest.xml:1:1-55:12
+INJECTED from /Users/beyinfotech/Documents/satu/bolshek_satu/bolshek_pro/android/app/src/main/AndroidManifest.xml:1:1-55:12
+INJECTED from /Users/beyinfotech/Documents/satu/bolshek_satu/bolshek_pro/android/app/src/main/AndroidManifest.xml:1:1-55:12
+MERGED from /Users/beyinfotech/Documents/satu/bolshek_satu/bolshek_pro/android/app/src/main/AndroidManifest.xml:1:1-55:12
+MERGED from [:firebase_messaging] /Users/beyinfotech/.pub-cache/hosted/pub.dev/firebase_messaging-15.1.6/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:2:1-50:12
+MERGED from [:firebase_core] /Users/beyinfotech/.pub-cache/hosted/pub.dev/firebase_core-3.10.0/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:2:1-17:12
+MERGED from [:flutter_local_notifications] /Users/beyinfotech/.pub-cache/hosted/pub.dev/flutter_local_notifications-18.0.1/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:2:1-12:12
+MERGED from [:image_picker_android] /Users/beyinfotech/.pub-cache/hosted/pub.dev/image_picker_android-0.8.12+19/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:2:1-36:12
+MERGED from [:yandex_mapkit] /Users/beyinfotech/.pub-cache/hosted/pub.dev/yandex_mapkit-4.1.0/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:2:1-9:12
+MERGED from [:flutter_plugin_android_lifecycle] /Users/beyinfotech/.pub-cache/hosted/pub.dev/flutter_plugin_android_lifecycle-2.0.24/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:2:1-9:12
+MERGED from [:location] /Users/beyinfotech/.pub-cache/hosted/pub.dev/location-7.0.1/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:2:1-20:12
+MERGED from [:shared_preferences_android] /Users/beyinfotech/.pub-cache/hosted/pub.dev/shared_preferences_android-2.4.0/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:2:1-9:12
+MERGED from [:url_launcher_android] /Users/beyinfotech/.pub-cache/hosted/pub.dev/url_launcher_android-6.3.14/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:2:1-16:12
+MERGED from [com.yandex.android:maps.mobile:4.6.1-lite] /Users/beyinfotech/.gradle/caches/transforms-3/7bed2ede47ce6335ea39da418268ff73/transformed/jetified-maps.mobile-4.6.1-lite/AndroidManifest.xml:3:1-35:12
+MERGED from [com.google.android.gms:play-services-location:21.2.0] /Users/beyinfotech/.gradle/caches/transforms-3/4007430262196b41464b80a42c17d977/transformed/jetified-play-services-location-21.2.0/AndroidManifest.xml:2:1-9:12
+MERGED from [androidx.media:media:1.1.0] /Users/beyinfotech/.gradle/caches/transforms-3/dc98946870271987ed5ab344c57691d3/transformed/media-1.1.0/AndroidManifest.xml:17:1-24:12
+MERGED from [com.google.firebase:firebase-messaging:24.1.0] /Users/beyinfotech/.gradle/caches/transforms-3/5af8d01459420ae26e80da0fb126b42b/transformed/jetified-firebase-messaging-24.1.0/AndroidManifest.xml:17:1-66:12
+MERGED from [com.google.android.gms:play-services-base:18.3.0] /Users/beyinfotech/.gradle/caches/transforms-3/d23b4c3f72f4e99a6a0f9c6dddc68f73/transformed/jetified-play-services-base-18.3.0/AndroidManifest.xml:16:1-24:12
+MERGED from [com.google.firebase:firebase-installations:18.0.0] /Users/beyinfotech/.gradle/caches/transforms-3/f5b63f93ae7e9ff248ee8dcd7a9375a8/transformed/jetified-firebase-installations-18.0.0/AndroidManifest.xml:2:1-24:12
+MERGED from [com.google.firebase:firebase-common-ktx:21.0.0] /Users/beyinfotech/.gradle/caches/transforms-3/0a805f91dc0aeb2f438296be08a48754/transformed/jetified-firebase-common-ktx-21.0.0/AndroidManifest.xml:2:1-18:12
+MERGED from [com.google.firebase:firebase-common:21.0.0] /Users/beyinfotech/.gradle/caches/transforms-3/394d7bf93449c2bf84d07f7be55b1d51/transformed/jetified-firebase-common-21.0.0/AndroidManifest.xml:15:1-41:12
+MERGED from [com.google.android.play:integrity:1.1.0] /Users/beyinfotech/.gradle/caches/transforms-3/71c8478bb44ca3acdd799895d38c2903/transformed/jetified-integrity-1.1.0/AndroidManifest.xml:2:1-7:12
+MERGED from [com.google.firebase:firebase-iid-interop:17.1.0] /Users/beyinfotech/.gradle/caches/transforms-3/c8c65c12a91424e7229200ced8aba043/transformed/jetified-firebase-iid-interop-17.1.0/AndroidManifest.xml:2:1-10:12
+MERGED from [com.google.android.gms:play-services-cloud-messaging:17.2.0] /Users/beyinfotech/.gradle/caches/transforms-3/747c041822f87df5ad2add2c97ff7b12/transformed/jetified-play-services-cloud-messaging-17.2.0/AndroidManifest.xml:2:1-13:12
+MERGED from [com.google.firebase:firebase-installations-interop:17.1.1] /Users/beyinfotech/.gradle/caches/transforms-3/584b83f2f4fab679393aa9abedd06eb4/transformed/jetified-firebase-installations-interop-17.1.1/AndroidManifest.xml:15:1-19:12
+MERGED from [androidx.datastore:datastore-preferences:1.0.0] /Users/beyinfotech/.gradle/caches/transforms-3/ce7423aca94afb397ec9d59527946b0a/transformed/jetified-datastore-preferences-1.0.0/AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.datastore:datastore:1.0.0] /Users/beyinfotech/.gradle/caches/transforms-3/7fee6f8ecdc0fa96a2b21e62879e75d2/transformed/jetified-datastore-1.0.0/AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.preference:preference:1.2.1] /Users/beyinfotech/.gradle/caches/transforms-3/f08ed5dac3270da4d8bf0db0e0f8b13e/transformed/preference-1.2.1/AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.recyclerview:recyclerview:1.0.0] /Users/beyinfotech/.gradle/caches/transforms-3/988d609a90f17a2c25e2535a32dac55c/transformed/recyclerview-1.0.0/AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.legacy:legacy-support-core-ui:1.0.0] /Users/beyinfotech/.gradle/caches/transforms-3/fc1cfbe116dd6a64ee98c4cca66ce0aa/transformed/legacy-support-core-ui-1.0.0/AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.slidingpanelayout:slidingpanelayout:1.2.0] /Users/beyinfotech/.gradle/caches/transforms-3/bb3899a02108bac62404353f49ae12a6/transformed/slidingpanelayout-1.2.0/AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.window:window:1.2.0] /Users/beyinfotech/.gradle/caches/transforms-3/16077713545213a8db719838f55db4d4/transformed/jetified-window-1.2.0/AndroidManifest.xml:17:1-31:12
+MERGED from [androidx.window:window-java:1.2.0] /Users/beyinfotech/.gradle/caches/transforms-3/025c2325695e6c4adebed6894165b1c2/transformed/jetified-window-java-1.2.0/AndroidManifest.xml:17:1-21:12
+MERGED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:17:1-145:12
+MERGED from [androidx.fragment:fragment-ktx:1.7.1] /Users/beyinfotech/.gradle/caches/transforms-3/b1263fe408d9de121fe380cdd40a895f/transformed/jetified-fragment-ktx-1.7.1/AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.activity:activity-ktx:1.9.3] /Users/beyinfotech/.gradle/caches/transforms-3/6b0db83822aeb26e97b849dfbd021ceb/transformed/jetified-activity-ktx-1.9.3/AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.lifecycle:lifecycle-livedata-core-ktx:2.7.0] /Users/beyinfotech/.gradle/caches/transforms-3/fe883dbcea00090149ea92ff8e103aa8/transformed/jetified-lifecycle-livedata-core-ktx-2.7.0/AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.lifecycle:lifecycle-service:2.7.0] /Users/beyinfotech/.gradle/caches/transforms-3/ab937b985be7125db622cb7d1dee2549/transformed/jetified-lifecycle-service-2.7.0/AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.lifecycle:lifecycle-viewmodel-ktx:2.7.0] /Users/beyinfotech/.gradle/caches/transforms-3/9ae86d651f4b2f016cf73e0adbe94876/transformed/jetified-lifecycle-viewmodel-ktx-2.7.0/AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.lifecycle:lifecycle-runtime-ktx:2.7.0] /Users/beyinfotech/.gradle/caches/transforms-3/958e45aa741b60287f91b7480105f159/transformed/jetified-lifecycle-runtime-ktx-2.7.0/AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.lifecycle:lifecycle-livedata-core:2.7.0] /Users/beyinfotech/.gradle/caches/transforms-3/6f1d8f2e46c57a4c7bcfb7e453f2a0a2/transformed/lifecycle-livedata-core-2.7.0/AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.lifecycle:lifecycle-viewmodel-savedstate:2.7.0] /Users/beyinfotech/.gradle/caches/transforms-3/293d2d0d501a24b750eb6cd74b7e1ab0/transformed/jetified-lifecycle-viewmodel-savedstate-2.7.0/AndroidManifest.xml:17:1-22:12
+MERGED from [com.google.android.gms:play-services-stats:17.0.2] /Users/beyinfotech/.gradle/caches/transforms-3/a55e49f608c45bf3f5bdb9360eda0dd2/transformed/jetified-play-services-stats-17.0.2/AndroidManifest.xml:2:1-9:12
+MERGED from [androidx.legacy:legacy-support-core-utils:1.0.0] /Users/beyinfotech/.gradle/caches/transforms-3/a7b8fc902acf60608feae407a85a70e5/transformed/legacy-support-core-utils-1.0.0/AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.loader:loader:1.0.0] /Users/beyinfotech/.gradle/caches/transforms-3/6702e0185184a2dcdf5ed4ef95f53c6f/transformed/loader-1.0.0/AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.lifecycle:lifecycle-viewmodel:2.7.0] /Users/beyinfotech/.gradle/caches/transforms-3/d7c9055c3a8eb69a7567641c67566b1d/transformed/lifecycle-viewmodel-2.7.0/AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.lifecycle:lifecycle-livedata:2.7.0] /Users/beyinfotech/.gradle/caches/transforms-3/ea26a5a742f9e3aeb1d62ec4f7d5610a/transformed/lifecycle-livedata-2.7.0/AndroidManifest.xml:17:1-22:12
+MERGED from [com.google.android.gms:play-services-tasks:18.1.0] /Users/beyinfotech/.gradle/caches/transforms-3/8844e5cbb9caa6d2ecda073eb5b223a9/transformed/jetified-play-services-tasks-18.1.0/AndroidManifest.xml:2:1-6:12
+MERGED from [com.google.firebase:firebase-measurement-connector:19.0.0] /Users/beyinfotech/.gradle/caches/transforms-3/65b4b5bc5e96f0e5a98c6290f9af2a70/transformed/jetified-firebase-measurement-connector-19.0.0/AndroidManifest.xml:17:1-25:12
+MERGED from [com.google.android.gms:play-services-basement:18.3.0] /Users/beyinfotech/.gradle/caches/transforms-3/6435847f3df74685ebe9d552b555a53d/transformed/jetified-play-services-basement-18.3.0/AndroidManifest.xml:16:1-26:12
+MERGED from [androidx.appcompat:appcompat:1.1.0] /Users/beyinfotech/.gradle/caches/transforms-3/2f6e73864482fead5118d27a2b225e3f/transformed/appcompat-1.1.0/AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.fragment:fragment:1.7.1] /Users/beyinfotech/.gradle/caches/transforms-3/443d490f30fcfcc5b3db182b81dbbea9/transformed/fragment-1.7.1/AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.activity:activity:1.9.3] /Users/beyinfotech/.gradle/caches/transforms-3/c2aab7e4ae06710dc6890faf3402c17c/transformed/jetified-activity-1.9.3/AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.browser:browser:1.8.0] /Users/beyinfotech/.gradle/caches/transforms-3/1f69ac634e095a7700f391828f975fda/transformed/browser-1.8.0/AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.core:core-ktx:1.13.1] /Users/beyinfotech/.gradle/caches/transforms-3/478d0170770f6bc60fca3c64950f5a4a/transformed/jetified-core-ktx-1.13.1/AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.viewpager:viewpager:1.0.0] /Users/beyinfotech/.gradle/caches/transforms-3/c9da9b991c3dd85158e4e6c2307d6199/transformed/viewpager-1.0.0/AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.appcompat:appcompat-resources:1.1.0] /Users/beyinfotech/.gradle/caches/transforms-3/8542342c7c331112cf326753cb6be912/transformed/jetified-appcompat-resources-1.1.0/AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.drawerlayout:drawerlayout:1.0.0] /Users/beyinfotech/.gradle/caches/transforms-3/019c5ad8f761e2a6e343d8ae42d0a8a5/transformed/drawerlayout-1.0.0/AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.coordinatorlayout:coordinatorlayout:1.0.0] /Users/beyinfotech/.gradle/caches/transforms-3/972280f3f1aef833fc8fec0964ba36bb/transformed/coordinatorlayout-1.0.0/AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.customview:customview:1.1.0] /Users/beyinfotech/.gradle/caches/transforms-3/a6a9d57132a9bae9af18d865a77f7c10/transformed/customview-1.1.0/AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.transition:transition:1.4.1] /Users/beyinfotech/.gradle/caches/transforms-3/302313a1c7453c7eddcad646230561ae/transformed/transition-1.4.1/AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.vectordrawable:vectordrawable-animated:1.1.0] /Users/beyinfotech/.gradle/caches/transforms-3/74d44d35bc4b71eb82b1feabbda5bdf0/transformed/vectordrawable-animated-1.1.0/AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.vectordrawable:vectordrawable:1.1.0] /Users/beyinfotech/.gradle/caches/transforms-3/da38bf3913fd7aabafa31a2f64234285/transformed/vectordrawable-1.1.0/AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.swiperefreshlayout:swiperefreshlayout:1.0.0] /Users/beyinfotech/.gradle/caches/transforms-3/994ecb705467fe4083efe5b2f4032ebf/transformed/swiperefreshlayout-1.0.0/AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.asynclayoutinflater:asynclayoutinflater:1.0.0] /Users/beyinfotech/.gradle/caches/transforms-3/1c7238e816233d0fb12e59bf6ef73724/transformed/asynclayoutinflater-1.0.0/AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.core:core:1.13.1] /Users/beyinfotech/.gradle/caches/transforms-3/54f52c935db561500e0b4cff24018caf/transformed/core-1.13.1/AndroidManifest.xml:17:1-30:12
+MERGED from [androidx.lifecycle:lifecycle-runtime:2.7.0] /Users/beyinfotech/.gradle/caches/transforms-3/5cf5b70724c03783e25c505e593546e0/transformed/lifecycle-runtime-2.7.0/AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.lifecycle:lifecycle-process:2.7.0] /Users/beyinfotech/.gradle/caches/transforms-3/8f2bce3da87421ce56fd9e41c2512084/transformed/jetified-lifecycle-process-2.7.0/AndroidManifest.xml:17:1-35:12
+MERGED from [androidx.savedstate:savedstate-ktx:1.2.1] /Users/beyinfotech/.gradle/caches/transforms-3/579015e00934cc1a444043e16a87573c/transformed/jetified-savedstate-ktx-1.2.1/AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.savedstate:savedstate:1.2.1] /Users/beyinfotech/.gradle/caches/transforms-3/f1a1b62f969b80a7a2d00bf7072119c4/transformed/jetified-savedstate-1.2.1/AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.localbroadcastmanager:localbroadcastmanager:1.1.0] /Users/beyinfotech/.gradle/caches/transforms-3/f2c36c330d091f31dae15a0d416f7284/transformed/localbroadcastmanager-1.1.0/AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.exifinterface:exifinterface:1.3.7] /Users/beyinfotech/.gradle/caches/transforms-3/b43ce3ac6a79d5bbe20c31f6ca33ad92/transformed/exifinterface-1.3.7/AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.profileinstaller:profileinstaller:1.3.1] /Users/beyinfotech/.gradle/caches/transforms-3/4a13a77c404f1e7dd55daa8c85a25f69/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:17:1-55:12
+MERGED from [androidx.startup:startup-runtime:1.1.1] /Users/beyinfotech/.gradle/caches/transforms-3/9722c8950630913e876bdfd6632a00c2/transformed/jetified-startup-runtime-1.1.1/AndroidManifest.xml:17:1-33:12
+MERGED from [androidx.tracing:tracing:1.2.0] /Users/beyinfotech/.gradle/caches/transforms-3/65d7310bd7869438c4b6cbda64af0d04/transformed/jetified-tracing-1.2.0/AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.interpolator:interpolator:1.0.0] /Users/beyinfotech/.gradle/caches/transforms-3/b9fbad5823ea9179a98a2eca4d8e5889/transformed/interpolator-1.0.0/AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.versionedparcelable:versionedparcelable:1.1.1] /Users/beyinfotech/.gradle/caches/transforms-3/341d1402fc8bddfd6b10432156edd554/transformed/versionedparcelable-1.1.1/AndroidManifest.xml:17:1-27:12
+MERGED from [com.google.firebase:firebase-components:18.0.0] /Users/beyinfotech/.gradle/caches/transforms-3/70f6cf3393419c205393672281176f63/transformed/jetified-firebase-components-18.0.0/AndroidManifest.xml:15:1-20:12
+MERGED from [com.google.firebase:firebase-datatransport:18.2.0] /Users/beyinfotech/.gradle/caches/transforms-3/1e00bc7059beebfb0bd689d2303cd48d/transformed/jetified-firebase-datatransport-18.2.0/AndroidManifest.xml:15:1-31:12
+MERGED from [com.google.android.datatransport:transport-backend-cct:3.1.9] /Users/beyinfotech/.gradle/caches/transforms-3/9b7da626314aec21a1be5f9bb199bbd9/transformed/jetified-transport-backend-cct-3.1.9/AndroidManifest.xml:15:1-37:12
+MERGED from [com.google.firebase:firebase-encoders-json:18.0.0] /Users/beyinfotech/.gradle/caches/transforms-3/d7f383f0efc36a65fc85870d2938f108/transformed/jetified-firebase-encoders-json-18.0.0/AndroidManifest.xml:15:1-23:12
+MERGED from [com.google.android.datatransport:transport-runtime:3.1.9] /Users/beyinfotech/.gradle/caches/transforms-3/c7114b6d7522e330bad7aad670d0c285/transformed/jetified-transport-runtime-3.1.9/AndroidManifest.xml:15:1-41:12
+MERGED from [com.google.android.datatransport:transport-api:3.1.0] /Users/beyinfotech/.gradle/caches/transforms-3/970607a253230e64c9332da9ed4b94d4/transformed/jetified-transport-api-3.1.0/AndroidManifest.xml:15:1-20:12
+MERGED from [androidx.room:room-runtime:2.5.0] /Users/beyinfotech/.gradle/caches/transforms-3/251ed882fad26f89d674f025a57a84a5/transformed/room-runtime-2.5.0/AndroidManifest.xml:17:1-31:12
+MERGED from [androidx.arch.core:core-runtime:2.2.0] /Users/beyinfotech/.gradle/caches/transforms-3/4f27b3307bb5382b9b7e9ffb9df96d42/transformed/core-runtime-2.2.0/AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.cursoradapter:cursoradapter:1.0.0] /Users/beyinfotech/.gradle/caches/transforms-3/2fe7a934da0d393d805370beecd9cbfb/transformed/cursoradapter-1.0.0/AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.sqlite:sqlite-framework:2.3.0] /Users/beyinfotech/.gradle/caches/transforms-3/9a3c7d5b3cc30b532fc2c6fbfa7ffc8b/transformed/sqlite-framework-2.3.0/AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.window.extensions.core:core:1.0.0] /Users/beyinfotech/.gradle/caches/transforms-3/243ce5b0fd7627d3c1ded1c6cad6b7f2/transformed/jetified-core-1.0.0/AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.sqlite:sqlite:2.3.0] /Users/beyinfotech/.gradle/caches/transforms-3/495205335201d2e39d6638dd0bae0f77/transformed/sqlite-2.3.0/AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.documentfile:documentfile:1.0.0] /Users/beyinfotech/.gradle/caches/transforms-3/5fb9d58556147deb5b4b2d91cb5a5071/transformed/documentfile-1.0.0/AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.print:print:1.0.0] /Users/beyinfotech/.gradle/caches/transforms-3/cb6961878473724455c8561e0ccd23c1/transformed/print-1.0.0/AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.annotation:annotation-experimental:1.4.0] /Users/beyinfotech/.gradle/caches/transforms-3/92431184378e9bfdbb9d2138b9f864a4/transformed/jetified-annotation-experimental-1.4.0/AndroidManifest.xml:2:1-7:12
+MERGED from [com.getkeepsafe.relinker:relinker:1.4.5] /Users/beyinfotech/.gradle/caches/transforms-3/130bc07e599ba9baff8fdf95df6cdf2a/transformed/jetified-relinker-1.4.5/AndroidManifest.xml:2:1-7:12
+INJECTED from /Users/beyinfotech/Documents/satu/bolshek_satu/bolshek_pro/android/app/src/debug/AndroidManifest.xml:1:1-7:12
+INJECTED from /Users/beyinfotech/Documents/satu/bolshek_satu/bolshek_pro/android/app/src/debug/AndroidManifest.xml:1:1-7:12
+INJECTED from /Users/beyinfotech/Documents/satu/bolshek_satu/bolshek_pro/android/app/src/debug/AndroidManifest.xml:1:1-7:12
+	package
+		INJECTED from /Users/beyinfotech/Documents/satu/bolshek_satu/bolshek_pro/android/app/src/main/AndroidManifest.xml
+		ADDED from /Users/beyinfotech/Documents/satu/bolshek_satu/bolshek_pro/android/app/src/main/AndroidManifest.xml:1:1-55:12
+		INJECTED from /Users/beyinfotech/Documents/satu/bolshek_satu/bolshek_pro/android/app/src/debug/AndroidManifest.xml
+	android:versionName
+		INJECTED from /Users/beyinfotech/Documents/satu/bolshek_satu/bolshek_pro/android/app/src/main/AndroidManifest.xml
+		ADDED from /Users/beyinfotech/Documents/satu/bolshek_satu/bolshek_pro/android/app/src/main/AndroidManifest.xml:1:1-55:12
+		INJECTED from /Users/beyinfotech/Documents/satu/bolshek_satu/bolshek_pro/android/app/src/debug/AndroidManifest.xml
+	android:versionCode
+		INJECTED from /Users/beyinfotech/Documents/satu/bolshek_satu/bolshek_pro/android/app/src/main/AndroidManifest.xml
+		ADDED from /Users/beyinfotech/Documents/satu/bolshek_satu/bolshek_pro/android/app/src/main/AndroidManifest.xml:1:1-55:12
+		INJECTED from /Users/beyinfotech/Documents/satu/bolshek_satu/bolshek_pro/android/app/src/debug/AndroidManifest.xml
+	xmlns:android
+		ADDED from /Users/beyinfotech/Documents/satu/bolshek_satu/bolshek_pro/android/app/src/main/AndroidManifest.xml:1:11-69
+uses-permission#android.permission.CAMERA
+ADDED from /Users/beyinfotech/Documents/satu/bolshek_satu/bolshek_pro/android/app/src/main/AndroidManifest.xml:3:5-65
+	android:name
+		ADDED from /Users/beyinfotech/Documents/satu/bolshek_satu/bolshek_pro/android/app/src/main/AndroidManifest.xml:3:22-62
+uses-permission#android.permission.READ_EXTERNAL_STORAGE
+ADDED from /Users/beyinfotech/Documents/satu/bolshek_satu/bolshek_pro/android/app/src/main/AndroidManifest.xml:4:5-80
+	android:name
+		ADDED from /Users/beyinfotech/Documents/satu/bolshek_satu/bolshek_pro/android/app/src/main/AndroidManifest.xml:4:22-77
+uses-permission#android.permission.WRITE_EXTERNAL_STORAGE
+ADDED from /Users/beyinfotech/Documents/satu/bolshek_satu/bolshek_pro/android/app/src/main/AndroidManifest.xml:5:5-81
+	android:name
+		ADDED from /Users/beyinfotech/Documents/satu/bolshek_satu/bolshek_pro/android/app/src/main/AndroidManifest.xml:5:22-78
+uses-permission#android.permission.INTERNET
+ADDED from /Users/beyinfotech/Documents/satu/bolshek_satu/bolshek_pro/android/app/src/main/AndroidManifest.xml:6:5-66
+MERGED from /Users/beyinfotech/Documents/satu/bolshek_satu/bolshek_pro/android/app/src/main/AndroidManifest.xml:6:5-66
+MERGED from /Users/beyinfotech/Documents/satu/bolshek_satu/bolshek_pro/android/app/src/main/AndroidManifest.xml:6:5-66
+MERGED from [:firebase_messaging] /Users/beyinfotech/.pub-cache/hosted/pub.dev/firebase_messaging-15.1.6/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:9:5-67
+MERGED from [:firebase_messaging] /Users/beyinfotech/.pub-cache/hosted/pub.dev/firebase_messaging-15.1.6/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:9:5-67
+MERGED from [com.yandex.android:maps.mobile:4.6.1-lite] /Users/beyinfotech/.gradle/caches/transforms-3/7bed2ede47ce6335ea39da418268ff73/transformed/jetified-maps.mobile-4.6.1-lite/AndroidManifest.xml:14:5-67
+MERGED from [com.yandex.android:maps.mobile:4.6.1-lite] /Users/beyinfotech/.gradle/caches/transforms-3/7bed2ede47ce6335ea39da418268ff73/transformed/jetified-maps.mobile-4.6.1-lite/AndroidManifest.xml:14:5-67
+MERGED from [com.google.firebase:firebase-installations:18.0.0] /Users/beyinfotech/.gradle/caches/transforms-3/f5b63f93ae7e9ff248ee8dcd7a9375a8/transformed/jetified-firebase-installations-18.0.0/AndroidManifest.xml:8:5-67
+MERGED from [com.google.firebase:firebase-installations:18.0.0] /Users/beyinfotech/.gradle/caches/transforms-3/f5b63f93ae7e9ff248ee8dcd7a9375a8/transformed/jetified-firebase-installations-18.0.0/AndroidManifest.xml:8:5-67
+MERGED from [com.google.android.gms:play-services-cloud-messaging:17.2.0] /Users/beyinfotech/.gradle/caches/transforms-3/747c041822f87df5ad2add2c97ff7b12/transformed/jetified-play-services-cloud-messaging-17.2.0/AndroidManifest.xml:8:5-67
+MERGED from [com.google.android.gms:play-services-cloud-messaging:17.2.0] /Users/beyinfotech/.gradle/caches/transforms-3/747c041822f87df5ad2add2c97ff7b12/transformed/jetified-play-services-cloud-messaging-17.2.0/AndroidManifest.xml:8:5-67
+MERGED from [com.google.android.datatransport:transport-backend-cct:3.1.9] /Users/beyinfotech/.gradle/caches/transforms-3/9b7da626314aec21a1be5f9bb199bbd9/transformed/jetified-transport-backend-cct-3.1.9/AndroidManifest.xml:25:5-67
+MERGED from [com.google.android.datatransport:transport-backend-cct:3.1.9] /Users/beyinfotech/.gradle/caches/transforms-3/9b7da626314aec21a1be5f9bb199bbd9/transformed/jetified-transport-backend-cct-3.1.9/AndroidManifest.xml:25:5-67
+	android:name
+		ADDED from /Users/beyinfotech/Documents/satu/bolshek_satu/bolshek_pro/android/app/src/main/AndroidManifest.xml:6:22-64
+uses-permission#android.permission.CALL_PHONE
+ADDED from /Users/beyinfotech/Documents/satu/bolshek_satu/bolshek_pro/android/app/src/main/AndroidManifest.xml:7:5-69
+	android:name
+		ADDED from /Users/beyinfotech/Documents/satu/bolshek_satu/bolshek_pro/android/app/src/main/AndroidManifest.xml:7:22-66
+queries
+ADDED from /Users/beyinfotech/Documents/satu/bolshek_satu/bolshek_pro/android/app/src/main/AndroidManifest.xml:49:5-54:15
+intent#action:name:android.intent.action.PROCESS_TEXT+data:mimeType:text/plain
+ADDED from /Users/beyinfotech/Documents/satu/bolshek_satu/bolshek_pro/android/app/src/main/AndroidManifest.xml:50:9-53:18
+action#android.intent.action.PROCESS_TEXT
+ADDED from /Users/beyinfotech/Documents/satu/bolshek_satu/bolshek_pro/android/app/src/main/AndroidManifest.xml:51:13-72
+	android:name
+		ADDED from /Users/beyinfotech/Documents/satu/bolshek_satu/bolshek_pro/android/app/src/main/AndroidManifest.xml:51:21-70
+data
+ADDED from /Users/beyinfotech/Documents/satu/bolshek_satu/bolshek_pro/android/app/src/main/AndroidManifest.xml:52:13-50
+	android:mimeType
+		ADDED from /Users/beyinfotech/Documents/satu/bolshek_satu/bolshek_pro/android/app/src/main/AndroidManifest.xml:52:19-48
+uses-sdk
+INJECTED from /Users/beyinfotech/Documents/satu/bolshek_satu/bolshek_pro/android/app/src/main/AndroidManifest.xml reason: use-sdk injection requested
+INJECTED from /Users/beyinfotech/Documents/satu/bolshek_satu/bolshek_pro/android/app/src/main/AndroidManifest.xml
+INJECTED from /Users/beyinfotech/Documents/satu/bolshek_satu/bolshek_pro/android/app/src/main/AndroidManifest.xml
+MERGED from [:firebase_messaging] /Users/beyinfotech/.pub-cache/hosted/pub.dev/firebase_messaging-15.1.6/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:5:5-7:41
+MERGED from [:firebase_messaging] /Users/beyinfotech/.pub-cache/hosted/pub.dev/firebase_messaging-15.1.6/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:5:5-7:41
+MERGED from [:firebase_core] /Users/beyinfotech/.pub-cache/hosted/pub.dev/firebase_core-3.10.0/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:5:5-7:41
+MERGED from [:firebase_core] /Users/beyinfotech/.pub-cache/hosted/pub.dev/firebase_core-3.10.0/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:5:5-7:41
+MERGED from [:flutter_local_notifications] /Users/beyinfotech/.pub-cache/hosted/pub.dev/flutter_local_notifications-18.0.1/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:5:5-7:41
+MERGED from [:flutter_local_notifications] /Users/beyinfotech/.pub-cache/hosted/pub.dev/flutter_local_notifications-18.0.1/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:5:5-7:41
+MERGED from [:image_picker_android] /Users/beyinfotech/.pub-cache/hosted/pub.dev/image_picker_android-0.8.12+19/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:6:5-8:41
+MERGED from [:image_picker_android] /Users/beyinfotech/.pub-cache/hosted/pub.dev/image_picker_android-0.8.12+19/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:6:5-8:41
+MERGED from [:yandex_mapkit] /Users/beyinfotech/.pub-cache/hosted/pub.dev/yandex_mapkit-4.1.0/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:5:5-7:41
+MERGED from [:yandex_mapkit] /Users/beyinfotech/.pub-cache/hosted/pub.dev/yandex_mapkit-4.1.0/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:5:5-7:41
+MERGED from [:flutter_plugin_android_lifecycle] /Users/beyinfotech/.pub-cache/hosted/pub.dev/flutter_plugin_android_lifecycle-2.0.24/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:5:5-7:41
+MERGED from [:flutter_plugin_android_lifecycle] /Users/beyinfotech/.pub-cache/hosted/pub.dev/flutter_plugin_android_lifecycle-2.0.24/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:5:5-7:41
+MERGED from [:location] /Users/beyinfotech/.pub-cache/hosted/pub.dev/location-7.0.1/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:5:5-7:41
+MERGED from [:location] /Users/beyinfotech/.pub-cache/hosted/pub.dev/location-7.0.1/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:5:5-7:41
+MERGED from [:shared_preferences_android] /Users/beyinfotech/.pub-cache/hosted/pub.dev/shared_preferences_android-2.4.0/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:5:5-7:41
+MERGED from [:shared_preferences_android] /Users/beyinfotech/.pub-cache/hosted/pub.dev/shared_preferences_android-2.4.0/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:5:5-7:41
+MERGED from [:url_launcher_android] /Users/beyinfotech/.pub-cache/hosted/pub.dev/url_launcher_android-6.3.14/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:5:5-7:41
+MERGED from [:url_launcher_android] /Users/beyinfotech/.pub-cache/hosted/pub.dev/url_launcher_android-6.3.14/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:5:5-7:41
+MERGED from [com.yandex.android:maps.mobile:4.6.1-lite] /Users/beyinfotech/.gradle/caches/transforms-3/7bed2ede47ce6335ea39da418268ff73/transformed/jetified-maps.mobile-4.6.1-lite/AndroidManifest.xml:9:5-11:41
+MERGED from [com.yandex.android:maps.mobile:4.6.1-lite] /Users/beyinfotech/.gradle/caches/transforms-3/7bed2ede47ce6335ea39da418268ff73/transformed/jetified-maps.mobile-4.6.1-lite/AndroidManifest.xml:9:5-11:41
+MERGED from [com.yandex.android:maps.mobile:4.6.1-lite] /Users/beyinfotech/.gradle/caches/transforms-3/7bed2ede47ce6335ea39da418268ff73/transformed/jetified-maps.mobile-4.6.1-lite/AndroidManifest.xml:19:5-58
+MERGED from [com.yandex.android:maps.mobile:4.6.1-lite] /Users/beyinfotech/.gradle/caches/transforms-3/7bed2ede47ce6335ea39da418268ff73/transformed/jetified-maps.mobile-4.6.1-lite/AndroidManifest.xml:19:5-58
+MERGED from [com.google.android.gms:play-services-location:21.2.0] /Users/beyinfotech/.gradle/caches/transforms-3/4007430262196b41464b80a42c17d977/transformed/jetified-play-services-location-21.2.0/AndroidManifest.xml:5:5-44
+MERGED from [com.google.android.gms:play-services-location:21.2.0] /Users/beyinfotech/.gradle/caches/transforms-3/4007430262196b41464b80a42c17d977/transformed/jetified-play-services-location-21.2.0/AndroidManifest.xml:5:5-44
+MERGED from [androidx.media:media:1.1.0] /Users/beyinfotech/.gradle/caches/transforms-3/dc98946870271987ed5ab344c57691d3/transformed/media-1.1.0/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.media:media:1.1.0] /Users/beyinfotech/.gradle/caches/transforms-3/dc98946870271987ed5ab344c57691d3/transformed/media-1.1.0/AndroidManifest.xml:20:5-22:41
+MERGED from [com.google.firebase:firebase-messaging:24.1.0] /Users/beyinfotech/.gradle/caches/transforms-3/5af8d01459420ae26e80da0fb126b42b/transformed/jetified-firebase-messaging-24.1.0/AndroidManifest.xml:20:5-44
+MERGED from [com.google.firebase:firebase-messaging:24.1.0] /Users/beyinfotech/.gradle/caches/transforms-3/5af8d01459420ae26e80da0fb126b42b/transformed/jetified-firebase-messaging-24.1.0/AndroidManifest.xml:20:5-44
+MERGED from [com.google.android.gms:play-services-base:18.3.0] /Users/beyinfotech/.gradle/caches/transforms-3/d23b4c3f72f4e99a6a0f9c6dddc68f73/transformed/jetified-play-services-base-18.3.0/AndroidManifest.xml:18:5-43
+MERGED from [com.google.android.gms:play-services-base:18.3.0] /Users/beyinfotech/.gradle/caches/transforms-3/d23b4c3f72f4e99a6a0f9c6dddc68f73/transformed/jetified-play-services-base-18.3.0/AndroidManifest.xml:18:5-43
+MERGED from [com.google.firebase:firebase-installations:18.0.0] /Users/beyinfotech/.gradle/caches/transforms-3/f5b63f93ae7e9ff248ee8dcd7a9375a8/transformed/jetified-firebase-installations-18.0.0/AndroidManifest.xml:5:5-44
+MERGED from [com.google.firebase:firebase-installations:18.0.0] /Users/beyinfotech/.gradle/caches/transforms-3/f5b63f93ae7e9ff248ee8dcd7a9375a8/transformed/jetified-firebase-installations-18.0.0/AndroidManifest.xml:5:5-44
+MERGED from [com.google.firebase:firebase-common-ktx:21.0.0] /Users/beyinfotech/.gradle/caches/transforms-3/0a805f91dc0aeb2f438296be08a48754/transformed/jetified-firebase-common-ktx-21.0.0/AndroidManifest.xml:5:5-44
+MERGED from [com.google.firebase:firebase-common-ktx:21.0.0] /Users/beyinfotech/.gradle/caches/transforms-3/0a805f91dc0aeb2f438296be08a48754/transformed/jetified-firebase-common-ktx-21.0.0/AndroidManifest.xml:5:5-44
+MERGED from [com.google.firebase:firebase-common:21.0.0] /Users/beyinfotech/.gradle/caches/transforms-3/394d7bf93449c2bf84d07f7be55b1d51/transformed/jetified-firebase-common-21.0.0/AndroidManifest.xml:19:5-44
+MERGED from [com.google.firebase:firebase-common:21.0.0] /Users/beyinfotech/.gradle/caches/transforms-3/394d7bf93449c2bf84d07f7be55b1d51/transformed/jetified-firebase-common-21.0.0/AndroidManifest.xml:19:5-44
+MERGED from [com.google.android.play:integrity:1.1.0] /Users/beyinfotech/.gradle/caches/transforms-3/71c8478bb44ca3acdd799895d38c2903/transformed/jetified-integrity-1.1.0/AndroidManifest.xml:4:5-44
+MERGED from [com.google.android.play:integrity:1.1.0] /Users/beyinfotech/.gradle/caches/transforms-3/71c8478bb44ca3acdd799895d38c2903/transformed/jetified-integrity-1.1.0/AndroidManifest.xml:4:5-44
+MERGED from [com.google.firebase:firebase-iid-interop:17.1.0] /Users/beyinfotech/.gradle/caches/transforms-3/c8c65c12a91424e7229200ced8aba043/transformed/jetified-firebase-iid-interop-17.1.0/AndroidManifest.xml:5:5-44
+MERGED from [com.google.firebase:firebase-iid-interop:17.1.0] /Users/beyinfotech/.gradle/caches/transforms-3/c8c65c12a91424e7229200ced8aba043/transformed/jetified-firebase-iid-interop-17.1.0/AndroidManifest.xml:5:5-44
+MERGED from [com.google.android.gms:play-services-cloud-messaging:17.2.0] /Users/beyinfotech/.gradle/caches/transforms-3/747c041822f87df5ad2add2c97ff7b12/transformed/jetified-play-services-cloud-messaging-17.2.0/AndroidManifest.xml:5:5-44
+MERGED from [com.google.android.gms:play-services-cloud-messaging:17.2.0] /Users/beyinfotech/.gradle/caches/transforms-3/747c041822f87df5ad2add2c97ff7b12/transformed/jetified-play-services-cloud-messaging-17.2.0/AndroidManifest.xml:5:5-44
+MERGED from [com.google.firebase:firebase-installations-interop:17.1.1] /Users/beyinfotech/.gradle/caches/transforms-3/584b83f2f4fab679393aa9abedd06eb4/transformed/jetified-firebase-installations-interop-17.1.1/AndroidManifest.xml:17:5-44
+MERGED from [com.google.firebase:firebase-installations-interop:17.1.1] /Users/beyinfotech/.gradle/caches/transforms-3/584b83f2f4fab679393aa9abedd06eb4/transformed/jetified-firebase-installations-interop-17.1.1/AndroidManifest.xml:17:5-44
+MERGED from [androidx.datastore:datastore-preferences:1.0.0] /Users/beyinfotech/.gradle/caches/transforms-3/ce7423aca94afb397ec9d59527946b0a/transformed/jetified-datastore-preferences-1.0.0/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.datastore:datastore-preferences:1.0.0] /Users/beyinfotech/.gradle/caches/transforms-3/ce7423aca94afb397ec9d59527946b0a/transformed/jetified-datastore-preferences-1.0.0/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.datastore:datastore:1.0.0] /Users/beyinfotech/.gradle/caches/transforms-3/7fee6f8ecdc0fa96a2b21e62879e75d2/transformed/jetified-datastore-1.0.0/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.datastore:datastore:1.0.0] /Users/beyinfotech/.gradle/caches/transforms-3/7fee6f8ecdc0fa96a2b21e62879e75d2/transformed/jetified-datastore-1.0.0/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.preference:preference:1.2.1] /Users/beyinfotech/.gradle/caches/transforms-3/f08ed5dac3270da4d8bf0db0e0f8b13e/transformed/preference-1.2.1/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.preference:preference:1.2.1] /Users/beyinfotech/.gradle/caches/transforms-3/f08ed5dac3270da4d8bf0db0e0f8b13e/transformed/preference-1.2.1/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.recyclerview:recyclerview:1.0.0] /Users/beyinfotech/.gradle/caches/transforms-3/988d609a90f17a2c25e2535a32dac55c/transformed/recyclerview-1.0.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.recyclerview:recyclerview:1.0.0] /Users/beyinfotech/.gradle/caches/transforms-3/988d609a90f17a2c25e2535a32dac55c/transformed/recyclerview-1.0.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.legacy:legacy-support-core-ui:1.0.0] /Users/beyinfotech/.gradle/caches/transforms-3/fc1cfbe116dd6a64ee98c4cca66ce0aa/transformed/legacy-support-core-ui-1.0.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.legacy:legacy-support-core-ui:1.0.0] /Users/beyinfotech/.gradle/caches/transforms-3/fc1cfbe116dd6a64ee98c4cca66ce0aa/transformed/legacy-support-core-ui-1.0.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.slidingpanelayout:slidingpanelayout:1.2.0] /Users/beyinfotech/.gradle/caches/transforms-3/bb3899a02108bac62404353f49ae12a6/transformed/slidingpanelayout-1.2.0/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.slidingpanelayout:slidingpanelayout:1.2.0] /Users/beyinfotech/.gradle/caches/transforms-3/bb3899a02108bac62404353f49ae12a6/transformed/slidingpanelayout-1.2.0/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.window:window:1.2.0] /Users/beyinfotech/.gradle/caches/transforms-3/16077713545213a8db719838f55db4d4/transformed/jetified-window-1.2.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.window:window:1.2.0] /Users/beyinfotech/.gradle/caches/transforms-3/16077713545213a8db719838f55db4d4/transformed/jetified-window-1.2.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.window:window-java:1.2.0] /Users/beyinfotech/.gradle/caches/transforms-3/025c2325695e6c4adebed6894165b1c2/transformed/jetified-window-java-1.2.0/AndroidManifest.xml:19:5-44
+MERGED from [androidx.window:window-java:1.2.0] /Users/beyinfotech/.gradle/caches/transforms-3/025c2325695e6c4adebed6894165b1c2/transformed/jetified-window-java-1.2.0/AndroidManifest.xml:19:5-44
+MERGED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:21:5-44
+MERGED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:21:5-44
+MERGED from [androidx.fragment:fragment-ktx:1.7.1] /Users/beyinfotech/.gradle/caches/transforms-3/b1263fe408d9de121fe380cdd40a895f/transformed/jetified-fragment-ktx-1.7.1/AndroidManifest.xml:5:5-44
+MERGED from [androidx.fragment:fragment-ktx:1.7.1] /Users/beyinfotech/.gradle/caches/transforms-3/b1263fe408d9de121fe380cdd40a895f/transformed/jetified-fragment-ktx-1.7.1/AndroidManifest.xml:5:5-44
+MERGED from [androidx.activity:activity-ktx:1.9.3] /Users/beyinfotech/.gradle/caches/transforms-3/6b0db83822aeb26e97b849dfbd021ceb/transformed/jetified-activity-ktx-1.9.3/AndroidManifest.xml:5:5-44
+MERGED from [androidx.activity:activity-ktx:1.9.3] /Users/beyinfotech/.gradle/caches/transforms-3/6b0db83822aeb26e97b849dfbd021ceb/transformed/jetified-activity-ktx-1.9.3/AndroidManifest.xml:5:5-44
+MERGED from [androidx.lifecycle:lifecycle-livedata-core-ktx:2.7.0] /Users/beyinfotech/.gradle/caches/transforms-3/fe883dbcea00090149ea92ff8e103aa8/transformed/jetified-lifecycle-livedata-core-ktx-2.7.0/AndroidManifest.xml:5:5-44
+MERGED from [androidx.lifecycle:lifecycle-livedata-core-ktx:2.7.0] /Users/beyinfotech/.gradle/caches/transforms-3/fe883dbcea00090149ea92ff8e103aa8/transformed/jetified-lifecycle-livedata-core-ktx-2.7.0/AndroidManifest.xml:5:5-44
+MERGED from [androidx.lifecycle:lifecycle-service:2.7.0] /Users/beyinfotech/.gradle/caches/transforms-3/ab937b985be7125db622cb7d1dee2549/transformed/jetified-lifecycle-service-2.7.0/AndroidManifest.xml:5:5-44
+MERGED from [androidx.lifecycle:lifecycle-service:2.7.0] /Users/beyinfotech/.gradle/caches/transforms-3/ab937b985be7125db622cb7d1dee2549/transformed/jetified-lifecycle-service-2.7.0/AndroidManifest.xml:5:5-44
+MERGED from [androidx.lifecycle:lifecycle-viewmodel-ktx:2.7.0] /Users/beyinfotech/.gradle/caches/transforms-3/9ae86d651f4b2f016cf73e0adbe94876/transformed/jetified-lifecycle-viewmodel-ktx-2.7.0/AndroidManifest.xml:5:5-44
+MERGED from [androidx.lifecycle:lifecycle-viewmodel-ktx:2.7.0] /Users/beyinfotech/.gradle/caches/transforms-3/9ae86d651f4b2f016cf73e0adbe94876/transformed/jetified-lifecycle-viewmodel-ktx-2.7.0/AndroidManifest.xml:5:5-44
+MERGED from [androidx.lifecycle:lifecycle-runtime-ktx:2.7.0] /Users/beyinfotech/.gradle/caches/transforms-3/958e45aa741b60287f91b7480105f159/transformed/jetified-lifecycle-runtime-ktx-2.7.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.lifecycle:lifecycle-runtime-ktx:2.7.0] /Users/beyinfotech/.gradle/caches/transforms-3/958e45aa741b60287f91b7480105f159/transformed/jetified-lifecycle-runtime-ktx-2.7.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.lifecycle:lifecycle-livedata-core:2.7.0] /Users/beyinfotech/.gradle/caches/transforms-3/6f1d8f2e46c57a4c7bcfb7e453f2a0a2/transformed/lifecycle-livedata-core-2.7.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.lifecycle:lifecycle-livedata-core:2.7.0] /Users/beyinfotech/.gradle/caches/transforms-3/6f1d8f2e46c57a4c7bcfb7e453f2a0a2/transformed/lifecycle-livedata-core-2.7.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.lifecycle:lifecycle-viewmodel-savedstate:2.7.0] /Users/beyinfotech/.gradle/caches/transforms-3/293d2d0d501a24b750eb6cd74b7e1ab0/transformed/jetified-lifecycle-viewmodel-savedstate-2.7.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.lifecycle:lifecycle-viewmodel-savedstate:2.7.0] /Users/beyinfotech/.gradle/caches/transforms-3/293d2d0d501a24b750eb6cd74b7e1ab0/transformed/jetified-lifecycle-viewmodel-savedstate-2.7.0/AndroidManifest.xml:20:5-44
+MERGED from [com.google.android.gms:play-services-stats:17.0.2] /Users/beyinfotech/.gradle/caches/transforms-3/a55e49f608c45bf3f5bdb9360eda0dd2/transformed/jetified-play-services-stats-17.0.2/AndroidManifest.xml:5:5-44
+MERGED from [com.google.android.gms:play-services-stats:17.0.2] /Users/beyinfotech/.gradle/caches/transforms-3/a55e49f608c45bf3f5bdb9360eda0dd2/transformed/jetified-play-services-stats-17.0.2/AndroidManifest.xml:5:5-44
+MERGED from [androidx.legacy:legacy-support-core-utils:1.0.0] /Users/beyinfotech/.gradle/caches/transforms-3/a7b8fc902acf60608feae407a85a70e5/transformed/legacy-support-core-utils-1.0.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.legacy:legacy-support-core-utils:1.0.0] /Users/beyinfotech/.gradle/caches/transforms-3/a7b8fc902acf60608feae407a85a70e5/transformed/legacy-support-core-utils-1.0.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.loader:loader:1.0.0] /Users/beyinfotech/.gradle/caches/transforms-3/6702e0185184a2dcdf5ed4ef95f53c6f/transformed/loader-1.0.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.loader:loader:1.0.0] /Users/beyinfotech/.gradle/caches/transforms-3/6702e0185184a2dcdf5ed4ef95f53c6f/transformed/loader-1.0.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.lifecycle:lifecycle-viewmodel:2.7.0] /Users/beyinfotech/.gradle/caches/transforms-3/d7c9055c3a8eb69a7567641c67566b1d/transformed/lifecycle-viewmodel-2.7.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.lifecycle:lifecycle-viewmodel:2.7.0] /Users/beyinfotech/.gradle/caches/transforms-3/d7c9055c3a8eb69a7567641c67566b1d/transformed/lifecycle-viewmodel-2.7.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.lifecycle:lifecycle-livedata:2.7.0] /Users/beyinfotech/.gradle/caches/transforms-3/ea26a5a742f9e3aeb1d62ec4f7d5610a/transformed/lifecycle-livedata-2.7.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.lifecycle:lifecycle-livedata:2.7.0] /Users/beyinfotech/.gradle/caches/transforms-3/ea26a5a742f9e3aeb1d62ec4f7d5610a/transformed/lifecycle-livedata-2.7.0/AndroidManifest.xml:20:5-44
+MERGED from [com.google.android.gms:play-services-tasks:18.1.0] /Users/beyinfotech/.gradle/caches/transforms-3/8844e5cbb9caa6d2ecda073eb5b223a9/transformed/jetified-play-services-tasks-18.1.0/AndroidManifest.xml:4:5-43
+MERGED from [com.google.android.gms:play-services-tasks:18.1.0] /Users/beyinfotech/.gradle/caches/transforms-3/8844e5cbb9caa6d2ecda073eb5b223a9/transformed/jetified-play-services-tasks-18.1.0/AndroidManifest.xml:4:5-43
+MERGED from [com.google.firebase:firebase-measurement-connector:19.0.0] /Users/beyinfotech/.gradle/caches/transforms-3/65b4b5bc5e96f0e5a98c6290f9af2a70/transformed/jetified-firebase-measurement-connector-19.0.0/AndroidManifest.xml:20:5-44
+MERGED from [com.google.firebase:firebase-measurement-connector:19.0.0] /Users/beyinfotech/.gradle/caches/transforms-3/65b4b5bc5e96f0e5a98c6290f9af2a70/transformed/jetified-firebase-measurement-connector-19.0.0/AndroidManifest.xml:20:5-44
+MERGED from [com.google.android.gms:play-services-basement:18.3.0] /Users/beyinfotech/.gradle/caches/transforms-3/6435847f3df74685ebe9d552b555a53d/transformed/jetified-play-services-basement-18.3.0/AndroidManifest.xml:18:5-43
+MERGED from [com.google.android.gms:play-services-basement:18.3.0] /Users/beyinfotech/.gradle/caches/transforms-3/6435847f3df74685ebe9d552b555a53d/transformed/jetified-play-services-basement-18.3.0/AndroidManifest.xml:18:5-43
+MERGED from [androidx.appcompat:appcompat:1.1.0] /Users/beyinfotech/.gradle/caches/transforms-3/2f6e73864482fead5118d27a2b225e3f/transformed/appcompat-1.1.0/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.appcompat:appcompat:1.1.0] /Users/beyinfotech/.gradle/caches/transforms-3/2f6e73864482fead5118d27a2b225e3f/transformed/appcompat-1.1.0/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.fragment:fragment:1.7.1] /Users/beyinfotech/.gradle/caches/transforms-3/443d490f30fcfcc5b3db182b81dbbea9/transformed/fragment-1.7.1/AndroidManifest.xml:5:5-44
+MERGED from [androidx.fragment:fragment:1.7.1] /Users/beyinfotech/.gradle/caches/transforms-3/443d490f30fcfcc5b3db182b81dbbea9/transformed/fragment-1.7.1/AndroidManifest.xml:5:5-44
+MERGED from [androidx.activity:activity:1.9.3] /Users/beyinfotech/.gradle/caches/transforms-3/c2aab7e4ae06710dc6890faf3402c17c/transformed/jetified-activity-1.9.3/AndroidManifest.xml:20:5-44
+MERGED from [androidx.activity:activity:1.9.3] /Users/beyinfotech/.gradle/caches/transforms-3/c2aab7e4ae06710dc6890faf3402c17c/transformed/jetified-activity-1.9.3/AndroidManifest.xml:20:5-44
+MERGED from [androidx.browser:browser:1.8.0] /Users/beyinfotech/.gradle/caches/transforms-3/1f69ac634e095a7700f391828f975fda/transformed/browser-1.8.0/AndroidManifest.xml:5:5-44
+MERGED from [androidx.browser:browser:1.8.0] /Users/beyinfotech/.gradle/caches/transforms-3/1f69ac634e095a7700f391828f975fda/transformed/browser-1.8.0/AndroidManifest.xml:5:5-44
+MERGED from [androidx.core:core-ktx:1.13.1] /Users/beyinfotech/.gradle/caches/transforms-3/478d0170770f6bc60fca3c64950f5a4a/transformed/jetified-core-ktx-1.13.1/AndroidManifest.xml:5:5-44
+MERGED from [androidx.core:core-ktx:1.13.1] /Users/beyinfotech/.gradle/caches/transforms-3/478d0170770f6bc60fca3c64950f5a4a/transformed/jetified-core-ktx-1.13.1/AndroidManifest.xml:5:5-44
+MERGED from [androidx.viewpager:viewpager:1.0.0] /Users/beyinfotech/.gradle/caches/transforms-3/c9da9b991c3dd85158e4e6c2307d6199/transformed/viewpager-1.0.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.viewpager:viewpager:1.0.0] /Users/beyinfotech/.gradle/caches/transforms-3/c9da9b991c3dd85158e4e6c2307d6199/transformed/viewpager-1.0.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.appcompat:appcompat-resources:1.1.0] /Users/beyinfotech/.gradle/caches/transforms-3/8542342c7c331112cf326753cb6be912/transformed/jetified-appcompat-resources-1.1.0/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.appcompat:appcompat-resources:1.1.0] /Users/beyinfotech/.gradle/caches/transforms-3/8542342c7c331112cf326753cb6be912/transformed/jetified-appcompat-resources-1.1.0/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.drawerlayout:drawerlayout:1.0.0] /Users/beyinfotech/.gradle/caches/transforms-3/019c5ad8f761e2a6e343d8ae42d0a8a5/transformed/drawerlayout-1.0.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.drawerlayout:drawerlayout:1.0.0] /Users/beyinfotech/.gradle/caches/transforms-3/019c5ad8f761e2a6e343d8ae42d0a8a5/transformed/drawerlayout-1.0.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.coordinatorlayout:coordinatorlayout:1.0.0] /Users/beyinfotech/.gradle/caches/transforms-3/972280f3f1aef833fc8fec0964ba36bb/transformed/coordinatorlayout-1.0.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.coordinatorlayout:coordinatorlayout:1.0.0] /Users/beyinfotech/.gradle/caches/transforms-3/972280f3f1aef833fc8fec0964ba36bb/transformed/coordinatorlayout-1.0.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.customview:customview:1.1.0] /Users/beyinfotech/.gradle/caches/transforms-3/a6a9d57132a9bae9af18d865a77f7c10/transformed/customview-1.1.0/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.customview:customview:1.1.0] /Users/beyinfotech/.gradle/caches/transforms-3/a6a9d57132a9bae9af18d865a77f7c10/transformed/customview-1.1.0/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.transition:transition:1.4.1] /Users/beyinfotech/.gradle/caches/transforms-3/302313a1c7453c7eddcad646230561ae/transformed/transition-1.4.1/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.transition:transition:1.4.1] /Users/beyinfotech/.gradle/caches/transforms-3/302313a1c7453c7eddcad646230561ae/transformed/transition-1.4.1/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.vectordrawable:vectordrawable-animated:1.1.0] /Users/beyinfotech/.gradle/caches/transforms-3/74d44d35bc4b71eb82b1feabbda5bdf0/transformed/vectordrawable-animated-1.1.0/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.vectordrawable:vectordrawable-animated:1.1.0] /Users/beyinfotech/.gradle/caches/transforms-3/74d44d35bc4b71eb82b1feabbda5bdf0/transformed/vectordrawable-animated-1.1.0/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.vectordrawable:vectordrawable:1.1.0] /Users/beyinfotech/.gradle/caches/transforms-3/da38bf3913fd7aabafa31a2f64234285/transformed/vectordrawable-1.1.0/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.vectordrawable:vectordrawable:1.1.0] /Users/beyinfotech/.gradle/caches/transforms-3/da38bf3913fd7aabafa31a2f64234285/transformed/vectordrawable-1.1.0/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.swiperefreshlayout:swiperefreshlayout:1.0.0] /Users/beyinfotech/.gradle/caches/transforms-3/994ecb705467fe4083efe5b2f4032ebf/transformed/swiperefreshlayout-1.0.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.swiperefreshlayout:swiperefreshlayout:1.0.0] /Users/beyinfotech/.gradle/caches/transforms-3/994ecb705467fe4083efe5b2f4032ebf/transformed/swiperefreshlayout-1.0.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.asynclayoutinflater:asynclayoutinflater:1.0.0] /Users/beyinfotech/.gradle/caches/transforms-3/1c7238e816233d0fb12e59bf6ef73724/transformed/asynclayoutinflater-1.0.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.asynclayoutinflater:asynclayoutinflater:1.0.0] /Users/beyinfotech/.gradle/caches/transforms-3/1c7238e816233d0fb12e59bf6ef73724/transformed/asynclayoutinflater-1.0.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.core:core:1.13.1] /Users/beyinfotech/.gradle/caches/transforms-3/54f52c935db561500e0b4cff24018caf/transformed/core-1.13.1/AndroidManifest.xml:20:5-44
+MERGED from [androidx.core:core:1.13.1] /Users/beyinfotech/.gradle/caches/transforms-3/54f52c935db561500e0b4cff24018caf/transformed/core-1.13.1/AndroidManifest.xml:20:5-44
+MERGED from [androidx.lifecycle:lifecycle-runtime:2.7.0] /Users/beyinfotech/.gradle/caches/transforms-3/5cf5b70724c03783e25c505e593546e0/transformed/lifecycle-runtime-2.7.0/AndroidManifest.xml:5:5-44
+MERGED from [androidx.lifecycle:lifecycle-runtime:2.7.0] /Users/beyinfotech/.gradle/caches/transforms-3/5cf5b70724c03783e25c505e593546e0/transformed/lifecycle-runtime-2.7.0/AndroidManifest.xml:5:5-44
+MERGED from [androidx.lifecycle:lifecycle-process:2.7.0] /Users/beyinfotech/.gradle/caches/transforms-3/8f2bce3da87421ce56fd9e41c2512084/transformed/jetified-lifecycle-process-2.7.0/AndroidManifest.xml:21:5-44
+MERGED from [androidx.lifecycle:lifecycle-process:2.7.0] /Users/beyinfotech/.gradle/caches/transforms-3/8f2bce3da87421ce56fd9e41c2512084/transformed/jetified-lifecycle-process-2.7.0/AndroidManifest.xml:21:5-44
+MERGED from [androidx.savedstate:savedstate-ktx:1.2.1] /Users/beyinfotech/.gradle/caches/transforms-3/579015e00934cc1a444043e16a87573c/transformed/jetified-savedstate-ktx-1.2.1/AndroidManifest.xml:20:5-44
+MERGED from [androidx.savedstate:savedstate-ktx:1.2.1] /Users/beyinfotech/.gradle/caches/transforms-3/579015e00934cc1a444043e16a87573c/transformed/jetified-savedstate-ktx-1.2.1/AndroidManifest.xml:20:5-44
+MERGED from [androidx.savedstate:savedstate:1.2.1] /Users/beyinfotech/.gradle/caches/transforms-3/f1a1b62f969b80a7a2d00bf7072119c4/transformed/jetified-savedstate-1.2.1/AndroidManifest.xml:20:5-44
+MERGED from [androidx.savedstate:savedstate:1.2.1] /Users/beyinfotech/.gradle/caches/transforms-3/f1a1b62f969b80a7a2d00bf7072119c4/transformed/jetified-savedstate-1.2.1/AndroidManifest.xml:20:5-44
+MERGED from [androidx.localbroadcastmanager:localbroadcastmanager:1.1.0] /Users/beyinfotech/.gradle/caches/transforms-3/f2c36c330d091f31dae15a0d416f7284/transformed/localbroadcastmanager-1.1.0/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.localbroadcastmanager:localbroadcastmanager:1.1.0] /Users/beyinfotech/.gradle/caches/transforms-3/f2c36c330d091f31dae15a0d416f7284/transformed/localbroadcastmanager-1.1.0/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.exifinterface:exifinterface:1.3.7] /Users/beyinfotech/.gradle/caches/transforms-3/b43ce3ac6a79d5bbe20c31f6ca33ad92/transformed/exifinterface-1.3.7/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.exifinterface:exifinterface:1.3.7] /Users/beyinfotech/.gradle/caches/transforms-3/b43ce3ac6a79d5bbe20c31f6ca33ad92/transformed/exifinterface-1.3.7/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.profileinstaller:profileinstaller:1.3.1] /Users/beyinfotech/.gradle/caches/transforms-3/4a13a77c404f1e7dd55daa8c85a25f69/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:21:5-44
+MERGED from [androidx.profileinstaller:profileinstaller:1.3.1] /Users/beyinfotech/.gradle/caches/transforms-3/4a13a77c404f1e7dd55daa8c85a25f69/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:21:5-44
+MERGED from [androidx.startup:startup-runtime:1.1.1] /Users/beyinfotech/.gradle/caches/transforms-3/9722c8950630913e876bdfd6632a00c2/transformed/jetified-startup-runtime-1.1.1/AndroidManifest.xml:21:5-23:41
+MERGED from [androidx.startup:startup-runtime:1.1.1] /Users/beyinfotech/.gradle/caches/transforms-3/9722c8950630913e876bdfd6632a00c2/transformed/jetified-startup-runtime-1.1.1/AndroidManifest.xml:21:5-23:41
+MERGED from [androidx.tracing:tracing:1.2.0] /Users/beyinfotech/.gradle/caches/transforms-3/65d7310bd7869438c4b6cbda64af0d04/transformed/jetified-tracing-1.2.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.tracing:tracing:1.2.0] /Users/beyinfotech/.gradle/caches/transforms-3/65d7310bd7869438c4b6cbda64af0d04/transformed/jetified-tracing-1.2.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.interpolator:interpolator:1.0.0] /Users/beyinfotech/.gradle/caches/transforms-3/b9fbad5823ea9179a98a2eca4d8e5889/transformed/interpolator-1.0.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.interpolator:interpolator:1.0.0] /Users/beyinfotech/.gradle/caches/transforms-3/b9fbad5823ea9179a98a2eca4d8e5889/transformed/interpolator-1.0.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.versionedparcelable:versionedparcelable:1.1.1] /Users/beyinfotech/.gradle/caches/transforms-3/341d1402fc8bddfd6b10432156edd554/transformed/versionedparcelable-1.1.1/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.versionedparcelable:versionedparcelable:1.1.1] /Users/beyinfotech/.gradle/caches/transforms-3/341d1402fc8bddfd6b10432156edd554/transformed/versionedparcelable-1.1.1/AndroidManifest.xml:20:5-22:41
+MERGED from [com.google.firebase:firebase-components:18.0.0] /Users/beyinfotech/.gradle/caches/transforms-3/70f6cf3393419c205393672281176f63/transformed/jetified-firebase-components-18.0.0/AndroidManifest.xml:18:5-44
+MERGED from [com.google.firebase:firebase-components:18.0.0] /Users/beyinfotech/.gradle/caches/transforms-3/70f6cf3393419c205393672281176f63/transformed/jetified-firebase-components-18.0.0/AndroidManifest.xml:18:5-44
+MERGED from [com.google.firebase:firebase-datatransport:18.2.0] /Users/beyinfotech/.gradle/caches/transforms-3/1e00bc7059beebfb0bd689d2303cd48d/transformed/jetified-firebase-datatransport-18.2.0/AndroidManifest.xml:18:5-44
+MERGED from [com.google.firebase:firebase-datatransport:18.2.0] /Users/beyinfotech/.gradle/caches/transforms-3/1e00bc7059beebfb0bd689d2303cd48d/transformed/jetified-firebase-datatransport-18.2.0/AndroidManifest.xml:18:5-44
+MERGED from [com.google.android.datatransport:transport-backend-cct:3.1.9] /Users/beyinfotech/.gradle/caches/transforms-3/9b7da626314aec21a1be5f9bb199bbd9/transformed/jetified-transport-backend-cct-3.1.9/AndroidManifest.xml:18:5-20:41
+MERGED from [com.google.android.datatransport:transport-backend-cct:3.1.9] /Users/beyinfotech/.gradle/caches/transforms-3/9b7da626314aec21a1be5f9bb199bbd9/transformed/jetified-transport-backend-cct-3.1.9/AndroidManifest.xml:18:5-20:41
+MERGED from [com.google.firebase:firebase-encoders-json:18.0.0] /Users/beyinfotech/.gradle/caches/transforms-3/d7f383f0efc36a65fc85870d2938f108/transformed/jetified-firebase-encoders-json-18.0.0/AndroidManifest.xml:19:5-21:41
+MERGED from [com.google.firebase:firebase-encoders-json:18.0.0] /Users/beyinfotech/.gradle/caches/transforms-3/d7f383f0efc36a65fc85870d2938f108/transformed/jetified-firebase-encoders-json-18.0.0/AndroidManifest.xml:19:5-21:41
+MERGED from [com.google.android.datatransport:transport-runtime:3.1.9] /Users/beyinfotech/.gradle/caches/transforms-3/c7114b6d7522e330bad7aad670d0c285/transformed/jetified-transport-runtime-3.1.9/AndroidManifest.xml:18:5-20:41
+MERGED from [com.google.android.datatransport:transport-runtime:3.1.9] /Users/beyinfotech/.gradle/caches/transforms-3/c7114b6d7522e330bad7aad670d0c285/transformed/jetified-transport-runtime-3.1.9/AndroidManifest.xml:18:5-20:41
+MERGED from [com.google.android.datatransport:transport-api:3.1.0] /Users/beyinfotech/.gradle/caches/transforms-3/970607a253230e64c9332da9ed4b94d4/transformed/jetified-transport-api-3.1.0/AndroidManifest.xml:18:5-44
+MERGED from [com.google.android.datatransport:transport-api:3.1.0] /Users/beyinfotech/.gradle/caches/transforms-3/970607a253230e64c9332da9ed4b94d4/transformed/jetified-transport-api-3.1.0/AndroidManifest.xml:18:5-44
+MERGED from [androidx.room:room-runtime:2.5.0] /Users/beyinfotech/.gradle/caches/transforms-3/251ed882fad26f89d674f025a57a84a5/transformed/room-runtime-2.5.0/AndroidManifest.xml:21:5-44
+MERGED from [androidx.room:room-runtime:2.5.0] /Users/beyinfotech/.gradle/caches/transforms-3/251ed882fad26f89d674f025a57a84a5/transformed/room-runtime-2.5.0/AndroidManifest.xml:21:5-44
+MERGED from [androidx.arch.core:core-runtime:2.2.0] /Users/beyinfotech/.gradle/caches/transforms-3/4f27b3307bb5382b9b7e9ffb9df96d42/transformed/core-runtime-2.2.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.arch.core:core-runtime:2.2.0] /Users/beyinfotech/.gradle/caches/transforms-3/4f27b3307bb5382b9b7e9ffb9df96d42/transformed/core-runtime-2.2.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.cursoradapter:cursoradapter:1.0.0] /Users/beyinfotech/.gradle/caches/transforms-3/2fe7a934da0d393d805370beecd9cbfb/transformed/cursoradapter-1.0.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.cursoradapter:cursoradapter:1.0.0] /Users/beyinfotech/.gradle/caches/transforms-3/2fe7a934da0d393d805370beecd9cbfb/transformed/cursoradapter-1.0.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.sqlite:sqlite-framework:2.3.0] /Users/beyinfotech/.gradle/caches/transforms-3/9a3c7d5b3cc30b532fc2c6fbfa7ffc8b/transformed/sqlite-framework-2.3.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.sqlite:sqlite-framework:2.3.0] /Users/beyinfotech/.gradle/caches/transforms-3/9a3c7d5b3cc30b532fc2c6fbfa7ffc8b/transformed/sqlite-framework-2.3.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.window.extensions.core:core:1.0.0] /Users/beyinfotech/.gradle/caches/transforms-3/243ce5b0fd7627d3c1ded1c6cad6b7f2/transformed/jetified-core-1.0.0/AndroidManifest.xml:5:5-44
+MERGED from [androidx.window.extensions.core:core:1.0.0] /Users/beyinfotech/.gradle/caches/transforms-3/243ce5b0fd7627d3c1ded1c6cad6b7f2/transformed/jetified-core-1.0.0/AndroidManifest.xml:5:5-44
+MERGED from [androidx.sqlite:sqlite:2.3.0] /Users/beyinfotech/.gradle/caches/transforms-3/495205335201d2e39d6638dd0bae0f77/transformed/sqlite-2.3.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.sqlite:sqlite:2.3.0] /Users/beyinfotech/.gradle/caches/transforms-3/495205335201d2e39d6638dd0bae0f77/transformed/sqlite-2.3.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.documentfile:documentfile:1.0.0] /Users/beyinfotech/.gradle/caches/transforms-3/5fb9d58556147deb5b4b2d91cb5a5071/transformed/documentfile-1.0.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.documentfile:documentfile:1.0.0] /Users/beyinfotech/.gradle/caches/transforms-3/5fb9d58556147deb5b4b2d91cb5a5071/transformed/documentfile-1.0.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.print:print:1.0.0] /Users/beyinfotech/.gradle/caches/transforms-3/cb6961878473724455c8561e0ccd23c1/transformed/print-1.0.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.print:print:1.0.0] /Users/beyinfotech/.gradle/caches/transforms-3/cb6961878473724455c8561e0ccd23c1/transformed/print-1.0.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.annotation:annotation-experimental:1.4.0] /Users/beyinfotech/.gradle/caches/transforms-3/92431184378e9bfdbb9d2138b9f864a4/transformed/jetified-annotation-experimental-1.4.0/AndroidManifest.xml:5:5-44
+MERGED from [androidx.annotation:annotation-experimental:1.4.0] /Users/beyinfotech/.gradle/caches/transforms-3/92431184378e9bfdbb9d2138b9f864a4/transformed/jetified-annotation-experimental-1.4.0/AndroidManifest.xml:5:5-44
+MERGED from [com.getkeepsafe.relinker:relinker:1.4.5] /Users/beyinfotech/.gradle/caches/transforms-3/130bc07e599ba9baff8fdf95df6cdf2a/transformed/jetified-relinker-1.4.5/AndroidManifest.xml:5:5-43
+MERGED from [com.getkeepsafe.relinker:relinker:1.4.5] /Users/beyinfotech/.gradle/caches/transforms-3/130bc07e599ba9baff8fdf95df6cdf2a/transformed/jetified-relinker-1.4.5/AndroidManifest.xml:5:5-43
+INJECTED from /Users/beyinfotech/Documents/satu/bolshek_satu/bolshek_pro/android/app/src/debug/AndroidManifest.xml
+INJECTED from /Users/beyinfotech/Documents/satu/bolshek_satu/bolshek_pro/android/app/src/debug/AndroidManifest.xml
+	tools:overrideLibrary
+		ADDED from [com.yandex.android:maps.mobile:4.6.1-lite] /Users/beyinfotech/.gradle/caches/transforms-3/7bed2ede47ce6335ea39da418268ff73/transformed/jetified-maps.mobile-4.6.1-lite/AndroidManifest.xml:19:15-55
+	android:targetSdkVersion
+		INJECTED from /Users/beyinfotech/Documents/satu/bolshek_satu/bolshek_pro/android/app/src/main/AndroidManifest.xml
+		INJECTED from /Users/beyinfotech/Documents/satu/bolshek_satu/bolshek_pro/android/app/src/debug/AndroidManifest.xml
+	android:minSdkVersion
+		INJECTED from /Users/beyinfotech/Documents/satu/bolshek_satu/bolshek_pro/android/app/src/main/AndroidManifest.xml
+		MERGED from /Users/beyinfotech/Documents/satu/bolshek_satu/bolshek_pro/android/app/src/debug/AndroidManifest.xml
+		INJECTED from /Users/beyinfotech/Documents/satu/bolshek_satu/bolshek_pro/android/app/src/debug/AndroidManifest.xml
+uses-permission#android.permission.WAKE_LOCK
+ADDED from [:firebase_messaging] /Users/beyinfotech/.pub-cache/hosted/pub.dev/firebase_messaging-15.1.6/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:10:5-68
+MERGED from [com.yandex.android:maps.mobile:4.6.1-lite] /Users/beyinfotech/.gradle/caches/transforms-3/7bed2ede47ce6335ea39da418268ff73/transformed/jetified-maps.mobile-4.6.1-lite/AndroidManifest.xml:21:5-68
+MERGED from [com.yandex.android:maps.mobile:4.6.1-lite] /Users/beyinfotech/.gradle/caches/transforms-3/7bed2ede47ce6335ea39da418268ff73/transformed/jetified-maps.mobile-4.6.1-lite/AndroidManifest.xml:21:5-68
+MERGED from [com.google.firebase:firebase-messaging:24.1.0] /Users/beyinfotech/.gradle/caches/transforms-3/5af8d01459420ae26e80da0fb126b42b/transformed/jetified-firebase-messaging-24.1.0/AndroidManifest.xml:24:5-68
+MERGED from [com.google.firebase:firebase-messaging:24.1.0] /Users/beyinfotech/.gradle/caches/transforms-3/5af8d01459420ae26e80da0fb126b42b/transformed/jetified-firebase-messaging-24.1.0/AndroidManifest.xml:24:5-68
+MERGED from [com.google.android.gms:play-services-cloud-messaging:17.2.0] /Users/beyinfotech/.gradle/caches/transforms-3/747c041822f87df5ad2add2c97ff7b12/transformed/jetified-play-services-cloud-messaging-17.2.0/AndroidManifest.xml:9:5-68
+MERGED from [com.google.android.gms:play-services-cloud-messaging:17.2.0] /Users/beyinfotech/.gradle/caches/transforms-3/747c041822f87df5ad2add2c97ff7b12/transformed/jetified-play-services-cloud-messaging-17.2.0/AndroidManifest.xml:9:5-68
+MERGED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:23:5-68
+MERGED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:23:5-68
+	android:name
+		ADDED from [:firebase_messaging] /Users/beyinfotech/.pub-cache/hosted/pub.dev/firebase_messaging-15.1.6/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:10:22-65
+uses-permission#android.permission.ACCESS_NETWORK_STATE
+ADDED from [:firebase_messaging] /Users/beyinfotech/.pub-cache/hosted/pub.dev/firebase_messaging-15.1.6/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:11:5-79
+MERGED from [com.yandex.android:maps.mobile:4.6.1-lite] /Users/beyinfotech/.gradle/caches/transforms-3/7bed2ede47ce6335ea39da418268ff73/transformed/jetified-maps.mobile-4.6.1-lite/AndroidManifest.xml:13:5-79
+MERGED from [com.yandex.android:maps.mobile:4.6.1-lite] /Users/beyinfotech/.gradle/caches/transforms-3/7bed2ede47ce6335ea39da418268ff73/transformed/jetified-maps.mobile-4.6.1-lite/AndroidManifest.xml:13:5-79
+MERGED from [com.google.firebase:firebase-messaging:24.1.0] /Users/beyinfotech/.gradle/caches/transforms-3/5af8d01459420ae26e80da0fb126b42b/transformed/jetified-firebase-messaging-24.1.0/AndroidManifest.xml:22:5-79
+MERGED from [com.google.firebase:firebase-messaging:24.1.0] /Users/beyinfotech/.gradle/caches/transforms-3/5af8d01459420ae26e80da0fb126b42b/transformed/jetified-firebase-messaging-24.1.0/AndroidManifest.xml:22:5-79
+MERGED from [com.google.firebase:firebase-installations:18.0.0] /Users/beyinfotech/.gradle/caches/transforms-3/f5b63f93ae7e9ff248ee8dcd7a9375a8/transformed/jetified-firebase-installations-18.0.0/AndroidManifest.xml:7:5-79
+MERGED from [com.google.firebase:firebase-installations:18.0.0] /Users/beyinfotech/.gradle/caches/transforms-3/f5b63f93ae7e9ff248ee8dcd7a9375a8/transformed/jetified-firebase-installations-18.0.0/AndroidManifest.xml:7:5-79
+MERGED from [com.google.android.gms:play-services-cloud-messaging:17.2.0] /Users/beyinfotech/.gradle/caches/transforms-3/747c041822f87df5ad2add2c97ff7b12/transformed/jetified-play-services-cloud-messaging-17.2.0/AndroidManifest.xml:7:5-79
+MERGED from [com.google.android.gms:play-services-cloud-messaging:17.2.0] /Users/beyinfotech/.gradle/caches/transforms-3/747c041822f87df5ad2add2c97ff7b12/transformed/jetified-play-services-cloud-messaging-17.2.0/AndroidManifest.xml:7:5-79
+MERGED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:24:5-79
+MERGED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:24:5-79
+MERGED from [com.google.android.datatransport:transport-backend-cct:3.1.9] /Users/beyinfotech/.gradle/caches/transforms-3/9b7da626314aec21a1be5f9bb199bbd9/transformed/jetified-transport-backend-cct-3.1.9/AndroidManifest.xml:24:5-79
+MERGED from [com.google.android.datatransport:transport-backend-cct:3.1.9] /Users/beyinfotech/.gradle/caches/transforms-3/9b7da626314aec21a1be5f9bb199bbd9/transformed/jetified-transport-backend-cct-3.1.9/AndroidManifest.xml:24:5-79
+MERGED from [com.google.android.datatransport:transport-runtime:3.1.9] /Users/beyinfotech/.gradle/caches/transforms-3/c7114b6d7522e330bad7aad670d0c285/transformed/jetified-transport-runtime-3.1.9/AndroidManifest.xml:22:5-79
+MERGED from [com.google.android.datatransport:transport-runtime:3.1.9] /Users/beyinfotech/.gradle/caches/transforms-3/c7114b6d7522e330bad7aad670d0c285/transformed/jetified-transport-runtime-3.1.9/AndroidManifest.xml:22:5-79
+	android:name
+		ADDED from [:firebase_messaging] /Users/beyinfotech/.pub-cache/hosted/pub.dev/firebase_messaging-15.1.6/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:11:22-76
+uses-permission#android.permission.POST_NOTIFICATIONS
+ADDED from [:firebase_messaging] /Users/beyinfotech/.pub-cache/hosted/pub.dev/firebase_messaging-15.1.6/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:13:5-77
+MERGED from [:flutter_local_notifications] /Users/beyinfotech/.pub-cache/hosted/pub.dev/flutter_local_notifications-18.0.1/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:10:5-77
+MERGED from [:flutter_local_notifications] /Users/beyinfotech/.pub-cache/hosted/pub.dev/flutter_local_notifications-18.0.1/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:10:5-77
+MERGED from [com.google.firebase:firebase-messaging:24.1.0] /Users/beyinfotech/.gradle/caches/transforms-3/5af8d01459420ae26e80da0fb126b42b/transformed/jetified-firebase-messaging-24.1.0/AndroidManifest.xml:23:5-77
+MERGED from [com.google.firebase:firebase-messaging:24.1.0] /Users/beyinfotech/.gradle/caches/transforms-3/5af8d01459420ae26e80da0fb126b42b/transformed/jetified-firebase-messaging-24.1.0/AndroidManifest.xml:23:5-77
+	android:name
+		ADDED from [:firebase_messaging] /Users/beyinfotech/.pub-cache/hosted/pub.dev/firebase_messaging-15.1.6/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:13:22-74
+service#io.flutter.plugins.firebase.messaging.FlutterFirebaseMessagingBackgroundService
+ADDED from [:firebase_messaging] /Users/beyinfotech/.pub-cache/hosted/pub.dev/firebase_messaging-15.1.6/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:16:9-19:72
+	android:exported
+		ADDED from [:firebase_messaging] /Users/beyinfotech/.pub-cache/hosted/pub.dev/firebase_messaging-15.1.6/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:18:13-37
+	android:permission
+		ADDED from [:firebase_messaging] /Users/beyinfotech/.pub-cache/hosted/pub.dev/firebase_messaging-15.1.6/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:19:13-69
+	android:name
+		ADDED from [:firebase_messaging] /Users/beyinfotech/.pub-cache/hosted/pub.dev/firebase_messaging-15.1.6/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:17:13-107
+service#io.flutter.plugins.firebase.messaging.FlutterFirebaseMessagingService
+ADDED from [:firebase_messaging] /Users/beyinfotech/.pub-cache/hosted/pub.dev/firebase_messaging-15.1.6/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:20:9-26:19
+	android:exported
+		ADDED from [:firebase_messaging] /Users/beyinfotech/.pub-cache/hosted/pub.dev/firebase_messaging-15.1.6/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:22:13-37
+	android:name
+		ADDED from [:firebase_messaging] /Users/beyinfotech/.pub-cache/hosted/pub.dev/firebase_messaging-15.1.6/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:21:13-97
+intent-filter#action:name:com.google.firebase.MESSAGING_EVENT
+ADDED from [:firebase_messaging] /Users/beyinfotech/.pub-cache/hosted/pub.dev/firebase_messaging-15.1.6/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:23:13-25:29
+action#com.google.firebase.MESSAGING_EVENT
+ADDED from [:firebase_messaging] /Users/beyinfotech/.pub-cache/hosted/pub.dev/firebase_messaging-15.1.6/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:24:17-78
+	android:name
+		ADDED from [:firebase_messaging] /Users/beyinfotech/.pub-cache/hosted/pub.dev/firebase_messaging-15.1.6/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:24:25-75
+receiver#io.flutter.plugins.firebase.messaging.FlutterFirebaseMessagingReceiver
+ADDED from [:firebase_messaging] /Users/beyinfotech/.pub-cache/hosted/pub.dev/firebase_messaging-15.1.6/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:28:9-35:20
+	android:exported
+		ADDED from [:firebase_messaging] /Users/beyinfotech/.pub-cache/hosted/pub.dev/firebase_messaging-15.1.6/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:30:13-36
+	android:permission
+		ADDED from [:firebase_messaging] /Users/beyinfotech/.pub-cache/hosted/pub.dev/firebase_messaging-15.1.6/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:31:13-73
+	android:name
+		ADDED from [:firebase_messaging] /Users/beyinfotech/.pub-cache/hosted/pub.dev/firebase_messaging-15.1.6/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:29:13-98
+intent-filter#action:name:com.google.android.c2dm.intent.RECEIVE
+ADDED from [:firebase_messaging] /Users/beyinfotech/.pub-cache/hosted/pub.dev/firebase_messaging-15.1.6/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:32:13-34:29
+action#com.google.android.c2dm.intent.RECEIVE
+ADDED from [:firebase_messaging] /Users/beyinfotech/.pub-cache/hosted/pub.dev/firebase_messaging-15.1.6/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:33:17-81
+	android:name
+		ADDED from [:firebase_messaging] /Users/beyinfotech/.pub-cache/hosted/pub.dev/firebase_messaging-15.1.6/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:33:25-78
+service#com.google.firebase.components.ComponentDiscoveryService
+ADDED from [:firebase_messaging] /Users/beyinfotech/.pub-cache/hosted/pub.dev/firebase_messaging-15.1.6/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:37:9-41:19
+MERGED from [:firebase_core] /Users/beyinfotech/.pub-cache/hosted/pub.dev/firebase_core-3.10.0/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:10:9-14:19
+MERGED from [:firebase_core] /Users/beyinfotech/.pub-cache/hosted/pub.dev/firebase_core-3.10.0/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:10:9-14:19
+MERGED from [com.google.firebase:firebase-messaging:24.1.0] /Users/beyinfotech/.gradle/caches/transforms-3/5af8d01459420ae26e80da0fb126b42b/transformed/jetified-firebase-messaging-24.1.0/AndroidManifest.xml:54:9-63:19
+MERGED from [com.google.firebase:firebase-messaging:24.1.0] /Users/beyinfotech/.gradle/caches/transforms-3/5af8d01459420ae26e80da0fb126b42b/transformed/jetified-firebase-messaging-24.1.0/AndroidManifest.xml:54:9-63:19
+MERGED from [com.google.firebase:firebase-installations:18.0.0] /Users/beyinfotech/.gradle/caches/transforms-3/f5b63f93ae7e9ff248ee8dcd7a9375a8/transformed/jetified-firebase-installations-18.0.0/AndroidManifest.xml:12:9-21:19
+MERGED from [com.google.firebase:firebase-installations:18.0.0] /Users/beyinfotech/.gradle/caches/transforms-3/f5b63f93ae7e9ff248ee8dcd7a9375a8/transformed/jetified-firebase-installations-18.0.0/AndroidManifest.xml:12:9-21:19
+MERGED from [com.google.firebase:firebase-common-ktx:21.0.0] /Users/beyinfotech/.gradle/caches/transforms-3/0a805f91dc0aeb2f438296be08a48754/transformed/jetified-firebase-common-ktx-21.0.0/AndroidManifest.xml:9:9-15:19
+MERGED from [com.google.firebase:firebase-common-ktx:21.0.0] /Users/beyinfotech/.gradle/caches/transforms-3/0a805f91dc0aeb2f438296be08a48754/transformed/jetified-firebase-common-ktx-21.0.0/AndroidManifest.xml:9:9-15:19
+MERGED from [com.google.firebase:firebase-common:21.0.0] /Users/beyinfotech/.gradle/caches/transforms-3/394d7bf93449c2bf84d07f7be55b1d51/transformed/jetified-firebase-common-21.0.0/AndroidManifest.xml:30:9-38:19
+MERGED from [com.google.firebase:firebase-common:21.0.0] /Users/beyinfotech/.gradle/caches/transforms-3/394d7bf93449c2bf84d07f7be55b1d51/transformed/jetified-firebase-common-21.0.0/AndroidManifest.xml:30:9-38:19
+MERGED from [com.google.firebase:firebase-datatransport:18.2.0] /Users/beyinfotech/.gradle/caches/transforms-3/1e00bc7059beebfb0bd689d2303cd48d/transformed/jetified-firebase-datatransport-18.2.0/AndroidManifest.xml:22:9-28:19
+MERGED from [com.google.firebase:firebase-datatransport:18.2.0] /Users/beyinfotech/.gradle/caches/transforms-3/1e00bc7059beebfb0bd689d2303cd48d/transformed/jetified-firebase-datatransport-18.2.0/AndroidManifest.xml:22:9-28:19
+	android:exported
+		ADDED from [com.google.firebase:firebase-messaging:24.1.0] /Users/beyinfotech/.gradle/caches/transforms-3/5af8d01459420ae26e80da0fb126b42b/transformed/jetified-firebase-messaging-24.1.0/AndroidManifest.xml:56:13-37
+	tools:targetApi
+		ADDED from [com.google.firebase:firebase-common:21.0.0] /Users/beyinfotech/.gradle/caches/transforms-3/394d7bf93449c2bf84d07f7be55b1d51/transformed/jetified-firebase-common-21.0.0/AndroidManifest.xml:34:13-32
+	android:directBootAware
+		ADDED from [com.google.firebase:firebase-common:21.0.0] /Users/beyinfotech/.gradle/caches/transforms-3/394d7bf93449c2bf84d07f7be55b1d51/transformed/jetified-firebase-common-21.0.0/AndroidManifest.xml:32:13-43
+	android:name
+		ADDED from [:firebase_messaging] /Users/beyinfotech/.pub-cache/hosted/pub.dev/firebase_messaging-15.1.6/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:37:18-89
+meta-data#com.google.firebase.components:io.flutter.plugins.firebase.messaging.FlutterFirebaseAppRegistrar
+ADDED from [:firebase_messaging] /Users/beyinfotech/.pub-cache/hosted/pub.dev/firebase_messaging-15.1.6/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:38:13-40:85
+	android:value
+		ADDED from [:firebase_messaging] /Users/beyinfotech/.pub-cache/hosted/pub.dev/firebase_messaging-15.1.6/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:40:17-82
+	android:name
+		ADDED from [:firebase_messaging] /Users/beyinfotech/.pub-cache/hosted/pub.dev/firebase_messaging-15.1.6/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:39:17-128
+provider#io.flutter.plugins.firebase.messaging.FlutterFirebaseMessagingInitProvider
+ADDED from [:firebase_messaging] /Users/beyinfotech/.pub-cache/hosted/pub.dev/firebase_messaging-15.1.6/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:43:9-47:38
+	android:authorities
+		ADDED from [:firebase_messaging] /Users/beyinfotech/.pub-cache/hosted/pub.dev/firebase_messaging-15.1.6/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:45:13-88
+	android:exported
+		ADDED from [:firebase_messaging] /Users/beyinfotech/.pub-cache/hosted/pub.dev/firebase_messaging-15.1.6/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:46:13-37
+	android:initOrder
+		ADDED from [:firebase_messaging] /Users/beyinfotech/.pub-cache/hosted/pub.dev/firebase_messaging-15.1.6/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:47:13-35
+	android:name
+		ADDED from [:firebase_messaging] /Users/beyinfotech/.pub-cache/hosted/pub.dev/firebase_messaging-15.1.6/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:44:13-102
+meta-data#com.google.firebase.components:io.flutter.plugins.firebase.core.FlutterFirebaseCoreRegistrar
+ADDED from [:firebase_core] /Users/beyinfotech/.pub-cache/hosted/pub.dev/firebase_core-3.10.0/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:11:13-13:85
+	android:value
+		ADDED from [:firebase_core] /Users/beyinfotech/.pub-cache/hosted/pub.dev/firebase_core-3.10.0/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:13:17-82
+	android:name
+		ADDED from [:firebase_core] /Users/beyinfotech/.pub-cache/hosted/pub.dev/firebase_core-3.10.0/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:12:17-124
+uses-permission#android.permission.VIBRATE
+ADDED from [:flutter_local_notifications] /Users/beyinfotech/.pub-cache/hosted/pub.dev/flutter_local_notifications-18.0.1/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:9:5-66
+	android:name
+		ADDED from [:flutter_local_notifications] /Users/beyinfotech/.pub-cache/hosted/pub.dev/flutter_local_notifications-18.0.1/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:9:22-63
+provider#io.flutter.plugins.imagepicker.ImagePickerFileProvider
+ADDED from [:image_picker_android] /Users/beyinfotech/.pub-cache/hosted/pub.dev/image_picker_android-0.8.12+19/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:11:9-19:20
+	android:grantUriPermissions
+		ADDED from [:image_picker_android] /Users/beyinfotech/.pub-cache/hosted/pub.dev/image_picker_android-0.8.12+19/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:15:13-47
+	android:authorities
+		ADDED from [:image_picker_android] /Users/beyinfotech/.pub-cache/hosted/pub.dev/image_picker_android-0.8.12+19/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:13:13-74
+	android:exported
+		ADDED from [:image_picker_android] /Users/beyinfotech/.pub-cache/hosted/pub.dev/image_picker_android-0.8.12+19/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:14:13-37
+	android:name
+		ADDED from [:image_picker_android] /Users/beyinfotech/.pub-cache/hosted/pub.dev/image_picker_android-0.8.12+19/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:12:13-82
+meta-data#android.support.FILE_PROVIDER_PATHS
+ADDED from [:image_picker_android] /Users/beyinfotech/.pub-cache/hosted/pub.dev/image_picker_android-0.8.12+19/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:16:13-18:75
+	android:resource
+		ADDED from [:image_picker_android] /Users/beyinfotech/.pub-cache/hosted/pub.dev/image_picker_android-0.8.12+19/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:18:17-72
+	android:name
+		ADDED from [:image_picker_android] /Users/beyinfotech/.pub-cache/hosted/pub.dev/image_picker_android-0.8.12+19/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:17:17-67
+service#com.google.android.gms.metadata.ModuleDependencies
+ADDED from [:image_picker_android] /Users/beyinfotech/.pub-cache/hosted/pub.dev/image_picker_android-0.8.12+19/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:21:9-33:19
+	android:enabled
+		ADDED from [:image_picker_android] /Users/beyinfotech/.pub-cache/hosted/pub.dev/image_picker_android-0.8.12+19/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:23:13-36
+	android:exported
+		ADDED from [:image_picker_android] /Users/beyinfotech/.pub-cache/hosted/pub.dev/image_picker_android-0.8.12+19/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:24:13-37
+	tools:ignore
+		ADDED from [:image_picker_android] /Users/beyinfotech/.pub-cache/hosted/pub.dev/image_picker_android-0.8.12+19/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:25:13-40
+	android:name
+		ADDED from [:image_picker_android] /Users/beyinfotech/.pub-cache/hosted/pub.dev/image_picker_android-0.8.12+19/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:22:13-78
+intent-filter#action:name:com.google.android.gms.metadata.MODULE_DEPENDENCIES
+ADDED from [:image_picker_android] /Users/beyinfotech/.pub-cache/hosted/pub.dev/image_picker_android-0.8.12+19/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:26:13-28:29
+action#com.google.android.gms.metadata.MODULE_DEPENDENCIES
+ADDED from [:image_picker_android] /Users/beyinfotech/.pub-cache/hosted/pub.dev/image_picker_android-0.8.12+19/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:27:17-94
+	android:name
+		ADDED from [:image_picker_android] /Users/beyinfotech/.pub-cache/hosted/pub.dev/image_picker_android-0.8.12+19/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:27:25-91
+meta-data#photopicker_activity:0:required
+ADDED from [:image_picker_android] /Users/beyinfotech/.pub-cache/hosted/pub.dev/image_picker_android-0.8.12+19/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:30:13-32:36
+	android:value
+		ADDED from [:image_picker_android] /Users/beyinfotech/.pub-cache/hosted/pub.dev/image_picker_android-0.8.12+19/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:32:17-33
+	android:name
+		ADDED from [:image_picker_android] /Users/beyinfotech/.pub-cache/hosted/pub.dev/image_picker_android-0.8.12+19/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:31:17-63
+uses-permission#android.permission.ACCESS_COARSE_LOCATION
+ADDED from [:location] /Users/beyinfotech/.pub-cache/hosted/pub.dev/location-7.0.1/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:9:5-81
+	android:name
+		ADDED from [:location] /Users/beyinfotech/.pub-cache/hosted/pub.dev/location-7.0.1/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:9:22-78
+uses-permission#android.permission.ACCESS_FINE_LOCATION
+ADDED from [:location] /Users/beyinfotech/.pub-cache/hosted/pub.dev/location-7.0.1/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:10:5-79
+MERGED from [com.yandex.android:maps.mobile:4.6.1-lite] /Users/beyinfotech/.gradle/caches/transforms-3/7bed2ede47ce6335ea39da418268ff73/transformed/jetified-maps.mobile-4.6.1-lite/AndroidManifest.xml:17:5-79
+MERGED from [com.yandex.android:maps.mobile:4.6.1-lite] /Users/beyinfotech/.gradle/caches/transforms-3/7bed2ede47ce6335ea39da418268ff73/transformed/jetified-maps.mobile-4.6.1-lite/AndroidManifest.xml:17:5-79
+	android:name
+		ADDED from [:location] /Users/beyinfotech/.pub-cache/hosted/pub.dev/location-7.0.1/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:10:22-76
+service#com.lyokone.location.FlutterLocationService
+ADDED from [:location] /Users/beyinfotech/.pub-cache/hosted/pub.dev/location-7.0.1/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:13:9-17:56
+	android:enabled
+		ADDED from [:location] /Users/beyinfotech/.pub-cache/hosted/pub.dev/location-7.0.1/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:15:13-35
+	android:exported
+		ADDED from [:location] /Users/beyinfotech/.pub-cache/hosted/pub.dev/location-7.0.1/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:16:13-37
+	android:foregroundServiceType
+		ADDED from [:location] /Users/beyinfotech/.pub-cache/hosted/pub.dev/location-7.0.1/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:17:13-53
+	android:name
+		ADDED from [:location] /Users/beyinfotech/.pub-cache/hosted/pub.dev/location-7.0.1/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:14:13-71
+activity#io.flutter.plugins.urllauncher.WebViewActivity
+ADDED from [:url_launcher_android] /Users/beyinfotech/.pub-cache/hosted/pub.dev/url_launcher_android-6.3.14/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:10:9-13:74
+	android:exported
+		ADDED from [:url_launcher_android] /Users/beyinfotech/.pub-cache/hosted/pub.dev/url_launcher_android-6.3.14/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:12:13-37
+	android:theme
+		ADDED from [:url_launcher_android] /Users/beyinfotech/.pub-cache/hosted/pub.dev/url_launcher_android-6.3.14/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:13:13-71
+	android:name
+		ADDED from [:url_launcher_android] /Users/beyinfotech/.pub-cache/hosted/pub.dev/url_launcher_android-6.3.14/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml:11:13-74
+uses-permission#android.permission.ACCESS_WIFI_STATE
+ADDED from [com.yandex.android:maps.mobile:4.6.1-lite] /Users/beyinfotech/.gradle/caches/transforms-3/7bed2ede47ce6335ea39da418268ff73/transformed/jetified-maps.mobile-4.6.1-lite/AndroidManifest.xml:15:5-76
+	android:name
+		ADDED from [com.yandex.android:maps.mobile:4.6.1-lite] /Users/beyinfotech/.gradle/caches/transforms-3/7bed2ede47ce6335ea39da418268ff73/transformed/jetified-maps.mobile-4.6.1-lite/AndroidManifest.xml:15:22-73
+uses-permission#android.permission.CHANGE_WIFI_STATE
+ADDED from [com.yandex.android:maps.mobile:4.6.1-lite] /Users/beyinfotech/.gradle/caches/transforms-3/7bed2ede47ce6335ea39da418268ff73/transformed/jetified-maps.mobile-4.6.1-lite/AndroidManifest.xml:16:5-76
+	android:name
+		ADDED from [com.yandex.android:maps.mobile:4.6.1-lite] /Users/beyinfotech/.gradle/caches/transforms-3/7bed2ede47ce6335ea39da418268ff73/transformed/jetified-maps.mobile-4.6.1-lite/AndroidManifest.xml:16:22-73
+uses-permission#android.permission.RECEIVE_BOOT_COMPLETED
+ADDED from [com.yandex.android:maps.mobile:4.6.1-lite] /Users/beyinfotech/.gradle/caches/transforms-3/7bed2ede47ce6335ea39da418268ff73/transformed/jetified-maps.mobile-4.6.1-lite/AndroidManifest.xml:22:5-81
+MERGED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:25:5-81
+MERGED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:25:5-81
+	android:name
+		ADDED from [com.yandex.android:maps.mobile:4.6.1-lite] /Users/beyinfotech/.gradle/caches/transforms-3/7bed2ede47ce6335ea39da418268ff73/transformed/jetified-maps.mobile-4.6.1-lite/AndroidManifest.xml:22:22-78
+meta-data#yandex.maps.runtime.stl.linkage
+ADDED from [com.yandex.android:maps.mobile:4.6.1-lite] /Users/beyinfotech/.gradle/caches/transforms-3/7bed2ede47ce6335ea39da418268ff73/transformed/jetified-maps.mobile-4.6.1-lite/AndroidManifest.xml:25:9-27:38
+	android:value
+		ADDED from [com.yandex.android:maps.mobile:4.6.1-lite] /Users/beyinfotech/.gradle/caches/transforms-3/7bed2ede47ce6335ea39da418268ff73/transformed/jetified-maps.mobile-4.6.1-lite/AndroidManifest.xml:27:13-35
+	android:name
+		ADDED from [com.yandex.android:maps.mobile:4.6.1-lite] /Users/beyinfotech/.gradle/caches/transforms-3/7bed2ede47ce6335ea39da418268ff73/transformed/jetified-maps.mobile-4.6.1-lite/AndroidManifest.xml:26:13-59
+service#com.yandex.runtime.connectivity.internal.ConnectivityService
+ADDED from [com.yandex.android:maps.mobile:4.6.1-lite] /Users/beyinfotech/.gradle/caches/transforms-3/7bed2ede47ce6335ea39da418268ff73/transformed/jetified-maps.mobile-4.6.1-lite/AndroidManifest.xml:29:9-32:72
+	android:exported
+		ADDED from [com.yandex.android:maps.mobile:4.6.1-lite] /Users/beyinfotech/.gradle/caches/transforms-3/7bed2ede47ce6335ea39da418268ff73/transformed/jetified-maps.mobile-4.6.1-lite/AndroidManifest.xml:31:13-36
+	android:permission
+		ADDED from [com.yandex.android:maps.mobile:4.6.1-lite] /Users/beyinfotech/.gradle/caches/transforms-3/7bed2ede47ce6335ea39da418268ff73/transformed/jetified-maps.mobile-4.6.1-lite/AndroidManifest.xml:32:13-69
+	android:name
+		ADDED from [com.yandex.android:maps.mobile:4.6.1-lite] /Users/beyinfotech/.gradle/caches/transforms-3/7bed2ede47ce6335ea39da418268ff73/transformed/jetified-maps.mobile-4.6.1-lite/AndroidManifest.xml:30:13-88
+uses-permission#com.google.android.c2dm.permission.RECEIVE
+ADDED from [com.google.firebase:firebase-messaging:24.1.0] /Users/beyinfotech/.gradle/caches/transforms-3/5af8d01459420ae26e80da0fb126b42b/transformed/jetified-firebase-messaging-24.1.0/AndroidManifest.xml:26:5-82
+MERGED from [com.google.android.gms:play-services-cloud-messaging:17.2.0] /Users/beyinfotech/.gradle/caches/transforms-3/747c041822f87df5ad2add2c97ff7b12/transformed/jetified-play-services-cloud-messaging-17.2.0/AndroidManifest.xml:11:5-82
+MERGED from [com.google.android.gms:play-services-cloud-messaging:17.2.0] /Users/beyinfotech/.gradle/caches/transforms-3/747c041822f87df5ad2add2c97ff7b12/transformed/jetified-play-services-cloud-messaging-17.2.0/AndroidManifest.xml:11:5-82
+	android:name
+		ADDED from [com.google.firebase:firebase-messaging:24.1.0] /Users/beyinfotech/.gradle/caches/transforms-3/5af8d01459420ae26e80da0fb126b42b/transformed/jetified-firebase-messaging-24.1.0/AndroidManifest.xml:26:22-79
+receiver#com.google.firebase.iid.FirebaseInstanceIdReceiver
+ADDED from [com.google.firebase:firebase-messaging:24.1.0] /Users/beyinfotech/.gradle/caches/transforms-3/5af8d01459420ae26e80da0fb126b42b/transformed/jetified-firebase-messaging-24.1.0/AndroidManifest.xml:29:9-40:20
+	android:exported
+		ADDED from [com.google.firebase:firebase-messaging:24.1.0] /Users/beyinfotech/.gradle/caches/transforms-3/5af8d01459420ae26e80da0fb126b42b/transformed/jetified-firebase-messaging-24.1.0/AndroidManifest.xml:31:13-36
+	android:permission
+		ADDED from [com.google.firebase:firebase-messaging:24.1.0] /Users/beyinfotech/.gradle/caches/transforms-3/5af8d01459420ae26e80da0fb126b42b/transformed/jetified-firebase-messaging-24.1.0/AndroidManifest.xml:32:13-73
+	android:name
+		ADDED from [com.google.firebase:firebase-messaging:24.1.0] /Users/beyinfotech/.gradle/caches/transforms-3/5af8d01459420ae26e80da0fb126b42b/transformed/jetified-firebase-messaging-24.1.0/AndroidManifest.xml:30:13-78
+meta-data#com.google.android.gms.cloudmessaging.FINISHED_AFTER_HANDLED
+ADDED from [com.google.firebase:firebase-messaging:24.1.0] /Users/beyinfotech/.gradle/caches/transforms-3/5af8d01459420ae26e80da0fb126b42b/transformed/jetified-firebase-messaging-24.1.0/AndroidManifest.xml:37:13-39:40
+	android:value
+		ADDED from [com.google.firebase:firebase-messaging:24.1.0] /Users/beyinfotech/.gradle/caches/transforms-3/5af8d01459420ae26e80da0fb126b42b/transformed/jetified-firebase-messaging-24.1.0/AndroidManifest.xml:39:17-37
+	android:name
+		ADDED from [com.google.firebase:firebase-messaging:24.1.0] /Users/beyinfotech/.gradle/caches/transforms-3/5af8d01459420ae26e80da0fb126b42b/transformed/jetified-firebase-messaging-24.1.0/AndroidManifest.xml:38:17-92
+service#com.google.firebase.messaging.FirebaseMessagingService
+ADDED from [com.google.firebase:firebase-messaging:24.1.0] /Users/beyinfotech/.gradle/caches/transforms-3/5af8d01459420ae26e80da0fb126b42b/transformed/jetified-firebase-messaging-24.1.0/AndroidManifest.xml:46:9-53:19
+	android:exported
+		ADDED from [com.google.firebase:firebase-messaging:24.1.0] /Users/beyinfotech/.gradle/caches/transforms-3/5af8d01459420ae26e80da0fb126b42b/transformed/jetified-firebase-messaging-24.1.0/AndroidManifest.xml:49:13-37
+	android:directBootAware
+		ADDED from [com.google.firebase:firebase-messaging:24.1.0] /Users/beyinfotech/.gradle/caches/transforms-3/5af8d01459420ae26e80da0fb126b42b/transformed/jetified-firebase-messaging-24.1.0/AndroidManifest.xml:48:13-43
+	android:name
+		ADDED from [com.google.firebase:firebase-messaging:24.1.0] /Users/beyinfotech/.gradle/caches/transforms-3/5af8d01459420ae26e80da0fb126b42b/transformed/jetified-firebase-messaging-24.1.0/AndroidManifest.xml:47:13-82
+meta-data#com.google.firebase.components:com.google.firebase.messaging.FirebaseMessagingKtxRegistrar
+ADDED from [com.google.firebase:firebase-messaging:24.1.0] /Users/beyinfotech/.gradle/caches/transforms-3/5af8d01459420ae26e80da0fb126b42b/transformed/jetified-firebase-messaging-24.1.0/AndroidManifest.xml:57:13-59:85
+	android:value
+		ADDED from [com.google.firebase:firebase-messaging:24.1.0] /Users/beyinfotech/.gradle/caches/transforms-3/5af8d01459420ae26e80da0fb126b42b/transformed/jetified-firebase-messaging-24.1.0/AndroidManifest.xml:59:17-82
+	android:name
+		ADDED from [com.google.firebase:firebase-messaging:24.1.0] /Users/beyinfotech/.gradle/caches/transforms-3/5af8d01459420ae26e80da0fb126b42b/transformed/jetified-firebase-messaging-24.1.0/AndroidManifest.xml:58:17-122
+meta-data#com.google.firebase.components:com.google.firebase.messaging.FirebaseMessagingRegistrar
+ADDED from [com.google.firebase:firebase-messaging:24.1.0] /Users/beyinfotech/.gradle/caches/transforms-3/5af8d01459420ae26e80da0fb126b42b/transformed/jetified-firebase-messaging-24.1.0/AndroidManifest.xml:60:13-62:85
+	android:value
+		ADDED from [com.google.firebase:firebase-messaging:24.1.0] /Users/beyinfotech/.gradle/caches/transforms-3/5af8d01459420ae26e80da0fb126b42b/transformed/jetified-firebase-messaging-24.1.0/AndroidManifest.xml:62:17-82
+	android:name
+		ADDED from [com.google.firebase:firebase-messaging:24.1.0] /Users/beyinfotech/.gradle/caches/transforms-3/5af8d01459420ae26e80da0fb126b42b/transformed/jetified-firebase-messaging-24.1.0/AndroidManifest.xml:61:17-119
+activity#com.google.android.gms.common.api.GoogleApiActivity
+ADDED from [com.google.android.gms:play-services-base:18.3.0] /Users/beyinfotech/.gradle/caches/transforms-3/d23b4c3f72f4e99a6a0f9c6dddc68f73/transformed/jetified-play-services-base-18.3.0/AndroidManifest.xml:20:9-22:45
+	android:exported
+		ADDED from [com.google.android.gms:play-services-base:18.3.0] /Users/beyinfotech/.gradle/caches/transforms-3/d23b4c3f72f4e99a6a0f9c6dddc68f73/transformed/jetified-play-services-base-18.3.0/AndroidManifest.xml:22:19-43
+	android:theme
+		ADDED from [com.google.android.gms:play-services-base:18.3.0] /Users/beyinfotech/.gradle/caches/transforms-3/d23b4c3f72f4e99a6a0f9c6dddc68f73/transformed/jetified-play-services-base-18.3.0/AndroidManifest.xml:21:19-78
+	android:name
+		ADDED from [com.google.android.gms:play-services-base:18.3.0] /Users/beyinfotech/.gradle/caches/transforms-3/d23b4c3f72f4e99a6a0f9c6dddc68f73/transformed/jetified-play-services-base-18.3.0/AndroidManifest.xml:20:19-85
+meta-data#com.google.firebase.components:com.google.firebase.installations.FirebaseInstallationsKtxRegistrar
+ADDED from [com.google.firebase:firebase-installations:18.0.0] /Users/beyinfotech/.gradle/caches/transforms-3/f5b63f93ae7e9ff248ee8dcd7a9375a8/transformed/jetified-firebase-installations-18.0.0/AndroidManifest.xml:15:13-17:85
+	android:value
+		ADDED from [com.google.firebase:firebase-installations:18.0.0] /Users/beyinfotech/.gradle/caches/transforms-3/f5b63f93ae7e9ff248ee8dcd7a9375a8/transformed/jetified-firebase-installations-18.0.0/AndroidManifest.xml:17:17-82
+	android:name
+		ADDED from [com.google.firebase:firebase-installations:18.0.0] /Users/beyinfotech/.gradle/caches/transforms-3/f5b63f93ae7e9ff248ee8dcd7a9375a8/transformed/jetified-firebase-installations-18.0.0/AndroidManifest.xml:16:17-130
+meta-data#com.google.firebase.components:com.google.firebase.installations.FirebaseInstallationsRegistrar
+ADDED from [com.google.firebase:firebase-installations:18.0.0] /Users/beyinfotech/.gradle/caches/transforms-3/f5b63f93ae7e9ff248ee8dcd7a9375a8/transformed/jetified-firebase-installations-18.0.0/AndroidManifest.xml:18:13-20:85
+	android:value
+		ADDED from [com.google.firebase:firebase-installations:18.0.0] /Users/beyinfotech/.gradle/caches/transforms-3/f5b63f93ae7e9ff248ee8dcd7a9375a8/transformed/jetified-firebase-installations-18.0.0/AndroidManifest.xml:20:17-82
+	android:name
+		ADDED from [com.google.firebase:firebase-installations:18.0.0] /Users/beyinfotech/.gradle/caches/transforms-3/f5b63f93ae7e9ff248ee8dcd7a9375a8/transformed/jetified-firebase-installations-18.0.0/AndroidManifest.xml:19:17-127
+meta-data#com.google.firebase.components:com.google.firebase.ktx.FirebaseCommonLegacyRegistrar
+ADDED from [com.google.firebase:firebase-common-ktx:21.0.0] /Users/beyinfotech/.gradle/caches/transforms-3/0a805f91dc0aeb2f438296be08a48754/transformed/jetified-firebase-common-ktx-21.0.0/AndroidManifest.xml:12:13-14:85
+	android:value
+		ADDED from [com.google.firebase:firebase-common-ktx:21.0.0] /Users/beyinfotech/.gradle/caches/transforms-3/0a805f91dc0aeb2f438296be08a48754/transformed/jetified-firebase-common-ktx-21.0.0/AndroidManifest.xml:14:17-82
+	android:name
+		ADDED from [com.google.firebase:firebase-common-ktx:21.0.0] /Users/beyinfotech/.gradle/caches/transforms-3/0a805f91dc0aeb2f438296be08a48754/transformed/jetified-firebase-common-ktx-21.0.0/AndroidManifest.xml:13:17-116
+provider#com.google.firebase.provider.FirebaseInitProvider
+ADDED from [com.google.firebase:firebase-common:21.0.0] /Users/beyinfotech/.gradle/caches/transforms-3/394d7bf93449c2bf84d07f7be55b1d51/transformed/jetified-firebase-common-21.0.0/AndroidManifest.xml:23:9-28:39
+	android:authorities
+		ADDED from [com.google.firebase:firebase-common:21.0.0] /Users/beyinfotech/.gradle/caches/transforms-3/394d7bf93449c2bf84d07f7be55b1d51/transformed/jetified-firebase-common-21.0.0/AndroidManifest.xml:25:13-72
+	android:exported
+		ADDED from [com.google.firebase:firebase-common:21.0.0] /Users/beyinfotech/.gradle/caches/transforms-3/394d7bf93449c2bf84d07f7be55b1d51/transformed/jetified-firebase-common-21.0.0/AndroidManifest.xml:27:13-37
+	android:directBootAware
+		ADDED from [com.google.firebase:firebase-common:21.0.0] /Users/beyinfotech/.gradle/caches/transforms-3/394d7bf93449c2bf84d07f7be55b1d51/transformed/jetified-firebase-common-21.0.0/AndroidManifest.xml:26:13-43
+	android:initOrder
+		ADDED from [com.google.firebase:firebase-common:21.0.0] /Users/beyinfotech/.gradle/caches/transforms-3/394d7bf93449c2bf84d07f7be55b1d51/transformed/jetified-firebase-common-21.0.0/AndroidManifest.xml:28:13-36
+	android:name
+		ADDED from [com.google.firebase:firebase-common:21.0.0] /Users/beyinfotech/.gradle/caches/transforms-3/394d7bf93449c2bf84d07f7be55b1d51/transformed/jetified-firebase-common-21.0.0/AndroidManifest.xml:24:13-77
+meta-data#com.google.firebase.components:com.google.firebase.FirebaseCommonKtxRegistrar
+ADDED from [com.google.firebase:firebase-common:21.0.0] /Users/beyinfotech/.gradle/caches/transforms-3/394d7bf93449c2bf84d07f7be55b1d51/transformed/jetified-firebase-common-21.0.0/AndroidManifest.xml:35:13-37:85
+	android:value
+		ADDED from [com.google.firebase:firebase-common:21.0.0] /Users/beyinfotech/.gradle/caches/transforms-3/394d7bf93449c2bf84d07f7be55b1d51/transformed/jetified-firebase-common-21.0.0/AndroidManifest.xml:37:17-82
+	android:name
+		ADDED from [com.google.firebase:firebase-common:21.0.0] /Users/beyinfotech/.gradle/caches/transforms-3/394d7bf93449c2bf84d07f7be55b1d51/transformed/jetified-firebase-common-21.0.0/AndroidManifest.xml:36:17-109
+uses-library#androidx.window.extensions
+ADDED from [androidx.window:window:1.2.0] /Users/beyinfotech/.gradle/caches/transforms-3/16077713545213a8db719838f55db4d4/transformed/jetified-window-1.2.0/AndroidManifest.xml:23:9-25:40
+	android:required
+		ADDED from [androidx.window:window:1.2.0] /Users/beyinfotech/.gradle/caches/transforms-3/16077713545213a8db719838f55db4d4/transformed/jetified-window-1.2.0/AndroidManifest.xml:25:13-37
+	android:name
+		ADDED from [androidx.window:window:1.2.0] /Users/beyinfotech/.gradle/caches/transforms-3/16077713545213a8db719838f55db4d4/transformed/jetified-window-1.2.0/AndroidManifest.xml:24:13-54
+uses-library#androidx.window.sidecar
+ADDED from [androidx.window:window:1.2.0] /Users/beyinfotech/.gradle/caches/transforms-3/16077713545213a8db719838f55db4d4/transformed/jetified-window-1.2.0/AndroidManifest.xml:26:9-28:40
+	android:required
+		ADDED from [androidx.window:window:1.2.0] /Users/beyinfotech/.gradle/caches/transforms-3/16077713545213a8db719838f55db4d4/transformed/jetified-window-1.2.0/AndroidManifest.xml:28:13-37
+	android:name
+		ADDED from [androidx.window:window:1.2.0] /Users/beyinfotech/.gradle/caches/transforms-3/16077713545213a8db719838f55db4d4/transformed/jetified-window-1.2.0/AndroidManifest.xml:27:13-51
+uses-permission#android.permission.FOREGROUND_SERVICE
+ADDED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:26:5-77
+	android:name
+		ADDED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:26:22-74
+provider#androidx.startup.InitializationProvider
+ADDED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:29:9-37:20
+MERGED from [androidx.lifecycle:lifecycle-process:2.7.0] /Users/beyinfotech/.gradle/caches/transforms-3/8f2bce3da87421ce56fd9e41c2512084/transformed/jetified-lifecycle-process-2.7.0/AndroidManifest.xml:24:9-32:20
+MERGED from [androidx.lifecycle:lifecycle-process:2.7.0] /Users/beyinfotech/.gradle/caches/transforms-3/8f2bce3da87421ce56fd9e41c2512084/transformed/jetified-lifecycle-process-2.7.0/AndroidManifest.xml:24:9-32:20
+MERGED from [androidx.profileinstaller:profileinstaller:1.3.1] /Users/beyinfotech/.gradle/caches/transforms-3/4a13a77c404f1e7dd55daa8c85a25f69/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:24:9-32:20
+MERGED from [androidx.profileinstaller:profileinstaller:1.3.1] /Users/beyinfotech/.gradle/caches/transforms-3/4a13a77c404f1e7dd55daa8c85a25f69/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:24:9-32:20
+MERGED from [androidx.startup:startup-runtime:1.1.1] /Users/beyinfotech/.gradle/caches/transforms-3/9722c8950630913e876bdfd6632a00c2/transformed/jetified-startup-runtime-1.1.1/AndroidManifest.xml:26:9-30:34
+MERGED from [androidx.startup:startup-runtime:1.1.1] /Users/beyinfotech/.gradle/caches/transforms-3/9722c8950630913e876bdfd6632a00c2/transformed/jetified-startup-runtime-1.1.1/AndroidManifest.xml:26:9-30:34
+	tools:node
+		ADDED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:33:13-31
+	android:authorities
+		ADDED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:31:13-68
+	android:exported
+		ADDED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:32:13-37
+	android:name
+		ADDED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:30:13-67
+meta-data#androidx.work.WorkManagerInitializer
+ADDED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:34:13-36:52
+	android:value
+		ADDED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:36:17-49
+	android:name
+		ADDED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:35:17-68
+service#androidx.work.impl.background.systemalarm.SystemAlarmService
+ADDED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:39:9-45:35
+	android:enabled
+		ADDED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:42:13-72
+	android:exported
+		ADDED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:43:13-37
+	tools:ignore
+		ADDED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:44:13-60
+	tools:targetApi
+		ADDED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:45:13-32
+	android:directBootAware
+		ADDED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:41:13-44
+	android:name
+		ADDED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:40:13-88
+service#androidx.work.impl.background.systemjob.SystemJobService
+ADDED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:46:9-52:35
+	android:enabled
+		ADDED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:49:13-70
+	android:exported
+		ADDED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:50:13-36
+	android:permission
+		ADDED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:51:13-69
+	tools:targetApi
+		ADDED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:52:13-32
+	android:directBootAware
+		ADDED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:48:13-44
+	android:name
+		ADDED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:47:13-84
+service#androidx.work.impl.foreground.SystemForegroundService
+ADDED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:53:9-59:35
+	android:enabled
+		ADDED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:56:13-77
+	android:exported
+		ADDED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:57:13-37
+	tools:ignore
+		ADDED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:58:13-60
+	tools:targetApi
+		ADDED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:59:13-32
+	android:directBootAware
+		ADDED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:55:13-44
+	android:name
+		ADDED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:54:13-81
+receiver#androidx.work.impl.utils.ForceStopRunnable$BroadcastReceiver
+ADDED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:61:9-66:35
+	android:enabled
+		ADDED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:64:13-35
+	android:exported
+		ADDED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:65:13-37
+	tools:targetApi
+		ADDED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:66:13-32
+	android:directBootAware
+		ADDED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:63:13-44
+	android:name
+		ADDED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:62:13-88
+receiver#androidx.work.impl.background.systemalarm.ConstraintProxy$BatteryChargingProxy
+ADDED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:67:9-77:20
+	android:enabled
+		ADDED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:70:13-36
+	android:exported
+		ADDED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:71:13-37
+	tools:targetApi
+		ADDED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:72:13-32
+	android:directBootAware
+		ADDED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:69:13-44
+	android:name
+		ADDED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:68:13-106
+intent-filter#action:name:android.intent.action.ACTION_POWER_CONNECTED+action:name:android.intent.action.ACTION_POWER_DISCONNECTED
+ADDED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:73:13-76:29
+action#android.intent.action.ACTION_POWER_CONNECTED
+ADDED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:74:17-87
+	android:name
+		ADDED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:74:25-84
+action#android.intent.action.ACTION_POWER_DISCONNECTED
+ADDED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:75:17-90
+	android:name
+		ADDED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:75:25-87
+receiver#androidx.work.impl.background.systemalarm.ConstraintProxy$BatteryNotLowProxy
+ADDED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:78:9-88:20
+	android:enabled
+		ADDED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:81:13-36
+	android:exported
+		ADDED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:82:13-37
+	tools:targetApi
+		ADDED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:83:13-32
+	android:directBootAware
+		ADDED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:80:13-44
+	android:name
+		ADDED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:79:13-104
+intent-filter#action:name:android.intent.action.BATTERY_LOW+action:name:android.intent.action.BATTERY_OKAY
+ADDED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:84:13-87:29
+action#android.intent.action.BATTERY_OKAY
+ADDED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:85:17-77
+	android:name
+		ADDED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:85:25-74
+action#android.intent.action.BATTERY_LOW
+ADDED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:86:17-76
+	android:name
+		ADDED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:86:25-73
+receiver#androidx.work.impl.background.systemalarm.ConstraintProxy$StorageNotLowProxy
+ADDED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:89:9-99:20
+	android:enabled
+		ADDED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:92:13-36
+	android:exported
+		ADDED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:93:13-37
+	tools:targetApi
+		ADDED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:94:13-32
+	android:directBootAware
+		ADDED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:91:13-44
+	android:name
+		ADDED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:90:13-104
+intent-filter#action:name:android.intent.action.DEVICE_STORAGE_LOW+action:name:android.intent.action.DEVICE_STORAGE_OK
+ADDED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:95:13-98:29
+action#android.intent.action.DEVICE_STORAGE_LOW
+ADDED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:96:17-83
+	android:name
+		ADDED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:96:25-80
+action#android.intent.action.DEVICE_STORAGE_OK
+ADDED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:97:17-82
+	android:name
+		ADDED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:97:25-79
+receiver#androidx.work.impl.background.systemalarm.ConstraintProxy$NetworkStateProxy
+ADDED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:100:9-109:20
+	android:enabled
+		ADDED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:103:13-36
+	android:exported
+		ADDED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:104:13-37
+	tools:targetApi
+		ADDED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:105:13-32
+	android:directBootAware
+		ADDED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:102:13-44
+	android:name
+		ADDED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:101:13-103
+intent-filter#action:name:android.net.conn.CONNECTIVITY_CHANGE
+ADDED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:106:13-108:29
+action#android.net.conn.CONNECTIVITY_CHANGE
+ADDED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:107:17-79
+	android:name
+		ADDED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:107:25-76
+receiver#androidx.work.impl.background.systemalarm.RescheduleReceiver
+ADDED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:110:9-121:20
+	android:enabled
+		ADDED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:113:13-36
+	android:exported
+		ADDED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:114:13-37
+	tools:targetApi
+		ADDED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:115:13-32
+	android:directBootAware
+		ADDED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:112:13-44
+	android:name
+		ADDED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:111:13-88
+intent-filter#action:name:android.intent.action.BOOT_COMPLETED+action:name:android.intent.action.TIMEZONE_CHANGED+action:name:android.intent.action.TIME_SET
+ADDED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:116:13-120:29
+action#android.intent.action.BOOT_COMPLETED
+ADDED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:117:17-79
+	android:name
+		ADDED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:117:25-76
+action#android.intent.action.TIME_SET
+ADDED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:118:17-73
+	android:name
+		ADDED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:118:25-70
+action#android.intent.action.TIMEZONE_CHANGED
+ADDED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:119:17-81
+	android:name
+		ADDED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:119:25-78
+receiver#androidx.work.impl.background.systemalarm.ConstraintProxyUpdateReceiver
+ADDED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:122:9-131:20
+	android:enabled
+		ADDED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:125:13-72
+	android:exported
+		ADDED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:126:13-37
+	tools:targetApi
+		ADDED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:127:13-32
+	android:directBootAware
+		ADDED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:124:13-44
+	android:name
+		ADDED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:123:13-99
+intent-filter#action:name:androidx.work.impl.background.systemalarm.UpdateProxies
+ADDED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:128:13-130:29
+action#androidx.work.impl.background.systemalarm.UpdateProxies
+ADDED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:129:17-98
+	android:name
+		ADDED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:129:25-95
+receiver#androidx.work.impl.diagnostics.DiagnosticsReceiver
+ADDED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:132:9-142:20
+	android:enabled
+		ADDED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:135:13-35
+	android:exported
+		ADDED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:136:13-36
+	android:permission
+		ADDED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:137:13-57
+	tools:targetApi
+		ADDED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:138:13-32
+	android:directBootAware
+		ADDED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:134:13-44
+	android:name
+		ADDED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:133:13-78
+intent-filter#action:name:androidx.work.diagnostics.REQUEST_DIAGNOSTICS
+ADDED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:139:13-141:29
+action#androidx.work.diagnostics.REQUEST_DIAGNOSTICS
+ADDED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:140:17-88
+	android:name
+		ADDED from [androidx.work:work-runtime:2.8.1] /Users/beyinfotech/.gradle/caches/transforms-3/24a2af81cfe1a7f037c599f91bf53c5a/transformed/work-runtime-2.8.1/AndroidManifest.xml:140:25-85
+meta-data#com.google.android.gms.version
+ADDED from [com.google.android.gms:play-services-basement:18.3.0] /Users/beyinfotech/.gradle/caches/transforms-3/6435847f3df74685ebe9d552b555a53d/transformed/jetified-play-services-basement-18.3.0/AndroidManifest.xml:21:9-23:69
+	android:value
+		ADDED from [com.google.android.gms:play-services-basement:18.3.0] /Users/beyinfotech/.gradle/caches/transforms-3/6435847f3df74685ebe9d552b555a53d/transformed/jetified-play-services-basement-18.3.0/AndroidManifest.xml:23:13-66
+	android:name
+		ADDED from [com.google.android.gms:play-services-basement:18.3.0] /Users/beyinfotech/.gradle/caches/transforms-3/6435847f3df74685ebe9d552b555a53d/transformed/jetified-play-services-basement-18.3.0/AndroidManifest.xml:22:13-58
+permission#${applicationId}.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION
+ADDED from [androidx.core:core:1.13.1] /Users/beyinfotech/.gradle/caches/transforms-3/54f52c935db561500e0b4cff24018caf/transformed/core-1.13.1/AndroidManifest.xml:22:5-24:47
+	android:protectionLevel
+		ADDED from [androidx.core:core:1.13.1] /Users/beyinfotech/.gradle/caches/transforms-3/54f52c935db561500e0b4cff24018caf/transformed/core-1.13.1/AndroidManifest.xml:24:9-44
+	android:name
+		ADDED from [androidx.core:core:1.13.1] /Users/beyinfotech/.gradle/caches/transforms-3/54f52c935db561500e0b4cff24018caf/transformed/core-1.13.1/AndroidManifest.xml:23:9-81
+permission#com.bolsheksatu.net.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION
+ADDED from [androidx.core:core:1.13.1] /Users/beyinfotech/.gradle/caches/transforms-3/54f52c935db561500e0b4cff24018caf/transformed/core-1.13.1/AndroidManifest.xml:22:5-24:47
+	android:protectionLevel
+		ADDED from [androidx.core:core:1.13.1] /Users/beyinfotech/.gradle/caches/transforms-3/54f52c935db561500e0b4cff24018caf/transformed/core-1.13.1/AndroidManifest.xml:24:9-44
+	android:name
+		ADDED from [androidx.core:core:1.13.1] /Users/beyinfotech/.gradle/caches/transforms-3/54f52c935db561500e0b4cff24018caf/transformed/core-1.13.1/AndroidManifest.xml:23:9-81
+uses-permission#${applicationId}.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION
+ADDED from [androidx.core:core:1.13.1] /Users/beyinfotech/.gradle/caches/transforms-3/54f52c935db561500e0b4cff24018caf/transformed/core-1.13.1/AndroidManifest.xml:26:5-97
+	android:name
+		ADDED from [androidx.core:core:1.13.1] /Users/beyinfotech/.gradle/caches/transforms-3/54f52c935db561500e0b4cff24018caf/transformed/core-1.13.1/AndroidManifest.xml:26:22-94
+uses-permission#com.bolsheksatu.net.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION
+ADDED from [androidx.core:core:1.13.1] /Users/beyinfotech/.gradle/caches/transforms-3/54f52c935db561500e0b4cff24018caf/transformed/core-1.13.1/AndroidManifest.xml:26:5-97
+	android:name
+		ADDED from [androidx.core:core:1.13.1] /Users/beyinfotech/.gradle/caches/transforms-3/54f52c935db561500e0b4cff24018caf/transformed/core-1.13.1/AndroidManifest.xml:26:22-94
+meta-data#androidx.lifecycle.ProcessLifecycleInitializer
+ADDED from [androidx.lifecycle:lifecycle-process:2.7.0] /Users/beyinfotech/.gradle/caches/transforms-3/8f2bce3da87421ce56fd9e41c2512084/transformed/jetified-lifecycle-process-2.7.0/AndroidManifest.xml:29:13-31:52
+	android:value
+		ADDED from [androidx.lifecycle:lifecycle-process:2.7.0] /Users/beyinfotech/.gradle/caches/transforms-3/8f2bce3da87421ce56fd9e41c2512084/transformed/jetified-lifecycle-process-2.7.0/AndroidManifest.xml:31:17-49
+	android:name
+		ADDED from [androidx.lifecycle:lifecycle-process:2.7.0] /Users/beyinfotech/.gradle/caches/transforms-3/8f2bce3da87421ce56fd9e41c2512084/transformed/jetified-lifecycle-process-2.7.0/AndroidManifest.xml:30:17-78
+meta-data#androidx.profileinstaller.ProfileInstallerInitializer
+ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] /Users/beyinfotech/.gradle/caches/transforms-3/4a13a77c404f1e7dd55daa8c85a25f69/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:29:13-31:52
+	android:value
+		ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] /Users/beyinfotech/.gradle/caches/transforms-3/4a13a77c404f1e7dd55daa8c85a25f69/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:31:17-49
+	android:name
+		ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] /Users/beyinfotech/.gradle/caches/transforms-3/4a13a77c404f1e7dd55daa8c85a25f69/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:30:17-85
+receiver#androidx.profileinstaller.ProfileInstallReceiver
+ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] /Users/beyinfotech/.gradle/caches/transforms-3/4a13a77c404f1e7dd55daa8c85a25f69/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:34:9-52:20
+	android:enabled
+		ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] /Users/beyinfotech/.gradle/caches/transforms-3/4a13a77c404f1e7dd55daa8c85a25f69/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:37:13-35
+	android:exported
+		ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] /Users/beyinfotech/.gradle/caches/transforms-3/4a13a77c404f1e7dd55daa8c85a25f69/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:38:13-36
+	android:permission
+		ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] /Users/beyinfotech/.gradle/caches/transforms-3/4a13a77c404f1e7dd55daa8c85a25f69/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:39:13-57
+	android:directBootAware
+		ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] /Users/beyinfotech/.gradle/caches/transforms-3/4a13a77c404f1e7dd55daa8c85a25f69/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:36:13-44
+	android:name
+		ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] /Users/beyinfotech/.gradle/caches/transforms-3/4a13a77c404f1e7dd55daa8c85a25f69/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:35:13-76
+intent-filter#action:name:androidx.profileinstaller.action.INSTALL_PROFILE
+ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] /Users/beyinfotech/.gradle/caches/transforms-3/4a13a77c404f1e7dd55daa8c85a25f69/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:40:13-42:29
+action#androidx.profileinstaller.action.INSTALL_PROFILE
+ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] /Users/beyinfotech/.gradle/caches/transforms-3/4a13a77c404f1e7dd55daa8c85a25f69/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:41:17-91
+	android:name
+		ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] /Users/beyinfotech/.gradle/caches/transforms-3/4a13a77c404f1e7dd55daa8c85a25f69/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:41:25-88
+intent-filter#action:name:androidx.profileinstaller.action.SKIP_FILE
+ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] /Users/beyinfotech/.gradle/caches/transforms-3/4a13a77c404f1e7dd55daa8c85a25f69/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:43:13-45:29
+action#androidx.profileinstaller.action.SKIP_FILE
+ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] /Users/beyinfotech/.gradle/caches/transforms-3/4a13a77c404f1e7dd55daa8c85a25f69/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:44:17-85
+	android:name
+		ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] /Users/beyinfotech/.gradle/caches/transforms-3/4a13a77c404f1e7dd55daa8c85a25f69/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:44:25-82
+intent-filter#action:name:androidx.profileinstaller.action.SAVE_PROFILE
+ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] /Users/beyinfotech/.gradle/caches/transforms-3/4a13a77c404f1e7dd55daa8c85a25f69/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:46:13-48:29
+action#androidx.profileinstaller.action.SAVE_PROFILE
+ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] /Users/beyinfotech/.gradle/caches/transforms-3/4a13a77c404f1e7dd55daa8c85a25f69/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:47:17-88
+	android:name
+		ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] /Users/beyinfotech/.gradle/caches/transforms-3/4a13a77c404f1e7dd55daa8c85a25f69/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:47:25-85
+intent-filter#action:name:androidx.profileinstaller.action.BENCHMARK_OPERATION
+ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] /Users/beyinfotech/.gradle/caches/transforms-3/4a13a77c404f1e7dd55daa8c85a25f69/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:49:13-51:29
+action#androidx.profileinstaller.action.BENCHMARK_OPERATION
+ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] /Users/beyinfotech/.gradle/caches/transforms-3/4a13a77c404f1e7dd55daa8c85a25f69/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:50:17-95
+	android:name
+		ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] /Users/beyinfotech/.gradle/caches/transforms-3/4a13a77c404f1e7dd55daa8c85a25f69/transformed/jetified-profileinstaller-1.3.1/AndroidManifest.xml:50:25-92
+meta-data#com.google.firebase.components:com.google.firebase.datatransport.TransportRegistrar
+ADDED from [com.google.firebase:firebase-datatransport:18.2.0] /Users/beyinfotech/.gradle/caches/transforms-3/1e00bc7059beebfb0bd689d2303cd48d/transformed/jetified-firebase-datatransport-18.2.0/AndroidManifest.xml:25:13-27:85
+	android:value
+		ADDED from [com.google.firebase:firebase-datatransport:18.2.0] /Users/beyinfotech/.gradle/caches/transforms-3/1e00bc7059beebfb0bd689d2303cd48d/transformed/jetified-firebase-datatransport-18.2.0/AndroidManifest.xml:27:17-82
+	android:name
+		ADDED from [com.google.firebase:firebase-datatransport:18.2.0] /Users/beyinfotech/.gradle/caches/transforms-3/1e00bc7059beebfb0bd689d2303cd48d/transformed/jetified-firebase-datatransport-18.2.0/AndroidManifest.xml:26:17-115
+service#com.google.android.datatransport.runtime.backends.TransportBackendDiscovery
+ADDED from [com.google.android.datatransport:transport-backend-cct:3.1.9] /Users/beyinfotech/.gradle/caches/transforms-3/9b7da626314aec21a1be5f9bb199bbd9/transformed/jetified-transport-backend-cct-3.1.9/AndroidManifest.xml:28:9-34:19
+MERGED from [com.google.android.datatransport:transport-runtime:3.1.9] /Users/beyinfotech/.gradle/caches/transforms-3/c7114b6d7522e330bad7aad670d0c285/transformed/jetified-transport-runtime-3.1.9/AndroidManifest.xml:36:9-38:40
+MERGED from [com.google.android.datatransport:transport-runtime:3.1.9] /Users/beyinfotech/.gradle/caches/transforms-3/c7114b6d7522e330bad7aad670d0c285/transformed/jetified-transport-runtime-3.1.9/AndroidManifest.xml:36:9-38:40
+	android:exported
+		ADDED from [com.google.android.datatransport:transport-backend-cct:3.1.9] /Users/beyinfotech/.gradle/caches/transforms-3/9b7da626314aec21a1be5f9bb199bbd9/transformed/jetified-transport-backend-cct-3.1.9/AndroidManifest.xml:30:13-37
+	android:name
+		ADDED from [com.google.android.datatransport:transport-backend-cct:3.1.9] /Users/beyinfotech/.gradle/caches/transforms-3/9b7da626314aec21a1be5f9bb199bbd9/transformed/jetified-transport-backend-cct-3.1.9/AndroidManifest.xml:29:13-103
+meta-data#backend:com.google.android.datatransport.cct.CctBackendFactory
+ADDED from [com.google.android.datatransport:transport-backend-cct:3.1.9] /Users/beyinfotech/.gradle/caches/transforms-3/9b7da626314aec21a1be5f9bb199bbd9/transformed/jetified-transport-backend-cct-3.1.9/AndroidManifest.xml:31:13-33:39
+	android:value
+		ADDED from [com.google.android.datatransport:transport-backend-cct:3.1.9] /Users/beyinfotech/.gradle/caches/transforms-3/9b7da626314aec21a1be5f9bb199bbd9/transformed/jetified-transport-backend-cct-3.1.9/AndroidManifest.xml:33:17-36
+	android:name
+		ADDED from [com.google.android.datatransport:transport-backend-cct:3.1.9] /Users/beyinfotech/.gradle/caches/transforms-3/9b7da626314aec21a1be5f9bb199bbd9/transformed/jetified-transport-backend-cct-3.1.9/AndroidManifest.xml:32:17-94
+service#com.google.android.datatransport.runtime.scheduling.jobscheduling.JobInfoSchedulerService
+ADDED from [com.google.android.datatransport:transport-runtime:3.1.9] /Users/beyinfotech/.gradle/caches/transforms-3/c7114b6d7522e330bad7aad670d0c285/transformed/jetified-transport-runtime-3.1.9/AndroidManifest.xml:26:9-30:19
+	android:exported
+		ADDED from [com.google.android.datatransport:transport-runtime:3.1.9] /Users/beyinfotech/.gradle/caches/transforms-3/c7114b6d7522e330bad7aad670d0c285/transformed/jetified-transport-runtime-3.1.9/AndroidManifest.xml:28:13-37
+	android:permission
+		ADDED from [com.google.android.datatransport:transport-runtime:3.1.9] /Users/beyinfotech/.gradle/caches/transforms-3/c7114b6d7522e330bad7aad670d0c285/transformed/jetified-transport-runtime-3.1.9/AndroidManifest.xml:29:13-69
+	android:name
+		ADDED from [com.google.android.datatransport:transport-runtime:3.1.9] /Users/beyinfotech/.gradle/caches/transforms-3/c7114b6d7522e330bad7aad670d0c285/transformed/jetified-transport-runtime-3.1.9/AndroidManifest.xml:27:13-117
+receiver#com.google.android.datatransport.runtime.scheduling.jobscheduling.AlarmManagerSchedulerBroadcastReceiver
+ADDED from [com.google.android.datatransport:transport-runtime:3.1.9] /Users/beyinfotech/.gradle/caches/transforms-3/c7114b6d7522e330bad7aad670d0c285/transformed/jetified-transport-runtime-3.1.9/AndroidManifest.xml:32:9-34:40
+	android:exported
+		ADDED from [com.google.android.datatransport:transport-runtime:3.1.9] /Users/beyinfotech/.gradle/caches/transforms-3/c7114b6d7522e330bad7aad670d0c285/transformed/jetified-transport-runtime-3.1.9/AndroidManifest.xml:34:13-37
+	android:name
+		ADDED from [com.google.android.datatransport:transport-runtime:3.1.9] /Users/beyinfotech/.gradle/caches/transforms-3/c7114b6d7522e330bad7aad670d0c285/transformed/jetified-transport-runtime-3.1.9/AndroidManifest.xml:33:13-132
+service#androidx.room.MultiInstanceInvalidationService
+ADDED from [androidx.room:room-runtime:2.5.0] /Users/beyinfotech/.gradle/caches/transforms-3/251ed882fad26f89d674f025a57a84a5/transformed/room-runtime-2.5.0/AndroidManifest.xml:24:9-28:63
+	android:exported
+		ADDED from [androidx.room:room-runtime:2.5.0] /Users/beyinfotech/.gradle/caches/transforms-3/251ed882fad26f89d674f025a57a84a5/transformed/room-runtime-2.5.0/AndroidManifest.xml:27:13-37
+	tools:ignore
+		ADDED from [androidx.room:room-runtime:2.5.0] /Users/beyinfotech/.gradle/caches/transforms-3/251ed882fad26f89d674f025a57a84a5/transformed/room-runtime-2.5.0/AndroidManifest.xml:28:13-60
+	android:directBootAware
+		ADDED from [androidx.room:room-runtime:2.5.0] /Users/beyinfotech/.gradle/caches/transforms-3/251ed882fad26f89d674f025a57a84a5/transformed/room-runtime-2.5.0/AndroidManifest.xml:26:13-43
+	android:name
+		ADDED from [androidx.room:room-runtime:2.5.0] /Users/beyinfotech/.gradle/caches/transforms-3/251ed882fad26f89d674f025a57a84a5/transformed/room-runtime-2.5.0/AndroidManifest.xml:25:13-74

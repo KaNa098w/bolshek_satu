@@ -25,8 +25,16 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Future<bool> _checkAuthStatus() async {
-    await context.read<GlobalProvider>().loadAuthData();
-    return context.read<GlobalProvider>().authResponse != null;
+    try {
+      // Передаём текущий контекст в loadAuthData
+      await context.read<GlobalProvider>().loadAuthData(context);
+      // Проверяем, есть ли активная сессия
+      return context.read<GlobalProvider>().authResponse != null;
+    } catch (e) {
+      // Обрабатываем возможные ошибки
+      print('Error checking auth status: $e');
+      return false;
+    }
   }
 
   Future<void> _register() async {

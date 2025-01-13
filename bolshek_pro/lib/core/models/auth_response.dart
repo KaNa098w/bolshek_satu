@@ -31,19 +31,20 @@ class User {
   String? lastName;
   String? email;
   String? phoneNumber;
+  String? fcmTopic;
   dynamic avatar; // Убрали Null и заменили на dynamic
   List<Roles>? roles;
 
-  User({
-    this.id,
-    this.createdAt,
-    this.firstName,
-    this.lastName,
-    this.email,
-    this.phoneNumber,
-    this.avatar,
-    this.roles,
-  });
+  User(
+      {this.id,
+      this.createdAt,
+      this.firstName,
+      this.lastName,
+      this.email,
+      this.phoneNumber,
+      this.avatar,
+      this.roles,
+      this.fcmTopic});
 
   User.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -52,6 +53,7 @@ class User {
     lastName = json['lastName'];
     email = json['email'];
     phoneNumber = json['phoneNumber'];
+    fcmTopic = json['fcmTopic'];
     avatar = json['avatar']; // Динамическое поле
     roles = json['roles'] != null
         ? List<Roles>.from(json['roles'].map((v) => Roles.fromJson(v)))
@@ -67,6 +69,7 @@ class User {
     data['email'] = email;
     data['phoneNumber'] = phoneNumber;
     data['avatar'] = avatar;
+    data['fcmTopic'] = fcmTopic;
     if (roles != null) {
       data['roles'] = roles!.map((v) => v.toJson()).toList();
     }

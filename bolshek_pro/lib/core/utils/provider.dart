@@ -1,4 +1,5 @@
 import 'package:bolshek_pro/core/models/auth_response.dart';
+import 'package:bolshek_pro/core/service/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -161,19 +162,35 @@ class GlobalProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> loadAuthData() async {
+  Future<void> loadAuthData(BuildContext context) async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
     final firstName = prefs.getString('userName');
     final lastName = prefs.getString('userLastName');
 
     if (token != null) {
-      // Восстановление данных авторизации
-      _authResponse = AuthResponse(
-        token: token,
-        user: User(firstName: firstName, lastName: lastName),
-      );
-      notifyListeners();
+      try {
+        // Проверяем токен на сервере
+        final authService = AuthService();
+        final authSession = await authService.checkAuthToken(context, token);
+
+        if (authSession != null) {
+          // Если токен валиден, восстанавливаем данные авторизации
+          _authResponse = AuthResponse(
+            token: token,
+            user: User(firstName: firstName, lastName: lastName),
+          );
+          notifyListeners();
+        }
+      } catch (e) {
+        // Если ошибка, очищаем данные авторизации
+        await prefs.remove('token');
+        await prefs.remove('userName');
+        await prefs.remove('userLastName');
+        _authResponse = null;
+        notifyListeners();
+        print('Failed to validate token: $e');
+      }
     }
   }
 

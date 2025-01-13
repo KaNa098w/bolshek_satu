@@ -1,13 +1,45 @@
-import 'package:bolshek_pro/app/pages/auth/auth_page.dart';
-import 'package:bolshek_pro/core/utils/provider.dart';
+import 'package:bolshek_pro/core/service/firebase_api.dart';
+import 'package:bolshek_pro/firebase_options.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart'; // Добавляем Provider
-import 'app/pages/settings/settings_page.dart';
-import 'app/widgets/main_controller.dart';
+import 'package:provider/provider.dart';
+import 'app/pages/auth/auth_page.dart';
+import 'core/utils/provider.dart';
 import 'core/utils/theme.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+// YandexMapkit.init(apiKey: 'ВАШ_API_КЛЮЧ');
+  // Инициализация Firebase
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await FirebaseApi().initNotifications();
+
   runApp(const MyApp());
+}
+
+Future<void> setupFirebaseMessaging() async {
+  FirebaseMessaging messaging = FirebaseMessaging.instance;
+
+  // Запрос разрешения на уведомления для iOS
+  NotificationSettings settings = await messaging.requestPermission(
+    alert: true,
+    badge: true,
+    sound: true,
+  );
+
+  if (settings.authorizationStatus == AuthorizationStatus.authorized) {
+    print('Разрешение на уведомления получено.');
+  } else if (settings.authorizationStatus == AuthorizationStatus.provisional) {
+    print('Разрешение на уведомления предоставлено временно.');
+  } else {
+    print('Разрешение на уведомления не предоставлено.');
+  }
+
+  // Подписка на топик
+  const topic = "user_topic_79474460-4437-47ef-a9d6-13c70588db8f";
+  await messaging.subscribeToTopic(topic);
+  print("Подписка на топик '$topic' успешно выполнена.");
 }
 
 class MyApp extends StatelessWidget {
@@ -15,6 +47,17 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      print(
+          'Получено уведомление в активном приложении: ${message.notification?.title}');
+      showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+          title: Text(message.notification?.title ?? 'Нет заголовка'),
+          content: Text(message.notification?.body ?? 'Нет содержимого'),
+        ),
+      );
+    });
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(

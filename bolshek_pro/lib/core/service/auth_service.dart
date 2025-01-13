@@ -79,6 +79,28 @@ class AuthService {
     }
   }
 
+  Future<AuthSessionResponse> checkAuthToken(
+      BuildContext context, String token) async {
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl/auth/session'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final json = jsonDecode(response.body);
+        return AuthSessionResponse.fromJson(json);
+      } else {
+        throw Exception('Failed to load session: ${response.statusCode}');
+      }
+    } catch (e) {
+      rethrow;
+    }
+  }
+
   String _getToken(BuildContext context) {
     try {
       final authProvider = Provider.of<GlobalProvider>(context, listen: false);

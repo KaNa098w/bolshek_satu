@@ -23,21 +23,23 @@ class User {
   String? email;
   String? phoneNumber;
   Organization? organization;
+  String? fcmTopic;
 
-  User({
-    this.id,
-    this.firstName,
-    this.lastName,
-    this.email,
-    this.phoneNumber,
-    this.organization,
-  });
+  User(
+      {this.id,
+      this.firstName,
+      this.lastName,
+      this.email,
+      this.phoneNumber,
+      this.organization,
+      this.fcmTopic});
 
   User.fromJson(Map<String, dynamic> json) {
     id = json['id'];
     firstName = json['firstName'];
     lastName = json['lastName'];
     email = json['email'];
+    fcmTopic = json['fcmTopic'];
     phoneNumber = json['phoneNumber'];
     organization = json['organization'] != null
         ? Organization.fromJson(json['organization'])

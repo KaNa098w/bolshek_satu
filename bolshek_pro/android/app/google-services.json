@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "217319616283",
+    "project_id": "bolshek-push",
+    "storage_bucket": "bolshek-push.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:217319616283:android:81bd7abb26a907b20cedbe",
+        "android_client_info": {
+          "package_name": "com.bolsheksatu.net"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCZvNdMYSJ_PzBvsOXYBB9LRbzhVrmb8v4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

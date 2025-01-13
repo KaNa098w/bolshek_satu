@@ -1,14 +1,10 @@
-// import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:bolshek_pro/main.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/material.dart';
 
-// FirebaseMessaging messaging = FirebaseMessaging.instance;
-
-// void getToken() async {
-//   String? token = await messaging.getToken();
-//   print("FCM Token: $token");
-// }
-
-// @override
-// void initState() {
-//   super.initState();
-//   getToken();
-// }
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+  print("Firebase успешно инициализирован");
+  runApp(MyApp());
+}

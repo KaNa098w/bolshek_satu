@@ -1,6 +1,8 @@
 import 'package:bolshek_pro/app/pages/auth/auth_page.dart';
 import 'package:bolshek_pro/app/widgets/custom_alert_dialog_widget.dart';
 import 'package:bolshek_pro/app/widgets/loading_widget.dart';
+import 'package:bolshek_pro/app/widgets/yandex_map_show_widget.dart';
+import 'package:bolshek_pro/app/widgets/yandex_map_widget.dart';
 import 'package:bolshek_pro/core/service/address_service.dart';
 import 'package:bolshek_pro/core/service/auth_service.dart';
 import 'package:bolshek_pro/core/utils/provider.dart';
@@ -18,6 +20,11 @@ class MyOrganizationPage extends StatefulWidget {
 class _MyOrganizationPageState extends State<MyOrganizationPage> {
   late Future<AuthSessionResponse> _authSessionFuture;
   late Future<AddressResponse> _addressFuture;
+  String selectedAddress = 'Адрес не выбран';
+  String selectedCountry = 'Страна неизвестна';
+  String selectedCity = 'Город неизвестен';
+  double? selectedLatitude;
+  double? selectedLongitude;
 
   @override
   void initState() {
@@ -50,6 +57,57 @@ class _MyOrganizationPageState extends State<MyOrganizationPage> {
     }
   }
 
+  void _showInMap(double latitude, double longitude) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) =>
+            YandexMapViewPage(latitude: latitude, longitude: longitude),
+      ),
+    );
+  }
+
+  Future<void> _deleteAddress(String addressId, String organizationId) async {
+    bool confirm = await showDialog(
+      context: context,
+      builder: (context) => CustomAlertDialog(
+        title: 'Удаление адреса',
+        content: Text('Вы уверены, что хотите удалить этот адрес?'),
+        onConfirm: () => Navigator.of(context).pop(true),
+        onCancel: () => Navigator.of(context).pop(false),
+      ),
+    );
+
+    if (confirm) {
+      try {
+        await AddressService()
+            .deleteAddress(context, organizationId, addressId);
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text(
+              'Адрес успешно удалён',
+              style: TextStyle(color: Colors.white),
+            ),
+            backgroundColor: Colors.green,
+          ),
+        );
+
+        // Обновляем список адресов
+        setState(() {
+          _addressFuture = _fetchAddress(organizationId);
+        });
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Ошибка при удалении адреса: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -76,6 +134,9 @@ class _MyOrganizationPageState extends State<MyOrganizationPage> {
 
           final data = snapshot.data!;
           final organization = data.user?.organization;
+          final topic = data.user?.fcmTopic;
+
+          print('ВАШ ТОПИК $topic');
 
           if (organization == null) {
             return Center(child: Text("Информация об организации отсутствует"));
@@ -136,7 +197,7 @@ class _MyOrganizationPageState extends State<MyOrganizationPage> {
                         return Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: List.generate(
-                            3, // Количество заглушек
+                            1, // Количество заглушек
                             (index) => Padding(
                               padding:
                                   const EdgeInsets.symmetric(vertical: 8.0),
@@ -167,6 +228,8 @@ class _MyOrganizationPageState extends State<MyOrganizationPage> {
                           final cityName =
                               item.city?.name ?? "Город неизвестен";
                           final address = item.address ?? "Адрес неизвестен";
+                          final addresId = item.id;
+                          final cityId = item.cityId;
 
                           return Card(
                             color: Colors.grey.shade100,
@@ -177,40 +240,69 @@ class _MyOrganizationPageState extends State<MyOrganizationPage> {
                             ),
                             child: Padding(
                               padding: const EdgeInsets.all(16.0),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Row(
+                                          children: [
+                                            Icon(Icons.location_city,
+                                                color: Colors.blueAccent),
+                                            const SizedBox(width: 8),
+                                            Expanded(
+                                              child: Text(
+                                                "Город: $cityName",
+                                                style: TextStyle(
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Colors.black87,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        const SizedBox(height: 8),
+                                        Row(
+                                          children: [
+                                            Icon(Icons.place,
+                                                color: Colors.orangeAccent),
+                                            const SizedBox(width: 8),
+                                            Expanded(
+                                              child: Text(
+                                                "Адрес: $address",
+                                                style: TextStyle(
+                                                  fontSize: 14,
+                                                  color: Colors.grey[800],
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ),
                                   Row(
                                     children: [
-                                      Icon(Icons.location_city,
-                                          color: Colors.blueAccent),
-                                      const SizedBox(width: 8),
-                                      Expanded(
-                                        child: Text(
-                                          "Город: $cityName",
-                                          style: TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.black87,
-                                          ),
+                                      IconButton(
+                                        onPressed: () => _showInMap(
+                                            item.latitude!,
+                                            item.longitude!), // Передаём координаты
+                                        icon: Icon(
+                                          Icons.map_outlined,
+                                          color: Colors.green,
                                         ),
                                       ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Row(
-                                    children: [
-                                      Icon(Icons.place,
-                                          color: Colors.orangeAccent),
-                                      const SizedBox(width: 8),
-                                      Expanded(
-                                        child: Text(
-                                          "Адрес: $address",
-                                          style: TextStyle(
-                                            fontSize: 14,
-                                            color: Colors.grey[800],
-                                          ),
-                                        ),
+                                      IconButton(
+                                        icon: Icon(Icons.delete_outline_rounded,
+                                            color: Colors.redAccent),
+                                        onPressed: () => _deleteAddress(
+                                            addresId ?? '',
+                                            organization.id ?? ''),
                                       ),
                                     ],
                                   ),
@@ -222,7 +314,112 @@ class _MyOrganizationPageState extends State<MyOrganizationPage> {
                       );
                     },
                   ),
+
                   const SizedBox(height: 10),
+                  Container(
+                    width: double.infinity, // Кнопка занимает всю ширину
+
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        final result = await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => YandexMapPickerScreen(),
+                          ),
+                        );
+
+                        if (result != null && result is Map<String, dynamic>) {
+                          setState(() {
+                            selectedAddress =
+                                result['address'] ?? 'Адрес не выбран';
+                            selectedCountry =
+                                result['country'] ?? 'Страна неизвестна';
+                            selectedCity = result['city'] ?? 'Город неизвестен';
+                            selectedLatitude = result['latitude'];
+                            selectedLongitude = result['longitude'];
+                          });
+
+                          final addressData = {
+                            "cityId": "60f95c44-05e8-4031-9d9b-fad22fcd0d0c",
+                            "address": selectedAddress,
+                            "additionalInfo":
+                                "$selectedCountry, $selectedCity, $selectedAddress",
+                            "latitude": selectedLatitude,
+                            "longitude": selectedLongitude,
+                          };
+
+                          try {
+                            final organizationId =
+                                organization.id ?? ''; // Укажите актуальный ID
+                            await AddressService().addAddress(
+                                context, organizationId, addressData);
+
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: const Text(
+                                  'Адрес успешно добавлен',
+                                  style: TextStyle(
+                                      color: Colors.white), // Белый цвет текста
+                                ),
+                                backgroundColor: Colors.green, // Зеленый фон
+                                behavior: SnackBarBehavior
+                                    .floating, // Опционально: чтобы SnackBar был "плавающим"
+                                duration: const Duration(
+                                    seconds: 3), // Длительность отображения
+                              ),
+                            );
+
+                            // Обновляем список адресов
+                            setState(() {
+                              _addressFuture = _fetchAddress(organizationId);
+                            });
+                          } catch (e) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content:
+                                    Text('Ошибка при добавлении адреса: $e'),
+                                backgroundColor: Colors.red,
+                              ),
+                            );
+                          }
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        foregroundColor: Colors.white,
+                        backgroundColor: Colors.blue, // Цвет текста кнопки
+                        shape: RoundedRectangleBorder(
+                          borderRadius:
+                              BorderRadius.circular(12), // Овальные края
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 12), // Высота кнопки
+                        // elevation: 5, // Тень для объёмности
+                      ),
+                      child: const Text(
+                        'Добавить адрес',
+                        style: TextStyle(
+                          fontSize: 15, // Размер текста
+                          fontWeight: FontWeight.bold, // Жирный текст
+                        ),
+                      ),
+                    ),
+                  ),
+
+// // Отображение выбранного адреса
+//                   Column(
+//                     crossAxisAlignment: CrossAxisAlignment.start,
+//                     children: [
+//                       Text('Выбранный адрес: $selectedAddress'),
+//                       Text('Страна: $selectedCity'),
+//                       Text('Город: 60f95c44-05e8-4031-9d9b-fad22fcd0d0c'),
+//                       Text('Широта: ${selectedLatitude ?? 'Не определена'}'),
+//                       Text('Долгота: ${selectedLongitude ?? 'Не определена'}'),
+//                     ],
+//                   ),
+                  SizedBox(
+                    height: 7,
+                  ),
+
                   Center(
                     child: ElevatedButton(
                       onPressed: _logout,
@@ -344,216 +541,3 @@ Widget _buildAddressRow(String title, String value) {
     ),
   );
 }
-
-
-
-
-// import 'package:bolshek_pro/app/pages/auth/auth_page.dart';
-// import 'package:bolshek_pro/core/service/city_service.dart';
-// import 'package:bolshek_pro/app/pages/settings/settings_widget/city_widgets/city_selection_bottom_sheet.dart';
-// import 'package:bolshek_pro/core/utils/provider.dart';
-// import 'package:bolshek_pro/core/utils/theme.dart';
-// import 'package:flutter/material.dart';
-// import 'package:provider/provider.dart';
-// import 'settings_widget/warehouse_page.dart';
-
-// class SettingsPage extends StatefulWidget {
-//   const SettingsPage({Key? key}) : super(key: key);
-
-//   @override
-//   _SettingsPageState createState() => _SettingsPageState();
-// }
-
-// class _SettingsPageState extends State<SettingsPage> {
-//   final CityService _cityService = CityService();
-//   String? _selectedCity;
-
-//   @override
-//   void initState() {
-//     super.initState();
-//     _loadSelectedCity();
-//   }
-
-//   // Загрузка сохраненного города
-//   Future<void> _loadSelectedCity() async {
-//     final city = await _cityService.getSavedCity();
-//     setState(() {
-//       _selectedCity = city;
-//     });
-//   }
-
-//   void _showCitySelection() {
-//     showModalBottomSheet(
-//       context: context,
-//       isScrollControlled: true,
-//       backgroundColor: Colors.transparent,
-//       builder: (context) {
-//         return CitySelectionBottomSheet(
-//           selectedCity: _selectedCity,
-//           onCitySelected: (city) {
-//             setState(() {
-//               _selectedCity = city;
-//             });
-//           },
-//         );
-//       },
-//     );
-//   }
-
-//   Future<void> _logout() async {
-//     bool confirm = await showDialog(
-//       context: context,
-//       builder: (context) => AlertDialog(
-//         title: const Text('Выход из аккаунта'),
-//         content: const Text('Вы уверены, что хотите выйти?'),
-//         actions: [
-//           TextButton(
-//             onPressed: () => Navigator.of(context).pop(false),
-//             child: const Text('Отмена'),
-//           ),
-//           TextButton(
-//             onPressed: () => Navigator.of(context).pop(true),
-//             child: const Text('Выйти'),
-//           ),
-//         ],
-//       ),
-//     );
-
-//     if (confirm) {
-//       await context.read<GlobalProvider>().logout(); // Теперь метод асинхронный
-//       Navigator.pushAndRemoveUntil(
-//         context,
-//         MaterialPageRoute(builder: (context) => LoginPage()),
-//         (route) => false,
-//       );
-//     }
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     final authProvider = Provider.of<GlobalProvider>(context);
-//     final user = authProvider.authResponse?.user;
-
-//     return Scaffold(
-//       backgroundColor: Colors.white,
-//       body: Column(
-//         crossAxisAlignment: CrossAxisAlignment.start,
-//         children: [
-//           const Divider(),
-//           Padding(
-//             padding: const EdgeInsets.all(16.0),
-//             child: Row(
-//               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//               children: [
-//                 Row(
-//                   children: [
-//                     Text(
-//                       user?.firstName ?? '',
-//                       style: const TextStyle(
-//                           fontSize: 20, fontWeight: FontWeight.bold),
-//                     ),
-//                     const SizedBox(width: 10),
-//                     Text(
-//                       user?.lastName ?? '',
-//                       style: const TextStyle(
-//                           fontSize: 20, fontWeight: FontWeight.bold),
-//                     ),
-//                   ],
-//                 ),
-//                 IconButton(
-//                   icon: const Icon(
-//                     Icons.logout,
-//                     color: ThemeColors.orange,
-//                     size: 25,
-//                   ),
-//                   onPressed: _logout,
-//                 ),
-//               ],
-//             ),
-//           ),
-//           ListTile(
-//             title: const Text(
-//               'PP1',
-//               style: TextStyle(fontWeight: FontWeight.bold),
-//             ),
-//             subtitle: Column(
-//               crossAxisAlignment: CrossAxisAlignment.start,
-//               children: [
-//                 Text(_selectedCity ?? 'Город не выбран'),
-//                 const SizedBox(height: 4),
-//                 const Text(
-//                   'Активный',
-//                   style: TextStyle(fontSize: 12, color: Colors.green),
-//                 ),
-//               ],
-//             ),
-//             trailing: const Icon(Icons.arrow_forward_ios),
-//             onTap: () {
-//               Navigator.push(
-//                 context,
-//                 MaterialPageRoute(
-//                   builder: (context) =>
-//                       WarehousePage(selectedCity: _selectedCity ?? 'Не выбран'),
-//                 ),
-//               );
-//             },
-//           ),
-//           ListTile(
-//             title: const Text(
-//               'PP2',
-//               style: TextStyle(fontWeight: FontWeight.bold),
-//             ),
-//             subtitle: Column(
-//               crossAxisAlignment: CrossAxisAlignment.start,
-//               children: [
-//                 Text(_selectedCity ?? 'Город не выбран'),
-//                 const SizedBox(height: 4),
-//                 const Text(
-//                   'Активный',
-//                   style: TextStyle(fontSize: 12, color: Colors.green),
-//                 ),
-//               ],
-//             ),
-//             trailing: const Icon(Icons.arrow_forward_ios),
-//             onTap: () {
-//               Navigator.push(
-//                 context,
-//                 MaterialPageRoute(
-//                   builder: (context) =>
-//                       WarehousePage(selectedCity: _selectedCity ?? 'Не выбран'),
-//                 ),
-//               );
-//             },
-//           ),
-//           ListTile(
-//             title: const Text(
-//               'PP3',
-//               style: TextStyle(fontWeight: FontWeight.bold),
-//             ),
-//             subtitle: Column(
-//               crossAxisAlignment: CrossAxisAlignment.start,
-//               children: [
-//                 Text(_selectedCity ?? 'Город не выбран'),
-//                 const SizedBox(height: 4),
-//                 const Text(
-//                   'Не активный',
-//                   style: TextStyle(fontSize: 12, color: Colors.red),
-//                 ),
-//               ],
-//             ),
-//             trailing: const Icon(Icons.arrow_forward_ios),
-//             onTap: () {
-//               Navigator.push(
-//                 context,
-//                 MaterialPageRoute(
-//                   builder: (context) =>
-//                       WarehousePage(selectedCity: _selectedCity ?? 'Не выбран'),
-//                 ),
-//               );
-//             },
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-// }

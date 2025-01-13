@@ -73,10 +73,10 @@ class _InfoTabState extends State<InfoTab> with AutomaticKeepAliveClientMixin {
         final file = File(pickedFile.path);
         final fileSize = await file.length(); // Получаем размер файла в байтах
 
-        // Проверяем, не превышает ли размер 1 МБ
-        if (fileSize > 1 * 1024 * 1024) {
+        // Проверяем, не превышает ли размер 3 МБ
+        if (fileSize > 3 * 1024 * 1024) {
           // 1 МБ = 1024 * 1024 байт
-          _showError('Размер файла не должен превышать 1 МБ');
+          _showError('Размер файла не должен превышать 3 МБ');
           return;
         }
 
