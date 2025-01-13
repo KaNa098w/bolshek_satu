@@ -58,6 +58,16 @@ android {
     }
 }
 
+dependencies {
+    // Ваши прочие зависимости, например:
+    // implementation 'com.google.firebase:firebase-analytics-ktx'
+    // ...
+
+    // Добавляем библиотеку Yandex MapKit. Вариант по умолчанию — lite
+    // Если вы в gradle.properties указали yandexMapkit.variant=full, тогда меняем на '4.6.1-full'
+    implementation 'com.yandex.android:maps.mobile:4.6.1-lite'
+}
+
 flutter {
     source = "../.."
 }
