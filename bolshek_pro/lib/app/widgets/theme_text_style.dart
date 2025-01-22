@@ -31,6 +31,7 @@ abstract class ThemeTextMontserratBold {
     height: 1.4,
     fontSize: 21,
   );
+
   static final size18 = TextStyle(
     color: fontColor,
     fontWeight: fontWeight,
@@ -38,7 +39,7 @@ abstract class ThemeTextMontserratBold {
     fontStyle: FontStyle.normal,
     letterSpacing: 0.3,
     height: 1.4,
-    fontSize: 20,
+    fontSize: 18,
   );
 
   static final size22 = TextStyle(
@@ -66,7 +67,7 @@ abstract class ThemeTextMontserratBold {
 abstract class ThemeTextInterMedium {
   static const fontWeight = FontWeight.w500;
   static const fontFamily = "InterMedium";
-  static Color fontColor = ThemeColors.white;
+  static var fontColor = ThemeColors.white;
 
   static final size15 = TextStyle(
     color: fontColor,

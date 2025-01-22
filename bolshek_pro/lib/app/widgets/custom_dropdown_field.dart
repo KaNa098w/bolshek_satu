@@ -63,6 +63,7 @@ class CustomDropdownField extends StatelessWidget {
                         .ellipsis, // Добавляем троеточие при переполнении
                     style: const TextStyle(
                       fontSize: 16,
+                      color: ThemeColors.grey5,
                       fontWeight: FontWeight.w500,
                     ),
                   ),

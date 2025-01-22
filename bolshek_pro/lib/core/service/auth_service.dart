@@ -101,6 +101,123 @@ class AuthService {
     }
   }
 
+  Future<Map<String, dynamic>> fetchOtpId(
+      BuildContext context, String phoneNumber) async {
+    try {
+      final body = {
+        "phoneNumber": phoneNumber,
+      };
+
+      final response = await http.post(
+        Uri.parse('$baseUrl/auth/user/request-otp'),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode(body),
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        print('Номер успешно отправлен');
+        // Возвращаем распакованный JSON
+        return jsonDecode(response.body) as Map<String, dynamic>;
+      } else if (response.statusCode == 400) {
+        final responseData = jsonDecode(response.body) as Map<String, dynamic>;
+        if (responseData['code'] == 10002) {
+          // Сообщение для неактивного аккаунта
+          throw Exception(
+              'Ваш аккаунт еще не активен. Пожалуйста, ждите ответа менеджера.');
+        } else {
+          // Обработка других ошибок с кодом 400
+          throw Exception(
+              'Ошибка при отправке номера: ${response.statusCode}, ${response.body}');
+        }
+      } else {
+        throw Exception(
+            'Ошибка при отправке номера: ${response.statusCode}, ${response.body}');
+      }
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  Future<Map<String, dynamic>> signWitpPhone(
+      BuildContext context, String otpId, String otpCode) async {
+    try {
+      final body = {
+        "otpId": otpId,
+        "otpCode": otpCode,
+      };
+
+      final response = await http.post(
+        Uri.parse('$baseUrl/auth/user/phone'),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode(body),
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        print('Номер успешно отправлен');
+        // Возвращаем распакованный JSON
+        return jsonDecode(response.body) as Map<String, dynamic>;
+      } else {
+        throw Exception('Ошибка: ${response.statusCode}, ${response.body}');
+      }
+    } catch (e) {
+      throw Exception('Ошибка: $e');
+    }
+  }
+
+  Future<Map<String, dynamic>> sendRegister(
+    BuildContext context,
+    String otpId,
+    String otpCode,
+    String firstName,
+    String lastName,
+    double longitude,
+    double latitude,
+    String address,
+    String organizationName,
+    List<String> organizationAllowedCategoryIds,
+    List<String> organizationAllowedBrandIds,
+  ) async {
+    try {
+      final body = {
+        "otpId": otpId,
+        "otpCode": otpCode,
+        "firstName": firstName,
+        "lastName": lastName,
+        "organizationName": organizationName,
+        "organizationAllowedCategoryIds": organizationAllowedCategoryIds,
+        "organizationAllowedBrandIds": organizationAllowedBrandIds,
+        "organizationAddress": address,
+        "organizationAddressLatitude": latitude,
+        "organizationAddressLongitude": longitude,
+        "organizationAddressCityId": '60f95c44-05e8-4031-9d9b-fad22fcd0d0c',
+      };
+
+      final response = await http.post(
+        Uri.parse('$baseUrl/auth/user/register'),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode(body),
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        print('Регистрация прошла успешно');
+        // Возвращаем распакованный JSON
+        return jsonDecode(response.body) as Map<String, dynamic>;
+      } else {
+        throw Exception(
+          'Ошибка при регистрации: ${response.statusCode}, ${response.body}',
+        );
+      }
+    } catch (e) {
+      throw Exception('Ошибка: $e');
+    }
+  }
+
   String _getToken(BuildContext context) {
     try {
       final authProvider = Provider.of<GlobalProvider>(context, listen: false);

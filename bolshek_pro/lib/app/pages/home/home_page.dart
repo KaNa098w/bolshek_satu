@@ -45,11 +45,18 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _openWhatsAppChat() async {
-    const phoneNumber = '77027538077';
-    final whatsappUrl = 'https://wa.me/$phoneNumber';
-    if (await canLaunch(whatsappUrl)) {
-      await launch(whatsappUrl);
+    const phoneNumber = '77001012200'; // Пример для Казахстана
+    final Uri whatsappUri = Uri.parse('https://wa.me/$phoneNumber');
+
+    // Проверяем, можно ли запустить ссылку
+    if (await canLaunchUrl(whatsappUri)) {
+      // Используем launchUrl с LaunchMode.externalApplication
+      await launchUrl(
+        whatsappUri,
+        mode: LaunchMode.externalApplication,
+      );
     } else {
+      // Показываем сообщение об ошибке
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Не удалось открыть WhatsApp'),
@@ -219,4 +226,3 @@ class _HomePageState extends State<HomePage> {
 //     );
 //   }
 // }
-

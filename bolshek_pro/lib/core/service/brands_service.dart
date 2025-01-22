@@ -16,11 +16,11 @@ class BrandsService {
   /// Fetch all brands using GET
   Future<BrandsResponse> fetchBrands(BuildContext context) async {
     try {
-      final token = _getToken(context);
+      // final token = _getToken(context);
       final response = await http.get(
         Uri.parse(_baseUrl),
         headers: {
-          'Authorization': 'Bearer $token',
+          // 'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
         },
       );
@@ -39,13 +39,13 @@ class BrandsService {
   /// Fetch a specific brand by ID using GET
   Future<BrandItems> fetchBrandById(BuildContext context, String id) async {
     try {
-      final token = _getToken(context);
+      // final token = _getToken(context);
       final url = '${Constants.baseUrl}/brands/$id';
 
       final response = await http.get(
         Uri.parse(url),
         headers: {
-          'Authorization': 'Bearer $token',
+          // 'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
         },
       );

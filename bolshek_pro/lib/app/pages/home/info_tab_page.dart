@@ -236,7 +236,10 @@ class _InfoTabState extends State<InfoTab> with AutomaticKeepAliveClientMixin {
       ),
       backgroundColor: Colors.white,
       builder: (context) {
-        // Используем StatefulBuilder для управления состоянием модального окна
+        // Переменные для поиска и фильтрации
+        String searchQuery = '';
+        List<category.CategoryItems> filteredCategories = categories.toList();
+
         return StatefulBuilder(
           builder: (context, setStateModal) {
             // 1. Если категории всё ещё грузятся, показываем индикатор
@@ -262,13 +265,6 @@ class _InfoTabState extends State<InfoTab> with AutomaticKeepAliveClientMixin {
             }
 
             // 3. Иначе — рендерим список категорий
-            // Переменная для поиска (локальная внутри builder)
-            String searchQuery = '';
-
-            // Создадим копию списка, который будем фильтровать
-            List<category.CategoryItems> filteredCategories =
-                categories.toList();
-
             return SizedBox(
               height: MediaQuery.of(context).size.height * 0.9,
               child: Padding(

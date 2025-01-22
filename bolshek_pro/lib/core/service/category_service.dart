@@ -16,11 +16,9 @@ class CategoriesService {
   /// Fetch all categories using GET
   Future<CategoryResponse> fetchCategoriesParent(BuildContext context) async {
     try {
-      final token = _getToken(context);
       final response = await httpClient.get(
         Uri.parse('$_baseUrl?take=999&onlyParent=true'),
         headers: {
-          'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
         },
       );
@@ -39,13 +37,13 @@ class CategoriesService {
   Future<CategoryResponse> fetchCategoriesById(
       BuildContext context, String id) async {
     try {
-      final token = _getToken(context);
+      // final token = _getToken(context);
       final url = '$_baseUrl/$id';
 
       final response = await httpClient.get(
         Uri.parse(url),
         headers: {
-          'Authorization': 'Bearer $token',
+          // 'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
         },
       );
@@ -63,11 +61,11 @@ class CategoriesService {
 
   Future<CategoryResponse> fetchCategories(BuildContext context) async {
     try {
-      final token = _getToken(context);
+      // final token = _getToken(context);
       final response = await httpClient.get(
         Uri.parse('$_baseUrl?take=999'),
         headers: {
-          'Authorization': 'Bearer $token',
+          // 'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
         },
       );

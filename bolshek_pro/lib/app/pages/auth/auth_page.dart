@@ -16,8 +16,7 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   late Future<bool> _isAuthenticated;
-  bool _isPasswordVisible = false; // Стейт для управления видимостью пароля
-
+  bool _isPasswordVisible = false;
   @override
   void initState() {
     super.initState();
@@ -52,8 +51,8 @@ class _LoginPageState extends State<LoginPage> {
     // Проверяем введенные логин и пароль
     if (email == 'test' && password == 'test1234') {
       // Устанавливаем фиксированные значения
-      email = 'dd@bolshek.kz';
-      password = 'Armoondau9799';
+      email = 'sd@bolshek.kz';
+      password = 'sherkhan1234';
     }
 
     // Показываем индикатор загрузки
@@ -114,6 +113,9 @@ class _LoginPageState extends State<LoginPage> {
         }
 
         return Scaffold(
+          appBar: AppBar(
+            backgroundColor: Colors.blueGrey[900],
+          ),
           backgroundColor: Colors.blueGrey[900],
           body: Center(
             child: Padding(
@@ -126,7 +128,7 @@ class _LoginPageState extends State<LoginPage> {
                     width: 90,
                     height: 90,
                   ),
-                  SizedBox(height: 70),
+                  SizedBox(height: 50),
                   TextField(
                     controller: emailController,
                     decoration: InputDecoration(
@@ -175,7 +177,7 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                     style: TextStyle(color: Colors.white),
                   ),
-                  SizedBox(height: 30),
+                  SizedBox(height: 40),
                   ElevatedButton(
                     onPressed: _register,
                     style: ElevatedButton.styleFrom(

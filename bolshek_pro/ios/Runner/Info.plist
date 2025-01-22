@@ -13,17 +13,17 @@
 	<key>CFBundleIdentifier</key>
 	<string>com.bolsheksatu.net</string>
 	<key>CFBundleInfoDictionaryVersion</key>
-	<string>7</string>
+	<string>8</string>
 	<key>CFBundleName</key>
 	<string>Bolshek Satu</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.0.6</string>
+	<string>1.0.8</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleVersion</key>
-	<string>6</string>
+	<string>8</string>
 	<key>FirebaseAppDelegateProxyEnabled</key>
 	<false/>
 	<key>LSApplicationQueriesSchemes</key>

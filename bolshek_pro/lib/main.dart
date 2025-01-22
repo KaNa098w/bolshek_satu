@@ -1,3 +1,4 @@
+import 'package:bolshek_pro/app/pages/auth/auth_main_page.dart';
 import 'package:bolshek_pro/core/service/firebase_api.dart';
 import 'package:bolshek_pro/firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -7,6 +8,7 @@ import 'package:provider/provider.dart';
 import 'app/pages/auth/auth_page.dart';
 import 'core/utils/provider.dart';
 import 'core/utils/theme.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -15,7 +17,7 @@ void main() async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await FirebaseApi().initNotifications();
 
-  runApp(const MyApp());
+  runApp(MyApp());
 }
 
 Future<void> setupFirebaseMessaging() async {
@@ -43,7 +45,7 @@ Future<void> setupFirebaseMessaging() async {
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  MyApp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -66,7 +68,19 @@ class MyApp extends StatelessWidget {
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         theme: ThemeColors.lightTheme,
-        home: LoginPage(), // Начальный экран
+        supportedLocales: const [
+          Locale('ru'), // Русский
+          Locale('en'), // Английский или любые другие
+        ],
+        localizationsDelegates: const [
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+
+        // (Необязательно) Можете явно указать, чтобы приложение всегда было на русском:
+        locale: const Locale('ru'),
+        home: AuthMainScreen(), // Начальный экран
       ),
     );
   }

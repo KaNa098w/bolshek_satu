@@ -444,7 +444,7 @@ class _ProductDetailsWidgetState extends State<ProductDetailsWidget> {
                 child: EditableDropdownField(
                   title: 'Описание',
                   value: '',
-                  hint: 'Описание товара',
+                  // hint: 'Описание товара',
                   maxLines: 4, // Поле ввода занимает до 4 строк
                   onChanged: (value) {
                     context.read<GlobalProvider>().setDescriptionText(value);
@@ -461,7 +461,7 @@ class _ProductDetailsWidgetState extends State<ProductDetailsWidget> {
                 child: EditableDropdownField(
                   title: 'SKU',
                   value: '',
-                  hint: 'Введите артикул',
+                  // hint: 'Введите артикул',
                   maxLines: 1, // Поле для ввода одной строки
                   onChanged: (value) {
                     context.read<GlobalProvider>().setSku(value);
@@ -478,7 +478,7 @@ class _ProductDetailsWidgetState extends State<ProductDetailsWidget> {
                 child: EditableDropdownField(
                   title: 'Код запчасти',
                   value: '',
-                  hint: 'Введите код запчасти',
+                  // hint: 'Введите код запчасти',
                   maxLines: 1, // Поле для ввода одной строки
                   onChanged: (value) {
                     context.read<GlobalProvider>().setVendorCode(value);

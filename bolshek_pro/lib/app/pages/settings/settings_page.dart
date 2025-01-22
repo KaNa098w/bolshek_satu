@@ -1,3 +1,4 @@
+import 'package:bolshek_pro/app/pages/auth/auth_main_page.dart';
 import 'package:bolshek_pro/app/pages/auth/auth_page.dart';
 import 'package:bolshek_pro/app/widgets/custom_alert_dialog_widget.dart';
 import 'package:bolshek_pro/app/widgets/loading_widget.dart';
@@ -51,7 +52,7 @@ class _MyOrganizationPageState extends State<MyOrganizationPage> {
       await context.read<GlobalProvider>().logout();
       Navigator.pushAndRemoveUntil(
         context,
-        MaterialPageRoute(builder: (context) => LoginPage()),
+        MaterialPageRoute(builder: (context) => AuthMainScreen()),
         (route) => false,
       );
     }
@@ -173,7 +174,7 @@ class _MyOrganizationPageState extends State<MyOrganizationPage> {
                   // ),
                   _buildInfoRow(
                     title: "Логин:",
-                    value: data.user?.email ?? "Неизвестно",
+                    value: data.user?.email ?? "Не указано",
                   ),
                   _buildInfoRow(
                     title: "Номер телефона:",

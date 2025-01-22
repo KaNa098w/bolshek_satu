@@ -1321,7 +1321,7 @@ class _ProductChangePageState extends State<ProductChangePage> {
                         ? propertyName
                         : '$propertyName ($propertyUnit)',
                     value: currentValue,
-                    hint: 'Введите значение',
+                    // hint: 'Введите значение',
                     onChanged: (value) {
                       setState(() {
                         _propertyValues[propertyId] = value;

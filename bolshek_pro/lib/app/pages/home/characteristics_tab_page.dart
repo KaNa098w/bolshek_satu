@@ -444,7 +444,7 @@ class _CharacteristicsTabState extends State<CharacteristicsTab>
                                 ? '${property.name}'
                                 : '${property.name} (${property.unit})',
                             value: _propertyValues[propertyId] ?? '',
-                            hint: 'Введите значение',
+                            // hint: 'Введите значение',
                             onChanged: (value) {
                               _propertyValues[propertyId] = value;
                             },
