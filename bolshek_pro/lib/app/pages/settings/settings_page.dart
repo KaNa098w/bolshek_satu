@@ -2,10 +2,15 @@ import 'package:bolshek_pro/app/pages/auth/auth_main_page.dart';
 import 'package:bolshek_pro/app/pages/auth/auth_page.dart';
 import 'package:bolshek_pro/app/widgets/custom_alert_dialog_widget.dart';
 import 'package:bolshek_pro/app/widgets/loading_widget.dart';
+import 'package:bolshek_pro/app/widgets/phoneNumber_widget.dart';
+import 'package:bolshek_pro/app/widgets/textfield_widget.dart';
 import 'package:bolshek_pro/app/widgets/yandex_map_show_widget.dart';
 import 'package:bolshek_pro/app/widgets/yandex_map_widget.dart';
+import 'package:bolshek_pro/core/models/organization_members_response.dart';
 import 'package:bolshek_pro/core/service/address_service.dart';
 import 'package:bolshek_pro/core/service/auth_service.dart';
+import 'package:bolshek_pro/core/service/manager_service.dart';
+import 'package:bolshek_pro/core/service/my_organization_service.dart';
 import 'package:bolshek_pro/core/utils/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:bolshek_pro/core/models/auth_session_response.dart';
@@ -21,11 +26,16 @@ class MyOrganizationPage extends StatefulWidget {
 class _MyOrganizationPageState extends State<MyOrganizationPage> {
   late Future<AuthSessionResponse> _authSessionFuture;
   late Future<AddressResponse> _addressFuture;
+  late Future<OrganizationMembersResponse> _membersFuture;
   String selectedAddress = 'Адрес не выбран';
   String selectedCountry = 'Страна неизвестна';
   String selectedCity = 'Город неизвестен';
   double? selectedLatitude;
   double? selectedLongitude;
+  final TextEditingController phoneNumberController = TextEditingController();
+  final TextEditingController firstNameController = TextEditingController();
+  final TextEditingController lastNameController = TextEditingController();
+  final managerService = ManagerService();
 
   @override
   void initState() {
@@ -35,6 +45,11 @@ class _MyOrganizationPageState extends State<MyOrganizationPage> {
 
   Future<AddressResponse> _fetchAddress(String organizationId) {
     return AddressService().getAddressOrganization(context, organizationId);
+  }
+
+  Future<OrganizationMembersResponse> _fetchMembers(String organizationId) {
+    return MyOrganizationService()
+        .getOrganizationMembers(context, organizationId);
   }
 
   Future<void> _logout() async {
@@ -56,6 +71,309 @@ class _MyOrganizationPageState extends State<MyOrganizationPage> {
         (route) => false,
       );
     }
+  }
+
+  void _addManager(String organizationId) {
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (BuildContext context) {
+        return Dialog(
+          backgroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SizedBox(
+                  height: 5,
+                ),
+                Text(
+                  "Заполните данные\nдля добавления менеджера",
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontFamily: 'InterRegular',
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.black,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                CustomEditableField(
+                  title: "Имя",
+                  value: "",
+                  onChanged: (value) {
+                    firstNameController.text = value;
+                  },
+                ),
+                const SizedBox(height: 16),
+                CustomEditableField(
+                  title: 'Фамилия',
+                  value: '',
+                  onChanged: (value) {
+                    lastNameController.text = value;
+                  },
+                ),
+                const SizedBox(height: 16),
+                OTPInputField(
+                  title: 'Введите номер',
+                  onChanged: (value) {
+                    phoneNumberController.text = value;
+                  },
+                ),
+                const SizedBox(height: 24),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      final firstName = firstNameController.text.trim();
+                      final lastName = lastNameController.text.trim();
+                      String phoneNumber = phoneNumberController.text
+                          .replaceAll(RegExp(r'[^\d+]'), '');
+                      if (firstName.isEmpty ||
+                          lastName.isEmpty ||
+                          phoneNumber.isEmpty) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                              content: Text('Пожалуйста, заполните все поля')),
+                        );
+                        return;
+                      }
+
+                      try {
+                        await managerService.createManager(
+                          context,
+                          firstName,
+                          lastName,
+                          phoneNumber,
+                          organizationId, // замените на реальный organizationId
+                        );
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              'Менеджер успешно добавлен',
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                            backgroundColor: Colors.green,
+                          ),
+                        );
+                        Navigator.pop(context);
+
+                        setState(() {
+                          _membersFuture = _fetchMembers(organizationId);
+                        });
+                      } catch (e) {
+                        print('Менеджер: $e');
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: ThemeColors.orange,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      elevation: 0,
+                      padding: const EdgeInsets.symmetric(vertical: 10),
+                    ),
+                    child: const Text(
+                      "Добавить",
+                      style: TextStyle(
+                        fontFamily: 'InterRegular',
+                        fontSize: 16,
+                        fontWeight: FontWeight.w400,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _editManager(String userId, String phoneNumber, String organizationId,
+      String fisrtName, String lastName) {
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (BuildContext context) {
+        return Dialog(
+          backgroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SizedBox(
+                  height: 5,
+                ),
+                Text(
+                  "Данные менеджера",
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontFamily: 'InterRegular',
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.black,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                CustomEditableField(
+                  title: "Имя",
+                  value: fisrtName,
+                  onChanged: (value) {
+                    firstNameController.text = value;
+                  },
+                ),
+                const SizedBox(height: 16),
+                CustomEditableField(
+                  title: 'Фамилия',
+                  value: lastName,
+                  onChanged: (value) {
+                    lastNameController.text = value;
+                  },
+                ),
+                const SizedBox(height: 16),
+                OTPInputField(
+                  title: 'Номер',
+                  initialValue: phoneNumber, // Устанавливаем переданный номер
+                  onChanged: (value) {
+                    phoneNumberController.text = value;
+                  },
+                ),
+                const SizedBox(height: 24),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      final firstName = firstNameController.text.trim();
+                      final lastName = lastNameController.text.trim();
+                      String phoneNumber = phoneNumberController.text
+                          .replaceAll(RegExp(r'[^\d+]'), '');
+                      if (firstName.isEmpty ||
+                          lastName.isEmpty ||
+                          phoneNumber.isEmpty) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                              content: Text('Пожалуйста, заполните все поля')),
+                        );
+                        return;
+                      }
+
+                      try {
+                        await managerService.updateManager(
+                          context,
+                          userId,
+                          firstName,
+                          lastName,
+                          phoneNumber,
+                          organizationId,
+                        );
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              'Менеджер успешно изменен',
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                            backgroundColor: Colors.green,
+                          ),
+                        );
+                        Navigator.pop(context);
+
+                        setState(() {
+                          _membersFuture = _fetchMembers(organizationId);
+                        });
+                      } catch (e) {
+                        print('Менеджер: $e');
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: ThemeColors.orange,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      elevation: 0,
+                      padding: const EdgeInsets.symmetric(vertical: 10),
+                    ),
+                    child: const Text(
+                      "Изменить",
+                      style: TextStyle(
+                        fontFamily: 'InterRegular',
+                        fontSize: 16,
+                        fontWeight: FontWeight.w400,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _deleteManager(String itemId, String organizationId) async {
+    await showCustomAlertDialog(
+      context: context,
+      title: 'Подтверждение удаления',
+      content: const Text('Вы уверены, что хотите удалить этого менеджера?'),
+      onConfirm: () async {
+        Navigator.of(context)
+            .pop(); // Закрыть диалог перед выполнением действия
+        try {
+          await managerService.deleteManager(context, itemId);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: const Text(
+                'Менеджер успешно удален',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              backgroundColor: Colors.green,
+            ),
+          );
+
+          setState(() {
+            _membersFuture = _fetchMembers(organizationId);
+          });
+        } catch (e) {
+          print('Ошибка при удалении менеджера: $e');
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: const Text(
+                'Не удалось удалить менеджера',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      },
+      onCancel: () {
+        Navigator.of(context).pop(); // Закрыть диалог при отмене
+      },
+      confirmText: 'Удалить',
+      cancelText: 'Отмена',
+    );
   }
 
   void _showInMap(double latitude, double longitude) {
@@ -144,6 +462,7 @@ class _MyOrganizationPageState extends State<MyOrganizationPage> {
           }
 
           _addressFuture = _fetchAddress(organization.id!);
+          _membersFuture = _fetchMembers(organization.id!);
 
           return SafeArea(
             child: SingleChildScrollView(
@@ -160,22 +479,7 @@ class _MyOrganizationPageState extends State<MyOrganizationPage> {
                     title: "Владелец:",
                     value: '${data.user?.firstName} ${data.user?.lastName}',
                   ),
-                  // _buildInfoRow(
-                  //   title: "Тип:",
-                  //   value:
-                  //       organization.isMaster == true ? "Головная" : "Дочерняя",
-                  // ),
-                  // _buildInfoRow(
-                  //   title: "Активность:",
-                  //   value:
-                  //       organization.isActive == true ? "Активна" : "Неактивна",
-                  //   valueColor:
-                  //       organization.isActive == true ? Colors.green : Colors.red,
-                  // ),
-                  _buildInfoRow(
-                    title: "Логин:",
-                    value: data.user?.email ?? "Не указано",
-                  ),
+
                   _buildInfoRow(
                     title: "Номер телефона:",
                     value: data.user?.phoneNumber ?? "Неизвестно",
@@ -184,7 +488,7 @@ class _MyOrganizationPageState extends State<MyOrganizationPage> {
                   Text(
                     "Адрес организации:",
                     style: TextStyle(
-                      fontSize: 18,
+                      fontSize: 16,
                       fontWeight: FontWeight.bold,
                       color: ThemeColors.blackWithPath,
                     ),
@@ -230,7 +534,6 @@ class _MyOrganizationPageState extends State<MyOrganizationPage> {
                               item.city?.name ?? "Город неизвестен";
                           final address = item.address ?? "Адрес неизвестен";
                           final addresId = item.id;
-                          final cityId = item.cityId;
 
                           return Card(
                             color: Colors.grey.shade100,
@@ -259,7 +562,7 @@ class _MyOrganizationPageState extends State<MyOrganizationPage> {
                                               child: Text(
                                                 "Город: $cityName",
                                                 style: TextStyle(
-                                                  fontSize: 16,
+                                                  fontSize: 15,
                                                   fontWeight: FontWeight.bold,
                                                   color: Colors.black87,
                                                 ),
@@ -271,7 +574,7 @@ class _MyOrganizationPageState extends State<MyOrganizationPage> {
                                         Row(
                                           children: [
                                             Icon(Icons.place,
-                                                color: Colors.orangeAccent),
+                                                color: Colors.blueAccent),
                                             const SizedBox(width: 8),
                                             Expanded(
                                               child: Text(
@@ -315,8 +618,6 @@ class _MyOrganizationPageState extends State<MyOrganizationPage> {
                       );
                     },
                   ),
-
-                  const SizedBox(height: 10),
                   Container(
                     width: double.infinity, // Кнопка занимает всю ширину
 
@@ -393,7 +694,7 @@ class _MyOrganizationPageState extends State<MyOrganizationPage> {
                               BorderRadius.circular(12), // Овальные края
                         ),
                         padding: const EdgeInsets.symmetric(
-                            vertical: 12), // Высота кнопки
+                            vertical: 8), // Высота кнопки
                         // elevation: 5, // Тень для объёмности
                       ),
                       child: const Text(
@@ -405,18 +706,246 @@ class _MyOrganizationPageState extends State<MyOrganizationPage> {
                       ),
                     ),
                   ),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  Text(
+                    "Менеджер организации:",
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: ThemeColors.blackWithPath,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  FutureBuilder<OrganizationMembersResponse>(
+                    future: _membersFuture,
+                    builder: (context, members) {
+                      if (members.connectionState == ConnectionState.waiting) {
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: List.generate(
+                            1, // Количество заглушек
+                            (index) => Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(vertical: 8.0),
+                              child: LoadingWidget(
+                                width: MediaQuery.of(context).size.width *
+                                    0.9, // Ширина карточки
+                                height: 80.0, // Высота карточки
+                                borderRadius: 12.0, // Скруглённые углы
+                              ),
+                            ),
+                          ),
+                        );
+                      } else if (members.hasError) {
+                        return Center(
+                          child: Text(
+                              "Ошибка загрузки менеджера: ${members.error}"),
+                        );
+                      } else if (!members.hasData ||
+                          members.data!.items == null ||
+                          members.data!.items.isEmpty) {
+                        return Center(child: Text("Менеджеры не найдены"));
+                      }
 
-// // Отображение выбранного адреса
-//                   Column(
-//                     crossAxisAlignment: CrossAxisAlignment.start,
-//                     children: [
-//                       Text('Выбранный адрес: $selectedAddress'),
-//                       Text('Страна: $selectedCity'),
-//                       Text('Город: 60f95c44-05e8-4031-9d9b-fad22fcd0d0c'),
-//                       Text('Широта: ${selectedLatitude ?? 'Не определена'}'),
-//                       Text('Долгота: ${selectedLongitude ?? 'Не определена'}'),
-//                     ],
-//                   ),
+                      final items = members.data!.items!;
+
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          ...items
+                              .where((item) =>
+                                  data.user?.phoneNumber != item.phoneNumber)
+                              .map((item) {
+                            final name = item.firstName ?? "неизвестен";
+                            final lastname = item.lastName ?? "неизвестен";
+                            final phoneNumber = item.phoneNumber;
+                            final status = item.isActive;
+
+                            return Card(
+                              color: Colors.grey.shade100,
+                              margin: const EdgeInsets.symmetric(vertical: 8.0),
+                              elevation: 0, // Убираем тень
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.all(16.0),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Row(
+                                            children: [
+                                              Icon(Icons.person_2_outlined,
+                                                  color: ThemeColors.orange),
+                                              const SizedBox(width: 8),
+                                              Expanded(
+                                                child: Row(
+                                                  children: [
+                                                    Text(
+                                                      name,
+                                                      style: TextStyle(
+                                                        fontSize: 15,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        color: Colors.black87,
+                                                      ),
+                                                    ),
+                                                    SizedBox(width: 5),
+                                                    Text(
+                                                      lastname,
+                                                      style: TextStyle(
+                                                        fontSize: 15,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        color: Colors.black87,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          const SizedBox(height: 5),
+                                          Row(
+                                            children: [
+                                              Icon(Icons.phone,
+                                                  color: Colors.orangeAccent),
+                                              const SizedBox(width: 8),
+                                              Expanded(
+                                                child: Text(
+                                                  "Номер: $phoneNumber",
+                                                  style: TextStyle(
+                                                    fontSize: 14,
+                                                    color: Colors.grey[800],
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          const SizedBox(height: 5),
+                                          Row(
+                                            children: [
+                                              Icon(Icons.sensors_sharp,
+                                                  color: Colors.orangeAccent),
+                                              const SizedBox(width: 8),
+                                              Expanded(
+                                                child: Text.rich(
+                                                  TextSpan(
+                                                    children: [
+                                                      TextSpan(
+                                                          text: 'Статус: '),
+                                                      TextSpan(
+                                                        text: status
+                                                            ? 'Активный'
+                                                            : 'Не активный',
+                                                        style: TextStyle(
+                                                          fontSize: 14,
+                                                          color: status
+                                                              ? Colors.green
+                                                              : Colors.red,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    Row(
+                                      children: [
+                                        IconButton(
+                                          onPressed: () {
+                                            _editManager(
+                                                item.id,
+                                                item.phoneNumber,
+                                                organization.id ?? '',
+                                                item.firstName,
+                                                item.lastName);
+                                          }, // Передаём координаты
+                                          icon: Icon(
+                                            Icons.edit_rounded,
+                                            color: Colors.green,
+                                          ),
+                                        ),
+                                        IconButton(
+                                          icon: Icon(
+                                              Icons.delete_outline_rounded,
+                                              color: Colors.redAccent),
+                                          onPressed: () {
+                                            _deleteManager(
+                                                item.id, organization.id ?? '');
+                                          },
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          }).toList(),
+                          if (items
+                              .where((item) =>
+                                  data.user?.phoneNumber != item.phoneNumber)
+                              .isEmpty)
+                            Center(
+                              child: Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 16.0),
+                                child: Text(
+                                  "У вас нет менеджеров",
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                              ),
+                            ),
+                        ],
+                      );
+                    },
+                  ),
+
+                  const SizedBox(height: 10),
+                  Container(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        _addManager(organization.id ?? '');
+                      },
+                      style: ElevatedButton.styleFrom(
+                        foregroundColor: Colors.white,
+                        backgroundColor:
+                            ThemeColors.orange, // Цвет текста кнопки
+                        shape: RoundedRectangleBorder(
+                          borderRadius:
+                              BorderRadius.circular(12), // Овальные края
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 8), // Высота кнопки
+                        // elevation: 5, // Тень для объёмности
+                      ),
+                      child: const Text(
+                        'Добавить менеджер',
+                        style: TextStyle(
+                          fontSize: 15, // Размер текста
+                          fontWeight: FontWeight.bold, // Жирный текст
+                        ),
+                      ),
+                    ),
+                  ),
+
                   SizedBox(
                     height: 7,
                   ),
@@ -461,7 +990,7 @@ class _MyOrganizationPageState extends State<MyOrganizationPage> {
           Text(
             title,
             style: TextStyle(
-              fontSize: 16,
+              fontSize: 15,
               fontWeight: FontWeight.w500,
               color: Colors.grey[700],
             ),
@@ -470,7 +999,7 @@ class _MyOrganizationPageState extends State<MyOrganizationPage> {
             child: Text(
               value,
               style: TextStyle(
-                fontSize: 16,
+                fontSize: 15,
                 fontWeight: FontWeight.w600,
                 color: valueColor,
               ),
@@ -481,64 +1010,4 @@ class _MyOrganizationPageState extends State<MyOrganizationPage> {
       ),
     );
   }
-
-  Widget _buildAddressRow(String title, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4.0),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w500,
-              color: Colors.grey[700],
-            ),
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              value,
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: Colors.black,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-Widget _buildAddressRow(String title, String value) {
-  return Padding(
-    padding: const EdgeInsets.symmetric(vertical: 4.0),
-    child: Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w500,
-            color: Colors.grey[700],
-          ),
-        ),
-        const SizedBox(width: 8),
-        Expanded(
-          child: Text(
-            value,
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-              color: Colors.black,
-            ),
-          ),
-        ),
-      ],
-    ),
-  );
 }

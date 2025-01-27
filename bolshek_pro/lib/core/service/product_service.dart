@@ -52,6 +52,31 @@ class ProductService {
     }
   }
 
+  Future<ProductResponse> fetchProductsForMain({
+    required BuildContext context,
+    required String status,
+  }) async {
+    try {
+      final token = _getToken(context);
+      final response = await httpClient.get(
+        Uri.parse('$_baseUrl?$status'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final json = jsonDecode(response.body);
+        return ProductResponse.fromJson(json);
+      } else {
+        throw Exception('Failed to load products: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Error fetching products: $e');
+    }
+  }
+
   Future<ProductResponse> fetchProductsStatuses({
     required BuildContext context,
   }) async {

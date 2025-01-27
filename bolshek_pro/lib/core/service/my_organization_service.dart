@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:math';
 import 'package:bolshek_pro/core/models/fetch_product_response.dart';
+import 'package:bolshek_pro/core/models/organization_members_response.dart';
 import 'package:bolshek_pro/core/models/product_response.dart';
 import 'package:bolshek_pro/core/utils/constants.dart';
 import 'package:bolshek_pro/core/utils/provider.dart';
@@ -46,6 +47,35 @@ class MyOrganizationService {
       }
     } catch (e) {
       throw Exception('Error fetching products: $e');
+    }
+  }
+
+  Future<OrganizationMembersResponse> getOrganizationMembers(
+      BuildContext context, String organizationId) async {
+    try {
+      final token = _getToken(context);
+      final url = '$_baseUrl/organizations/$organizationId/members';
+
+      final response = await httpClient.get(
+        Uri.parse(url),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      print('Response Status Code: ${response.statusCode}');
+      print('Response Body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final json = jsonDecode(response.body);
+        return OrganizationMembersResponse.fromJson(json);
+      } else {
+        throw Exception('Failed to load categories: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error: $e');
+      throw Exception('Error fetching categories: $e');
     }
   }
 

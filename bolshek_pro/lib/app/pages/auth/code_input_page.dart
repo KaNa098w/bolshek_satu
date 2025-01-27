@@ -138,6 +138,10 @@ class _CodeInputPageState extends State<CodeInputPage> {
           errorMessage =
               'Ваш аккаунт еще не активен. Пожалуйста, ждите ответа менеджера.';
         }
+        if (e.toString().contains('User account deactivated')) {
+          errorMessage =
+              'Ваш аккаунт еще не активен. Пожалуйста, ждите ответа менеджера.';
+        }
         if (errorController?.isClosed == false) {
           errorController?.add(ErrorAnimationType.shake);
         }

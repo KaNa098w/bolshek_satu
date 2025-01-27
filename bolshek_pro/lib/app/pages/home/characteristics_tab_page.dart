@@ -7,6 +7,7 @@ import 'package:bolshek_pro/app/widgets/home_widgets/add_variant_widget.dart';
 import 'package:bolshek_pro/app/widgets/home_widgets/category_colors_widget.dart';
 import 'package:bolshek_pro/app/widgets/home_widgets/color_picker_widget.dart';
 import 'package:bolshek_pro/app/widgets/main_controller.dart';
+import 'package:bolshek_pro/app/widgets/textfield_widget.dart';
 import 'package:bolshek_pro/core/service/images_service.dart';
 import 'package:bolshek_pro/core/service/product_service.dart';
 import 'package:bolshek_pro/core/service/variants_service.dart';
@@ -439,7 +440,7 @@ class _CharacteristicsTabState extends State<CharacteristicsTab>
                       return Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          EditableDropdownField(
+                          CustomEditableField(
                             title: property.unit == null
                                 ? '${property.name}'
                                 : '${property.name} (${property.unit})',

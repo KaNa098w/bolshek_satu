@@ -6,11 +6,13 @@ import 'package:bolshek_pro/core/utils/theme.dart';
 class OTPInputField extends StatefulWidget {
   final String title;
   final ValueChanged<String> onChanged;
+  final String initialValue; // Добавляем начальное значение
 
   const OTPInputField({
     Key? key,
     required this.title,
     required this.onChanged,
+    this.initialValue = "", // Устанавливаем значение по умолчанию
   }) : super(key: key);
 
   @override
@@ -24,7 +26,8 @@ class _OTPInputFieldState extends State<OTPInputField> {
   @override
   void initState() {
     super.initState();
-    _controller = TextEditingController();
+    _controller = TextEditingController(
+        text: widget.initialValue); // Устанавливаем начальное значение
     _focusNode = FocusNode();
   }
 
@@ -40,16 +43,15 @@ class _OTPInputFieldState extends State<OTPInputField> {
         controller: _controller,
         focusNode: _focusNode,
         keyboardType: TextInputType.phone,
-        // maxLength: 16, // Ограничение на 16 символов (для формата телефона)
-        textInputAction: TextInputAction.done,
         cursorColor: ThemeColors.orange,
         inputFormatters: [
           FilteringTextInputFormatter.digitsOnly,
           PhoneNumberFormatter(), // Форматирование номера телефона
         ],
-        onChanged: widget.onChanged,
+        onChanged: (value) {
+          widget.onChanged(value);
+        },
         decoration: InputDecoration(
-          counter: null, // Полностью убираем счётчик символов
           labelText: widget.title,
           contentPadding: EdgeInsets.only(left: 12, top: 10, bottom: 10),
           hintText: "+7 ",
@@ -61,10 +63,6 @@ class _OTPInputFieldState extends State<OTPInputField> {
             color: Colors.grey,
             fontSize: 16,
           ),
-          // prefixIcon: Icon(
-          //   Icons.phone,
-          //   color: ThemeColors.grey,
-          // ),
           border: InputBorder.none,
         ),
         style: const TextStyle(

@@ -70,7 +70,6 @@ class _ProductListPageState extends State<ProductListPage> {
     }
   }
 
-  /// Сохранение данных в кэш
   Future<void> _cacheProducts() async {
     final prefs = await SharedPreferences.getInstance();
     final data = _products.map((e) => e.toJson()).toList();
@@ -280,33 +279,40 @@ class _ProductListPageState extends State<ProductListPage> {
                     color: ThemeColors.orange,
                     onRefresh: _refreshProducts,
                     child: _products.isEmpty && !_isLoading
-                        ? Center(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                SvgPicture.asset(
-                                  'assets/svg/empty_goods.svg',
-                                  width: 100,
-                                  height: 100,
-                                  // color: Colors.grey.shade400,
+                        ? SingleChildScrollView(
+                            physics: const AlwaysScrollableScrollPhysics(),
+                            child: SizedBox(
+                              // Чтобы жест срабатывал, нужно чтобы был хоть какой-то
+                              // «пространственный» контент. Можно задать minHeight,
+                              // например, как высоту экрана, чтобы потянуть вниз.
+                              height: MediaQuery.of(context).size.height -
+                                  kToolbarHeight,
+                              child: Center(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    SvgPicture.asset(
+                                      'assets/svg/empty_goods.svg',
+                                      width: 100,
+                                      height: 100,
+                                    ),
+                                    const SizedBox(height: 15),
+                                    const Text(
+                                      'В данном разделе\nнет товаров',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        color: Colors.grey,
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ],
                                 ),
-
-                                const SizedBox(
-                                    height:
-                                        15), // Расстояние между иконкой и текстом
-                                Text(
-                                  'В данном разделе \nнет товаров',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    color: Colors.grey,
-                                  ),
-                                  textAlign: TextAlign.center,
-                                ),
-                              ],
+                              ),
                             ),
                           )
                         : ListView.builder(
                             controller: _scrollController,
+                            physics: const AlwaysScrollableScrollPhysics(),
                             padding: EdgeInsets.only(bottom: 62),
                             itemCount: _products.length + (_hasMore ? 1 : 0),
                             itemBuilder: (context, index) {

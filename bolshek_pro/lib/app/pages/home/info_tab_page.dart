@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:bolshek_pro/app/widgets/custom_alert_dialog_widget.dart';
 import 'package:bolshek_pro/core/utils/theme.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:path/path.dart' as path;
 
 import 'package:bolshek_pro/core/models/category_response.dart' as category;
@@ -70,13 +71,22 @@ class _InfoTabState extends State<InfoTab> with AutomaticKeepAliveClientMixin {
     try {
       final pickedFile = await _picker.pickImage(source: source);
       if (pickedFile != null) {
-        final file = File(pickedFile.path);
-        final fileSize = await file.length(); // Получаем размер файла в байтах
+        File file = File(pickedFile.path);
 
-        // Проверяем, не превышает ли размер 3 МБ
-        if (fileSize > 3 * 1024 * 1024) {
-          // 1 МБ = 1024 * 1024 байт
-          _showError('Размер файла не должен превышать 3 МБ');
+        // Сжимаем изображение
+        final compressedFile = await _compressImage(file);
+        if (compressedFile == null) {
+          _showError('Не удалось сжать изображение');
+          return;
+        }
+
+        // Обновляем ссылку на файл на сжатую версию
+        file = compressedFile;
+
+        final fileSize = await file.length(); // Размер файла после компрессии
+
+        if (fileSize > 15 * 1024 * 1024) {
+          _showError('Размер файла после сжатия всё ещё превышает 15 МБ');
           return;
         }
 
@@ -99,6 +109,28 @@ class _InfoTabState extends State<InfoTab> with AutomaticKeepAliveClientMixin {
       }
     } catch (e) {
       _showError('Ошибка при выборе фото: $e');
+    }
+  }
+
+  Future<File?> _compressImage(File file) async {
+    try {
+      final targetPath =
+          "${file.parent.path}/compressed_${path.basename(file.path)}";
+
+      final compressedXFile = await FlutterImageCompress.compressAndGetFile(
+        file.absolute.path, // Путь к оригинальному файлу
+        targetPath, // Новый путь для сжатого файла
+        quality:
+            60, // Уровень качества (0-100), 70 — хорошее качество с уменьшенным размером
+        minWidth: 1080, // Минимальная ширина изображения
+        minHeight: 1080, // Минимальная высота изображения
+      );
+
+      // Преобразуем XFile? в File?
+      return compressedXFile != null ? File(compressedXFile.path) : null;
+    } catch (e) {
+      print('Ошибка компрессии изображения: $e');
+      return null;
     }
   }
 

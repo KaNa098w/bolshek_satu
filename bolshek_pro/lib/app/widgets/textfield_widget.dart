@@ -26,6 +26,14 @@ class _CustomEditableFieldState extends State<CustomEditableField> {
     super.initState();
     _controller = TextEditingController(text: widget.value);
     _focusNode = FocusNode();
+
+    // Слушаем изменения фокуса
+    _focusNode.addListener(() {
+      if (!_focusNode.hasFocus) {
+        // Сохраняем значение, если пользователь убрал фокус
+        widget.onChanged(_controller.text);
+      }
+    });
   }
 
   @override
@@ -39,7 +47,10 @@ class _CustomEditableFieldState extends State<CustomEditableField> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: _startEditing,
+      onTap: () {
+        // Убираем фокус с текстового поля при нажатии на контейнер
+        FocusScope.of(context).requestFocus(FocusNode());
+      },
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
         decoration: BoxDecoration(
@@ -54,10 +65,12 @@ class _CustomEditableFieldState extends State<CustomEditableField> {
               focusNode: _focusNode,
               autofocus: false,
               textInputAction: TextInputAction.done,
-              onChanged: widget.onChanged,
+              onChanged: (value) {
+                widget.onChanged(value);
+              },
               decoration: InputDecoration(
-                labelText: widget.title, // Заголовок
-                hintText: widget.title, // Подсказка
+                labelText: widget.title,
+                hintText: widget.title,
                 labelStyle: TextStyle(
                   fontSize: 16,
                   color: ThemeColors.grey5,
@@ -76,13 +89,6 @@ class _CustomEditableFieldState extends State<CustomEditableField> {
           ],
         ),
       ),
-    );
-  }
-
-  void _startEditing() {
-    _focusNode.requestFocus();
-    _controller.selection = TextSelection.collapsed(
-      offset: _controller.text.length, // Устанавливаем курсор в конец текста
     );
   }
 

@@ -345,7 +345,7 @@ class _ShopProductDetailScreenState extends State<ShopProductDetailScreen> {
                   style: ThemeTextMontserratBold.size21.copyWith(
                       fontSize: 12,
                       color: ThemeColors.black,
-                      fontWeight: FontWeight.w400),
+                      fontWeight: FontWeight.w300),
                 ),
               ],
             )

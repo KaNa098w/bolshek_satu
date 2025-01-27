@@ -11,7 +11,7 @@ class BrandsService {
   final httpClient = HttpWithMiddleware.build(
     middlewares: [HttpLogger(logLevel: LogLevel.BODY)],
   );
-  final String _baseUrl = '${Constants.baseUrl}/brands?take=999';
+  final String _baseUrl = '${Constants.baseUrl}/brands?take=999&type=product';
 
   /// Fetch all brands using GET
   Future<BrandsResponse> fetchBrands(BuildContext context) async {

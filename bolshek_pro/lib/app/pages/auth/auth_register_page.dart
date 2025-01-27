@@ -654,163 +654,175 @@ class _AuthRegisterScreenState extends State<AuthRegisterScreen> {
         backgroundColor: Colors.white,
         elevation: 0,
       ),
-      body: Column(
-        children: [
-          // Основная часть
-          Form(
-            key: _formKey,
-            child: Expanded(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: ListView(children: [
-                  CustomEditableField(
-                    title: "Имя",
-                    value: "",
-                    onChanged: (value) {
-                      firstNameController.text = value;
-                    },
-                  ),
-                  const SizedBox(height: 16),
-                  CustomEditableField(
-                    title: 'Фамилия',
-                    value: '',
-                    onChanged: (value) {
-                      lastNameController.text = value;
-                    },
-                  ),
-                  const SizedBox(height: 16),
-                  CustomEditableField(
-                    title: "Название магазина",
-                    value: "",
-                    onChanged: (value) {
-                      shopNameController.text = value;
-                    },
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Выбор категорий (множественный выбор)
-                  CustomDropdownField(
-                    title: 'Категории',
-                    value: _selectedCategoryIds.isEmpty
-                        ? 'Выберите категорию'
-                        : 'Выбрано: ${_selectedCategoryIds.length}',
-                    onTap: () async {
-                      final result = await _showCategoryDialog();
-                      if (result != null) {
-                        setState(() {
-                          _selectedCategoryIds = result;
-                        });
-                      }
-                    },
-                  ),
-
-                  const SizedBox(height: 16),
-
-                  // Выбор брендов (множественный выбор)
-                  CustomDropdownField(
-                    title: 'Бренды',
-                    value: _selectedBrandIds.isEmpty
-                        ? 'Выберите бренд'
-                        : 'Выбрано: ${_selectedBrandIds.length}',
-                    onTap: () async {
-                      final result = await _showBrandDialog();
-                      if (result != null) {
-                        setState(() {
-                          _selectedBrandIds = result;
-                        });
-                      }
-                    },
-                  ),
-
-                  const SizedBox(height: 16),
-
-                  // Поле для кода из СМС
-                  OTPInputField(
-                    title: 'Введите свой номер',
-                    onChanged: (value) {
-                      phoneNumberController.text = value;
-                    },
-                  ),
-                  const SizedBox(height: 16),
-
-                  Row(
+      body: GestureDetector(
+        // Убираем фокус при нажатии вне текстовых полей
+        onTap: () {
+          FocusScope.of(context).unfocus();
+        },
+        child: Column(
+          children: [
+            // Основная часть
+            Form(
+              key: _formKey,
+              child: Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: ListView(
                     children: [
-                      Expanded(
-                        child: CustomEditableField(
-                          title: 'Адрес',
-                          value: address.text,
-                          onChanged: (value) {
-                            // Логика обработки адреса
-                          },
-                        ),
+                      CustomEditableField(
+                        title: "Имя",
+                        value: "",
+                        onChanged: (value) {
+                          firstNameController.text = value;
+                        },
                       ),
-                      IconButton(
-                        onPressed: () async {
-                          final result = await Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) =>
-                                  const YandexMapPickerScreen(),
-                            ),
-                          );
+                      const SizedBox(height: 16),
+                      CustomEditableField(
+                        title: 'Фамилия',
+                        value: '',
+                        onChanged: (value) {
+                          lastNameController.text = value;
+                        },
+                      ),
+                      const SizedBox(height: 16),
+                      CustomEditableField(
+                        title: "Название магазина",
+                        value: "",
+                        onChanged: (value) {
+                          shopNameController.text = value;
+                        },
+                      ),
+                      const SizedBox(height: 16),
 
+                      // Выбор категорий (множественный выбор)
+                      CustomDropdownField(
+                        title: 'Категории',
+                        value: _selectedCategoryIds.isEmpty
+                            ? 'Выберите категорию'
+                            : 'Выбрано: ${_selectedCategoryIds.length}',
+                        onTap: () async {
+                          FocusScope.of(context).unfocus(); // Снять фокус
+                          final result = await _showCategoryDialog();
                           if (result != null) {
                             setState(() {
-                              address.text = result['address'];
-                              latitude = result['latitude'];
-                              longitude = result['longitude'];
-                              print('Полученный адрес: ${result['address']}');
-                              print(
-                                  'Координаты: lat=$latitude, lng=$longitude');
+                              _selectedCategoryIds = result;
                             });
                           }
                         },
-                        icon: const Icon(
-                          Icons.location_pin,
-                          size: 30,
-                          color: Colors.grey,
-                        ),
-                        tooltip: 'Открыть карту',
+                      ),
+
+                      const SizedBox(height: 16),
+
+                      // Выбор брендов (множественный выбор)
+                      CustomDropdownField(
+                        title: 'Бренды',
+                        value: _selectedBrandIds.isEmpty
+                            ? 'Выберите бренд'
+                            : 'Выбрано: ${_selectedBrandIds.length}',
+                        onTap: () async {
+                          FocusScope.of(context).unfocus(); // Снять фокус
+                          final result = await _showBrandDialog();
+                          if (result != null) {
+                            setState(() {
+                              _selectedBrandIds = result;
+                            });
+                          }
+                        },
+                      ),
+
+                      const SizedBox(height: 16),
+
+                      // Поле для кода из СМС
+                      OTPInputField(
+                        title: 'Введите свой номер',
+                        onChanged: (value) {
+                          phoneNumberController.text = value;
+                        },
+                      ),
+                      const SizedBox(height: 16),
+
+                      Row(
+                        children: [
+                          Expanded(
+                            child: CustomEditableField(
+                              title: 'Адрес',
+                              value: address.text,
+                              onChanged: (value) {
+                                // Логика обработки адреса
+                              },
+                            ),
+                          ),
+                          IconButton(
+                            onPressed: () async {
+                              FocusScope.of(context).unfocus(); // Снять фокус
+                              final result = await Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      const YandexMapPickerScreen(),
+                                ),
+                              );
+
+                              if (result != null) {
+                                setState(() {
+                                  address.text = result['address'];
+                                  latitude = result['latitude'];
+                                  longitude = result['longitude'];
+                                  print(
+                                      'Полученный адрес: ${result['address']}');
+                                  print(
+                                      'Координаты: lat=$latitude, lng=$longitude');
+                                });
+                              }
+                            },
+                            icon: const Icon(
+                              Icons.location_pin,
+                              size: 30,
+                              color: Colors.grey,
+                            ),
+                            tooltip: 'Открыть карту',
+                          ),
+                        ],
                       ),
                     ],
                   ),
-                ]),
+                ),
               ),
             ),
-          ),
 
-          // Кнопка "Зарегистрироваться"
-          Padding(
-            padding: const EdgeInsets.only(bottom: 45, left: 12, right: 12),
-            child: ElevatedButton(
-              onPressed: _isLoading ? null : _handleSendSms,
-              style: ElevatedButton.styleFrom(
-                  backgroundColor: ThemeColors.orange,
-                  minimumSize: const Size(double.infinity, 50),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  elevation: 0),
-              child: _isLoading
-                  ? const SizedBox(
-                      height: 24,
-                      width: 24,
-                      child: CircularProgressIndicator(
-                        color: Colors.white,
-                        strokeWidth: 2,
-                      ),
-                    )
-                  : const Text(
-                      'Зарегистрироваться',
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
+            // Кнопка "Зарегистрироваться"
+            Padding(
+              padding: const EdgeInsets.only(bottom: 45, left: 12, right: 12),
+              child: ElevatedButton(
+                onPressed: _isLoading ? null : _handleSendSms,
+                style: ElevatedButton.styleFrom(
+                    backgroundColor: ThemeColors.orange,
+                    minimumSize: const Size(double.infinity, 50),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
                     ),
+                    elevation: 0),
+                child: _isLoading
+                    ? const SizedBox(
+                        height: 24,
+                        width: 24,
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                          strokeWidth: 2,
+                        ),
+                      )
+                    : const Text(
+                        'Зарегистрироваться',
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
