@@ -4,6 +4,7 @@ import 'package:bolshek_pro/core/service/orders_service.dart';
 import 'package:bolshek_pro/core/utils/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class OrderDetailsPage extends StatefulWidget {
   final String orderId;
@@ -198,6 +199,7 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
   }
 
   /// Виджет для строки с деталью заказа: ключ + значение + опциональная иконка
+
   Widget _buildDetailRow(String title, String value, {Widget? trailing}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -222,7 +224,17 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
               ),
               if (trailing != null) ...[
                 const SizedBox(width: 8),
-                trailing,
+                GestureDetector(
+                  onTap: () async {
+                    final Uri phoneUri = Uri(scheme: 'tel', path: value);
+                    if (await canLaunchUrl(phoneUri)) {
+                      await launchUrl(phoneUri);
+                    } else {
+                      debugPrint('Не удалось запустить $phoneUri');
+                    }
+                  },
+                  child: trailing,
+                ),
               ],
             ],
           ),

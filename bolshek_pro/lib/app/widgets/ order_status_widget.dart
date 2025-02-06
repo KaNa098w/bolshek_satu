@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:bolshek_pro/core/utils/constants.dart';
 
 class OrderStatusWidget extends StatelessWidget {
   final String status;
@@ -14,6 +15,7 @@ class OrderStatusWidget extends StatelessWidget {
     'paid': 'Оплаченный',
     'awaiting_confirmation': 'Ожидание подтверждения',
     'processing': 'В обработке',
+    'created': 'Создан',
     'partially_delivired': 'Частично доставлен',
     'delivered': 'Доставлен',
     'completed': 'Завершен',
@@ -21,7 +23,10 @@ class OrderStatusWidget extends StatelessWidget {
     'partially_returned': 'Частично возвращен',
     'returned': 'Возвращен',
     'cancelled': 'Отменен',
-    'shipped': 'Отправлен'
+    'shipped': 'Отправлен',
+    'rejected': 'Отменен продавцом',
+    'awaiting_pick_up': 'Заберите товар',
+    Constants.awaitingRefund: 'Возврат средств'
   };
 
   static const Map<String, String> statusforItems = {
@@ -41,12 +46,16 @@ class OrderStatusWidget extends StatelessWidget {
     'processing': Colors.cyan,
     'partially_delivired': Colors.purple,
     'delivered': Colors.teal,
-    'completed': Colors.greenAccent,
+    'completed': Colors.blueAccent,
     'partially_cancelled': Colors.redAccent,
     'partially_returned': Colors.deepOrange,
     'returned': Colors.red,
     'shipped': Colors.greenAccent,
     'cancelled': Colors.red,
+    'created': Colors.green,
+    'rejected': Colors.red,
+    'awaiting_pick_up': Colors.brown,
+    Constants.awaitingRefund: Colors.orange
   };
 
   @override

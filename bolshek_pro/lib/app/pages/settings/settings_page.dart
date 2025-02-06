@@ -41,6 +41,20 @@ class _MyOrganizationPageState extends State<MyOrganizationPage> {
   void initState() {
     super.initState();
     _authSessionFuture = AuthService().fetchAuthSession(context);
+
+    _authSessionFuture.then((data) {
+      if (data.user?.organization?.id != null) {
+        String organizationId = data.user!.organization!.id!;
+        _loadOrganizationData(organizationId);
+      }
+    });
+  }
+
+  void _loadOrganizationData(String organizationId) {
+    setState(() {
+      _addressFuture = _fetchAddress(organizationId);
+      _membersFuture = _fetchMembers(organizationId);
+    });
   }
 
   Future<AddressResponse> _fetchAddress(String organizationId) {
@@ -460,9 +474,6 @@ class _MyOrganizationPageState extends State<MyOrganizationPage> {
           if (organization == null) {
             return Center(child: Text("Информация об организации отсутствует"));
           }
-
-          _addressFuture = _fetchAddress(organization.id!);
-          _membersFuture = _fetchMembers(organization.id!);
 
           return SafeArea(
             child: SingleChildScrollView(

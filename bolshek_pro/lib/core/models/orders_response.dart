@@ -32,16 +32,19 @@ class OrderItem {
   String? createdById;
   String? deletedById;
   String? organizationId;
-  int number;
+  int? number;
+  String? type;
   String? status;
-  String recipientName;
-  String recipientNumber;
-  String customerId;
-  String addressId;
-  DeliveryFee deliveryFee;
-  DeliveryFee price;
-  DeliveryFee totalPrice;
-  Address address;
+  String? reason;
+  String? comment;
+  String? recipientName;
+  String? recipientNumber;
+  String? customerId;
+  String? addressId;
+  DeliveryFee? deliveryFee;
+  DeliveryFee? price;
+  DeliveryFee? totalPrice;
+  Address? address;
   List<OrderPayments> payments;
   List<Items> items;
   // List<Items> item;
@@ -114,10 +117,10 @@ class OrderItem {
       'recipientNumber': recipientNumber,
       'customerId': customerId,
       'addressId': addressId,
-      'deliveryFee': deliveryFee.toJson(),
-      'price': price.toJson(),
-      'totalPrice': totalPrice.toJson(),
-      'address': address.toJson(),
+      'deliveryFee': deliveryFee?.toJson(),
+      'price': price?.toJson(),
+      'totalPrice': totalPrice?.toJson(),
+      'address': address?.toJson(),
       'payments': payments.map((x) => x.toJson()).toList(),
       'items': items.map((x) => x.toJson()).toList(),
       'reservedTill': reservedTill,
@@ -282,9 +285,9 @@ class Items {
   String? id;
   String? createdAt;
   String? updatedAt;
-  Null? deletedAt;
+  // Null? deletedAt;
   String? createdById;
-  Null? deletedById;
+  // Null? deletedById;
   String? organizationId;
   String? status;
   String? orderId;
@@ -301,9 +304,9 @@ class Items {
       {this.id,
       this.createdAt,
       this.updatedAt,
-      this.deletedAt,
+      // this.deletedAt,
       this.createdById,
-      this.deletedById,
+      // this.deletedById,
       this.organizationId,
       this.status,
       this.orderId,
@@ -319,9 +322,9 @@ class Items {
     id = json['id'];
     createdAt = json['createdAt'];
     updatedAt = json['updatedAt'];
-    deletedAt = json['deletedAt'];
+    // deletedAt = json['deletedAt'];
     createdById = json['createdById'];
-    deletedById = json['deletedById'];
+    // deletedById = json['deletedById'];
     organizationId = json['organizationId'];
     status = json['status'];
     orderId = json['orderId'];
@@ -344,9 +347,9 @@ class Items {
     data['id'] = this.id;
     data['createdAt'] = this.createdAt;
     data['updatedAt'] = this.updatedAt;
-    data['deletedAt'] = this.deletedAt;
+    // data['deletedAt'] = this.deletedAt;
     data['createdById'] = this.createdById;
-    data['deletedById'] = this.deletedById;
+    // data['deletedById'] = this.deletedById;
     data['organizationId'] = this.organizationId;
     data['status'] = this.status;
     data['orderId'] = this.orderId;
@@ -546,11 +549,11 @@ class ProductVariant {
   String? id;
   String? createdAt;
   String? updatedAt;
-  Null? deletedAt;
+  // Null? deletedAt;
   String? createdById;
-  Null? deletedById;
+  // Null? deletedById;
   String? organizationId;
-  Null? discoutPercentage;
+  // Null? discoutPercentage;
   String? kind;
   int? quantity;
   String? sku;
@@ -563,11 +566,9 @@ class ProductVariant {
       {this.id,
       this.createdAt,
       this.updatedAt,
-      this.deletedAt,
+      // this.deletedAt,
       this.createdById,
-      this.deletedById,
       this.organizationId,
-      this.discoutPercentage,
       this.kind,
       this.quantity,
       this.sku,
@@ -580,11 +581,8 @@ class ProductVariant {
     id = json['id'];
     createdAt = json['createdAt'];
     updatedAt = json['updatedAt'];
-    deletedAt = json['deletedAt'];
     createdById = json['createdById'];
-    deletedById = json['deletedById'];
     organizationId = json['organizationId'];
-    discoutPercentage = json['discoutPercentage'];
     kind = json['kind'];
     quantity = json['quantity'];
     sku = json['sku'];
@@ -602,11 +600,8 @@ class ProductVariant {
     data['id'] = this.id;
     data['createdAt'] = this.createdAt;
     data['updatedAt'] = this.updatedAt;
-    data['deletedAt'] = this.deletedAt;
     data['createdById'] = this.createdById;
-    data['deletedById'] = this.deletedById;
     data['organizationId'] = this.organizationId;
-    data['discoutPercentage'] = this.discoutPercentage;
     data['kind'] = this.kind;
     data['quantity'] = this.quantity;
     data['sku'] = this.sku;

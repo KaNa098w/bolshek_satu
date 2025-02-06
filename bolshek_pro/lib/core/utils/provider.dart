@@ -1,6 +1,6 @@
+import 'package:flutter/material.dart';
 import 'package:bolshek_pro/core/models/auth_response.dart';
 import 'package:bolshek_pro/core/service/auth_service.dart';
-import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class GlobalProvider extends ChangeNotifier {

@@ -63,7 +63,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '217319616283',
     projectId: 'bolshek-push',
     storageBucket: 'bolshek-push.firebasestorage.app',
-    iosBundleId: 'com.bolsheksatu.net',
+    iosBundleId: 'com.qonyssatu.net',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(

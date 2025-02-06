@@ -49,15 +49,17 @@ class PropertiesService {
   Future<void> createProductProperties(
     BuildContext context, {
     required String productId,
-    required String value,
+    required dynamic value, // Меняем String на dynamic
     required String propertyId,
   }) async {
     try {
       final token = _getToken(context);
-      final body = {"value": jsonEncode(value), "propertyId": propertyId};
+      final body = {
+        "value": value,
+        "propertyId": propertyId
+      }; // Убираем jsonEncode(value)
 
-      print(
-          'Creating product variant with data: ${jsonEncode(body)}'); // Логируем тело запроса
+      print('Creating product properties with data: ${jsonEncode(body)}');
 
       final response = await httpClient.post(
         Uri.parse('$_baseUrl/products/$productId/properties'),
@@ -65,12 +67,12 @@ class PropertiesService {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
         },
-        body: jsonEncode(body),
+        body: jsonEncode(
+            body), // jsonEncode только для всего объекта, а не для value
       );
 
-      print(
-          'Response status: ${response.statusCode}'); // Логируем статус ответа
-      print('Response body: ${response.body}'); // Логируем тело ответа
+      print('Response status: ${response.statusCode}');
+      print('Response body: ${response.body}');
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         print('Product properties created successfully');
@@ -79,7 +81,7 @@ class PropertiesService {
             'Failed to create product properties: ${response.statusCode}, ${response.body}');
       }
     } catch (e) {
-      print('Error creating product properties: $e'); // Логируем ошибки
+      print('Error creating product properties: $e');
       throw Exception('Error creating product properties: $e');
     }
   }
@@ -88,20 +90,19 @@ class PropertiesService {
     BuildContext context, {
     required String productId,
     required String propertiesId,
-    required String value,
+    required dynamic value, // Теперь value - dynamic
   }) async {
     try {
       final token = _getToken(context);
-      final body = {"value": jsonEncode(value)};
+      final body = {
+        "value": value, // Не оборачиваем в jsonEncode
+        "propertyId": propertiesId
+      };
 
-      final url = '$_baseUrl/products/$productId/properties/$propertiesId';
-      print('Request URL: $url');
-      print('Request Body: $body');
-      print(
-          'Request Headers: {Authorization: Bearer $token, Content-Type: application/json}');
+      print('Отправляем запрос на обновление: ${jsonEncode(body)}');
 
       final response = await httpClient.put(
-        Uri.parse(url),
+        Uri.parse('$_baseUrl/products/$productId/properties/$propertiesId'),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',

@@ -208,19 +208,23 @@ class _CodeInputRegisterState extends State<CodeInputRegister> {
   Future<void> _sendSms() async {
     setState(() {
       _isLoading = true;
+      _codeController.clear(); // Очищаем поле ввода
+      currentText = ""; // Сбрасываем текст
     });
 
     try {
+      // Отправляем запрос на получение нового OTP
       String phoneNumber = widget.phoneNumber.replaceAll(RegExp(r'[^\d+]'), '');
       final response = await _authService.fetchOtpId(context, phoneNumber);
       final newOtpId = response['otpId'] as String;
 
-      // Обновляем _otpId с новым значением
+      // Обновляем _otpId и перезапускаем таймер
       setState(() {
         _otpId = newOtpId;
         _start = 60; // Перезапуск таймера
       });
 
+      // Показываем сообщение об успешной отправке
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('SMS-код успешно отправлен'),
@@ -228,8 +232,10 @@ class _CodeInputRegisterState extends State<CodeInputRegister> {
         ),
       );
 
+      // Перезапускаем таймер
       startTimer();
     } catch (e) {
+      // Обрабатываем ошибки
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Ошибка при отправке SMS: $e'),
@@ -238,7 +244,7 @@ class _CodeInputRegisterState extends State<CodeInputRegister> {
       );
     } finally {
       setState(() {
-        _isLoading = false;
+        _isLoading = false; // Сбрасываем состояние загрузки
       });
     }
   }
@@ -311,6 +317,15 @@ class _CodeInputRegisterState extends State<CodeInputRegister> {
                 appContext: context,
                 length: 6,
                 animationType: AnimationType.fade,
+                controller: _codeController, // Контроллер текста
+                onChanged: (value) {
+                  setState(() {
+                    currentText = value; // Обновляем текущее значение
+                  });
+                },
+                beforeTextPaste: (text) {
+                  return true; // Разрешаем вставку текста
+                },
                 pinTheme: PinTheme(
                   shape: PinCodeFieldShape.box,
                   borderRadius: BorderRadius.circular(10),
@@ -323,11 +338,11 @@ class _CodeInputRegisterState extends State<CodeInputRegister> {
                   activeColor: Colors.orange[100],
                   selectedColor: Colors.orange[100],
                 ),
-                cursorColor: Colors.black,
+                errorAnimationController:
+                    errorController, // Контроллер анимации ошибок
                 animationDuration: const Duration(milliseconds: 300),
-                enableActiveFill: true,
-                errorAnimationController: errorController,
-                controller: _codeController,
+                enableActiveFill: true, // Автозаполнение активного поля
+                cursorColor: Colors.black,
                 keyboardType: TextInputType.number,
                 boxShadows: const [
                   BoxShadow(
@@ -336,12 +351,6 @@ class _CodeInputRegisterState extends State<CodeInputRegister> {
                     blurRadius: 5,
                   )
                 ],
-                onChanged: (value) {
-                  currentText = value;
-                },
-                beforeTextPaste: (text) {
-                  return true;
-                },
               ),
               const SizedBox(height: 20),
               SizedBox(

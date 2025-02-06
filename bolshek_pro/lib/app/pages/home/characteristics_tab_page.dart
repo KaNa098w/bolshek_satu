@@ -1,10 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
-import 'package:bolshek_pro/app/widgets/colors_enum_widget.dart';
-import 'package:bolshek_pro/app/widgets/custom_dropdown_field.dart';
-import 'package:bolshek_pro/app/widgets/editable_dropdown_field.dart';
 import 'package:bolshek_pro/app/widgets/home_widgets/add_variant_widget.dart';
-import 'package:bolshek_pro/app/widgets/home_widgets/category_colors_widget.dart';
 import 'package:bolshek_pro/app/widgets/home_widgets/color_picker_widget.dart';
 import 'package:bolshek_pro/app/widgets/main_controller.dart';
 import 'package:bolshek_pro/app/widgets/textfield_widget.dart';
@@ -17,7 +13,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:bolshek_pro/core/models/properties_response.dart';
 import 'package:bolshek_pro/core/service/properties_service.dart';
-import 'package:bolshek_pro/app/widgets/custom_input_widget.dart';
 import 'package:bolshek_pro/app/widgets/custom_button.dart';
 
 class CharacteristicsTab extends StatefulWidget {
@@ -62,6 +57,22 @@ class _CharacteristicsTabState extends State<CharacteristicsTab>
         isLoading = false;
       });
       _showError('Ошибка загрузки свойств: $e');
+    }
+  }
+
+  String _convertPropertyValue(String type, String value) {
+    switch (type) {
+      case 'boolean':
+        return (value.toLowerCase() == 'true').toString(); // true -> "true"
+      case 'number':
+        return (int.tryParse(value) ?? 0).toString(); // 123 -> "123"
+      case 'float':
+        return (double.tryParse(value) ?? 0.0).toString(); // 123.45 -> "123.45"
+      case 'color':
+        return value; // HEX-код цвета остается строкой
+      case 'string':
+      default:
+        return value; // Оставляем как есть
     }
   }
 
@@ -314,19 +325,23 @@ class _CharacteristicsTabState extends State<CharacteristicsTab>
 
       // 4. Отправка свойств
       currentStepNotifier.value = 'Сохранение характеристик';
-      for (final entry in _propertyValues.entries) {
-        final propertyId = entry.key;
-        final value = entry.value;
+      for (final property in propertiesNotifier.value) {
+        final propertyId = property.id ?? '';
+        final type = property.type ?? 'string'; // Гарантируем, что type не null
+        final rawValue = _propertyValues[propertyId] ?? '';
 
-        if (value.isNotEmpty) {
+        if (rawValue.isNotEmpty) {
+          final convertedValue = _convertPropertyValue(type, rawValue);
+
           await propertiesService.createProductProperties(
             context,
             productId: productId,
             propertyId: propertyId,
-            value: value,
+            value: convertedValue, // Теперь это всегда String
           );
         }
       }
+
       uploadProgressNotifier.value = 1.0;
       completedStepsNotifier.value.add('Характеристики сохранены');
 

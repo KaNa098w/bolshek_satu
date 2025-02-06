@@ -6,7 +6,6 @@ import 'package:bolshek_pro/app/widgets/editable_dropdown_field.dart';
 import 'package:bolshek_pro/core/models/category_response.dart' as category;
 import 'package:bolshek_pro/app/widgets/custom_button.dart';
 import 'package:bolshek_pro/core/models/brands_response.dart';
-import 'package:bolshek_pro/core/models/category_response.dart';
 import 'package:bolshek_pro/core/models/manufacturers_response.dart';
 import 'package:bolshek_pro/core/models/properties_response.dart';
 import 'package:bolshek_pro/core/service/brands_service.dart';
@@ -319,6 +318,22 @@ class _ProductChangePageState extends State<ProductChangePage> {
     );
   }
 
+  String _convertPropertyValue(String type, String value) {
+    switch (type) {
+      case 'boolean':
+        return (value.toLowerCase() == 'true').toString(); // true -> "true"
+      case 'number':
+        return (int.tryParse(value) ?? 0).toString(); // 123 -> "123"
+      case 'float':
+        return (double.tryParse(value) ?? 0.0).toString(); // 123.45 -> "123.45"
+      case 'color':
+        return value; // HEX-код цвета остается строкой
+      case 'string':
+      default:
+        return value; // Оставляем как есть
+    }
+  }
+
   Map<String, dynamic> _getUpdatedFields() {
     final updatedFields = <String, dynamic>{};
 
@@ -493,16 +508,25 @@ class _ProductChangePageState extends State<ProductChangePage> {
         final propertiesService = PropertiesService();
         for (final prop in updatedProperties) {
           final propertyId = prop['id'];
-          final newValue = prop['value'];
+          final rawValue = prop['value'];
+
+          // Получаем тип свойства (если он есть в данных)
+          final type = prop['type'] ?? 'string';
+
+          // Преобразуем значение в нужный формат
+          final newValue =
+              _convertPropertyValue(type, rawValue?.toString() ?? '');
+
           final pItem = _product?.properties?.firstWhereOrNull(
             (p) => p.property?.id == propertyId,
           );
+
           if (pItem != null && pItem.id != null) {
             await propertiesService.updateProductProperty(
               context,
               productId: widget.productId,
               propertiesId: pItem.id!,
-              value: newValue ?? '',
+              value: newValue, // Теперь передаём правильный тип
             );
           }
         }

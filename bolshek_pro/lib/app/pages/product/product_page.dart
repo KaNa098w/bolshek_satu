@@ -4,7 +4,9 @@ import 'package:bolshek_pro/core/utils/theme.dart';
 import 'package:bolshek_pro/app/pages/product/product_list_page.dart';
 
 class GoodsPage extends StatefulWidget {
-  const GoodsPage({Key? key}) : super(key: key);
+  final int initialTabIndex;
+
+  const GoodsPage({Key? key, this.initialTabIndex = 0}) : super(key: key);
 
   @override
   _GoodsPageState createState() => _GoodsPageState();
@@ -17,7 +19,8 @@ class _GoodsPageState extends State<GoodsPage>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(
+        length: 3, vsync: this, initialIndex: widget.initialTabIndex);
   }
 
   @override

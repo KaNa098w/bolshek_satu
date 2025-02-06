@@ -1,19 +1,16 @@
-import 'package:bolshek_pro/app/pages/auth/auth_main_page.dart';
-import 'package:bolshek_pro/core/service/firebase_api.dart';
-import 'package:bolshek_pro/firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'app/pages/auth/auth_page.dart';
+import 'package:bolshek_pro/app/pages/auth/auth_main_page.dart';
+import 'package:bolshek_pro/core/service/firebase_api.dart';
+import 'package:bolshek_pro/firebase_options.dart';
 import 'core/utils/provider.dart';
 import 'core/utils/theme.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-// YandexMapkit.init(apiKey: 'ВАШ_API_КЛЮЧ');
-  // Инициализация Firebase
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await FirebaseApi().initNotifications();
 

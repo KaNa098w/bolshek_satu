@@ -1,27 +1,27 @@
 import 'dart:convert';
 import 'package:bolshek_pro/app/pages/orders/order_detail_page.dart';
+import 'package:bolshek_pro/app/pages/return/return_detail_page.dart';
 import 'package:bolshek_pro/app/widgets/%20order_status_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:provider/provider.dart';
+import 'package:bolshek_pro/core/models/return_response.dart';
+import 'package:bolshek_pro/core/service/returnings_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:bolshek_pro/core/service/orders_service.dart';
-import 'package:bolshek_pro/core/models/orders_response.dart';
-import 'package:bolshek_pro/app/pages/product/product_detail_screen.dart';
 import 'package:bolshek_pro/app/widgets/loading_widget.dart';
 import 'package:bolshek_pro/core/utils/theme.dart';
 
-class OrderListPage extends StatefulWidget {
+class ReturnsListPage extends StatefulWidget {
   final String statusFilter; // Добавлено для фильтрации
 
-  const OrderListPage({Key? key, required this.statusFilter}) : super(key: key);
+  const ReturnsListPage({Key? key, required this.statusFilter})
+      : super(key: key);
 
   @override
-  State<OrderListPage> createState() => _OrderListPageState();
+  State<ReturnsListPage> createState() => _ReturnsListPageState();
 }
 
-class _OrderListPageState extends State<OrderListPage> {
-  final OrdersService _ordersService = OrdersService();
+class _ReturnsListPageState extends State<ReturnsListPage> {
+  final ReturningsService _returningsService = ReturningsService();
   final List<OrderItem> _orders = [];
   final ScrollController _scrollController = ScrollController();
   bool _isLoading = false;
@@ -67,38 +67,38 @@ class _OrderListPageState extends State<OrderListPage> {
 
   /// Сохранение данных в кэш с учётом статуса
   /// Сохранение данных в кэш с учётом статуса и проверкой актуальности
-  Future<void> _cacheOrders() async {
-    final prefs = await SharedPreferences.getInstance();
+  // Future<void> _cacheOrders() async {
+  //   final prefs = await SharedPreferences.getInstance();
 
-    // Загрузить текущие заказы из кэша
-    final cachedData = prefs.getString('cached_orders_${widget.statusFilter}');
-    final List<dynamic> cachedList =
-        cachedData != null ? jsonDecode(cachedData) : [];
-    final cachedOrders = cachedList.map((e) => OrderItem.fromJson(e)).toList();
+  //   // Загрузить текущие заказы из кэша
+  //   final cachedData = prefs.getString('cached_orders_${widget.statusFilter}');
+  //   final List<dynamic> cachedList =
+  //       cachedData != null ? jsonDecode(cachedData) : [];
+  //   final cachedOrders = cachedList.map((e) => OrderItem.fromJson(e)).toList();
 
-    // Сравнить загруженные заказы с кешированными и удалить отсутствующие
-    final updatedOrders = cachedOrders.where((cachedOrder) {
-      return _orders.any((order) => order.id == cachedOrder.id);
-    }).toList();
+  //   // Сравнить загруженные заказы с кешированными и удалить отсутствующие
+  //   final updatedOrders = cachedOrders.where((cachedOrder) {
+  //     return _orders.any((order) => order.id == cachedOrder.id);
+  //   }).toList();
 
-    // Добавить новые заказы в кэш
-    for (var order in _orders) {
-      if (!updatedOrders.any((cachedOrder) => cachedOrder.id == order.id)) {
-        updatedOrders.add(order);
-      }
-    }
+  //   // Добавить новые заказы в кэш
+  //   for (var order in _orders) {
+  //     if (!updatedOrders.any((cachedOrder) => cachedOrder.id == order.id)) {
+  //       updatedOrders.add(order);
+  //     }
+  //   }
 
-    // Сохранить обновлённый список в кэш
-    final data = updatedOrders.map((e) => e.toJson()).toList();
-    await prefs.setString(
-        'cached_orders_${widget.statusFilter}', jsonEncode(data));
-  }
+  //   // Сохранить обновлённый список в кэш
+  //   final data = updatedOrders.map((e) => e.toJson()).toList();
+  //   await prefs.setString(
+  //       'cached_orders_${widget.statusFilter}', jsonEncode(data));
+  // }
 
   String _formatDate(String isoDate) {
     try {
       final parsedDate = DateTime.parse(isoDate);
       final formatter =
-          DateFormat('dd.MM.yyyy HH:mm'); // Например, "27.09.2024 11:02"
+          DateFormat('dd.MM.yyyy  HH:mm'); // Например, "27.09.2024 11:02"
       return formatter.format(parsedDate);
     } catch (e) {
       return 'Некорректная дата'; // На случай, если формат даты неправильный
@@ -115,7 +115,7 @@ class _OrderListPageState extends State<OrderListPage> {
     });
 
     try {
-      final response = await _ordersService.fetchOrders(
+      final response = await _returningsService.fetchReturns(
         context: context,
         take: _take,
         skip: _skip,
@@ -134,7 +134,7 @@ class _OrderListPageState extends State<OrderListPage> {
       });
 
       // Проверить и обновить кэш
-      await _cacheOrders();
+      // await _cacheOrders();
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Ошибка загрузки: $e')),
@@ -177,7 +177,7 @@ class _OrderListPageState extends State<OrderListPage> {
                     child: _orders.isEmpty && !_isLoading
                         ? Center(
                             child: Text(
-                              'В данном разделе нет заказов',
+                              'Данный раздел пусто',
                               style: TextStyle(
                                 fontSize: 16,
                                 color: Colors.grey,
@@ -211,18 +211,17 @@ class _OrderListPageState extends State<OrderListPage> {
                               }
                               final order = _orders[index];
                               return _buildOrderItem(
-                                address:
-                                    order.address?.address ?? 'Адрес не указан',
-                                name: order.items.first.product?.name ?? '',
+                                address: order.comment ?? 'Адрес не указан',
+                                name: order.orderItem.product?.name ?? '',
                                 total:
-                                    '${_formatPrice((order.totalPrice?.amount ?? 0) / 100)} ₸',
+                                    '${_formatPrice((order.orderItem.totalPrice?.amount ?? 0) / 100)} ₸',
                                 orderId: order.id ?? 'Неизвестно',
-                                data: order.updatedAt ?? 'Не указано',
-                                orderNumber: order.number ?? 0,
-                                count: order.items?.length ?? 0,
+                                data: order.createdAt.timeZoneName,
+                                orderNumber: 999,
+                                // count: order.orderItem.price.amount ?? 0,
                                 status: order.status ?? '',
-                                imageUrl: order.items.first.product?.images
-                                        ?.first.sizes?.first.url ??
+                                imageUrl: order.orderItem.product?.images?.first
+                                        .sizes?.first.url ??
                                     '',
                               );
                             }),
@@ -243,7 +242,7 @@ class _OrderListPageState extends State<OrderListPage> {
     required String data,
     required String orderId,
     required int orderNumber,
-    required int count,
+    // required int count,
     required String status,
     required String imageUrl, // Добавлено поле для изображения
   }) {
@@ -321,13 +320,13 @@ class _OrderListPageState extends State<OrderListPage> {
                       ),
                       SizedBox(
                           height: 4), // Отступ между изображением и текстом
-                      Text(
-                        count == 1 ? '' : '+${count - 1} товара',
-                        style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
-                            color: Colors.grey.shade700),
-                      ),
+                      // Text(
+                      //   count == 1 ? '' : '+${count - 1} товара',
+                      //   style: TextStyle(
+                      //       fontSize: 12,
+                      //       fontWeight: FontWeight.w500,
+                      //       color: Colors.grey.shade700),
+                      // ),
                     ],
                   ),
                   const SizedBox(width: 12),
@@ -344,7 +343,7 @@ class _OrderListPageState extends State<OrderListPage> {
                         ),
                         SizedBox(height: 4),
                         Text(
-                          'Адрес: $address',
+                          'Описание: $address',
                           style: const TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w400,
@@ -373,7 +372,7 @@ class _OrderListPageState extends State<OrderListPage> {
                         const SizedBox(height: 3),
 
                         Text(
-                          'Дата: ${_orders.first.createdAt != null ? _formatDate(_orders.first.createdAt!) : 'Дата не указана'}',
+                          'Дата: ${_orders.isNotEmpty && _orders.first.createdAt != null ? _formatDate(_orders.first.createdAt!.toIso8601String()) : 'Дата не указана'}',
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w400,
@@ -390,9 +389,8 @@ class _OrderListPageState extends State<OrderListPage> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => OrderDetailsPage(
+                      builder: (context) => ReturnDetailPage(
                         orderId: orderId,
-                        orderNumber: orderNumber,
                       ),
                     ),
                   );
@@ -401,7 +399,7 @@ class _OrderListPageState extends State<OrderListPage> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'Детали заказа',
+                      'Детали возврата',
                       style: TextStyle(
                         color: Colors.blue.shade700,
                         fontSize: 16,

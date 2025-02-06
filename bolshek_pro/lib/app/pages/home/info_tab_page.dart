@@ -242,18 +242,24 @@ class _InfoTabState extends State<InfoTab> with AutomaticKeepAliveClientMixin {
   Future<void> _loadBrands() async {
     try {
       setState(() {
-        isLoading = true; // Устанавливаем флаг загрузки
+        isLoading = true;
       });
+
       final response = await _brandsService.fetchBrands(context);
-      setState(() {
-        brands = response.items ?? [];
-        filteredBrands = brands;
-        isLoading = false; // Загрузка завершена
-      });
+
+      if (mounted) {
+        setState(() {
+          brands = response.items ?? [];
+          filteredBrands = List.from(brands); // Обновляем список для поиска
+          isLoading = false;
+        });
+      }
     } catch (e) {
-      setState(() {
-        isLoading = false; // Завершаем загрузку даже при ошибке
-      });
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
       _showError('Ошибка загрузки брендов: $e');
     }
   }
@@ -419,11 +425,6 @@ class _InfoTabState extends State<InfoTab> with AutomaticKeepAliveClientMixin {
   }
 
   void _showBrands() {
-    if (brands.isEmpty) {
-      _showError('Список брендов пуст');
-      return;
-    }
-
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -435,87 +436,94 @@ class _InfoTabState extends State<InfoTab> with AutomaticKeepAliveClientMixin {
         String searchQuery = ''; // Локальная переменная для поиска
         return StatefulBuilder(
           builder: (context, setStateModal) {
-            final filteredBrands = brands
-                .where((brand) =>
-                    brand.name != null &&
-                    brand.name!
-                        .toLowerCase()
-                        .contains(searchQuery.toLowerCase()))
-                .toList();
-            return SizedBox(
-              height: MediaQuery.of(context).size.height * 0.9,
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  children: [
-                    const SizedBox(height: 14),
-                    Row(
+            return FutureBuilder<void>(
+              future: _loadBrands(), // Загружаем бренды при открытии диалога
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+
+                return SizedBox(
+                  height: MediaQuery.of(context).size.height * 0.9,
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
                       children: [
-                        Expanded(
-                          child: TextField(
-                            decoration: InputDecoration(
-                              hintText: 'Поиск бренда',
-                              prefixIcon: const Icon(Icons.search),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              contentPadding: const EdgeInsets.symmetric(
-                                vertical: 10,
-                                horizontal: 12,
+                        const SizedBox(height: 14),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: TextField(
+                                decoration: InputDecoration(
+                                  hintText: 'Поиск бренда',
+                                  prefixIcon: const Icon(Icons.search),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  contentPadding: const EdgeInsets.symmetric(
+                                    vertical: 10,
+                                    horizontal: 12,
+                                  ),
+                                ),
+                                onChanged: (value) {
+                                  setStateModal(() {
+                                    searchQuery = value;
+                                    filteredBrands = brands
+                                        .where((brand) =>
+                                            brand.name != null &&
+                                            brand.name!.toLowerCase().contains(
+                                                searchQuery.toLowerCase()))
+                                        .toList();
+                                  });
+                                },
                               ),
                             ),
-                            onChanged: (value) {
-                              setStateModal(() {
-                                searchQuery = value;
-                              });
+                            const SizedBox(width: 10),
+                            IconButton(
+                              icon: const Icon(Icons.close),
+                              onPressed: () => Navigator.pop(context),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 10),
+                        brands.isEmpty
+                            ? const Center(child: Text('Нет брендов'))
+                            : Expanded(
+                                child: ListView.builder(
+                                  itemCount: filteredBrands.length,
+                                  itemBuilder: (context, index) {
+                                    final brand = filteredBrands[index];
+                                    return ListTile(
+                                      title: Text(brand.name ?? 'Без названия'),
+                                      onTap: () {
+                                        Navigator.pop(context);
+                                        setState(() {
+                                          selectedBrand =
+                                              brand.name ?? 'Без названия';
+                                          context
+                                              .read<GlobalProvider>()
+                                              .setBrandId(brand.id ?? '');
+                                        });
+                                      },
+                                    );
+                                  },
+                                ),
+                              ),
+                        const SizedBox(height: 10),
+                        Align(
+                          alignment: Alignment.bottomCenter,
+                          child: CustomButton(
+                            text: 'Создать свой бренд',
+                            onPressed: () {
+                              _showAddBrandDialog(setStateModal);
                             },
                           ),
                         ),
-                        const SizedBox(width: 10),
-                        IconButton(
-                          icon: const Icon(Icons.close),
-                          onPressed: () {
-                            Navigator.pop(context);
-                          },
-                        ),
                       ],
                     ),
-                    const SizedBox(height: 10),
-                    SizedBox(
-                      height: MediaQuery.of(context).size.height * 0.7,
-                      child: ListView.builder(
-                        itemCount: filteredBrands.length,
-                        itemBuilder: (context, index) {
-                          final brand = filteredBrands[index];
-                          return ListTile(
-                            title: Text(brand.name ?? 'Без названия'),
-                            onTap: () {
-                              Navigator.pop(context);
-                              setState(() {
-                                selectedBrand = brand.name ?? 'Без названия';
-                                // Установка brandId в AuthProvider
-                                context
-                                    .read<GlobalProvider>()
-                                    .setBrandId(brand.id ?? '');
-                              });
-                            },
-                          );
-                        },
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    Align(
-                      alignment: Alignment.bottomCenter,
-                      child: CustomButton(
-                        text: 'Создать свой бренд',
-                        onPressed: () {
-                          _showAddBrandDialog();
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+                  ),
+                );
+              },
             );
           },
         );
@@ -534,9 +542,9 @@ class _InfoTabState extends State<InfoTab> with AutomaticKeepAliveClientMixin {
     context.read<GlobalProvider>().setBrandId(brandId);
   }
 
-  void _showAddBrandDialog() {
+  void _showAddBrandDialog(Function setStateModal) {
     String newBrandName = '';
-    String selectedType = 'product'; // Значение по умолчанию
+    String selectedType = 'product';
 
     showCustomAlertDialog(
       context: context,
@@ -561,7 +569,6 @@ class _InfoTabState extends State<InfoTab> with AutomaticKeepAliveClientMixin {
       onConfirm: () async {
         if (newBrandName.isNotEmpty) {
           try {
-            // Выполняем POST-запрос для добавления бренда
             await _brandsService.createBrand(
               context,
               selectedType,
@@ -569,14 +576,15 @@ class _InfoTabState extends State<InfoTab> with AutomaticKeepAliveClientMixin {
               newBrandName,
             );
 
-            // Загружаем обновленный список брендов
-            await _loadBrands();
+            await _loadBrands(); // Загружаем обновленный список брендов
 
-            // Закрываем диалоговое окно после успешной операции
+            if (mounted) {
+              setStateModal(() {}); // Обновляем UI в модальном окне
+            }
+
             Navigator.pop(context);
           } catch (e) {
             _showError('Ошибка при добавлении бренда: $e');
-            print('Ошибка при добавлении бренда: $e');
           }
         } else {
           _showError('Название бренда не может быть пустым');

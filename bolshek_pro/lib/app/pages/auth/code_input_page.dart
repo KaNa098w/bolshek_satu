@@ -134,7 +134,7 @@ class _CodeInputPageState extends State<CodeInputPage> {
         String errorMessage = 'Ошибка регистрации: $e';
 
         // Обработка ошибок
-        if (e.toString().contains('code: 10002')) {
+        if (e.toString().contains('code: 9040')) {
           errorMessage =
               'Ваш аккаунт еще не активен. Пожалуйста, ждите ответа менеджера.';
         }

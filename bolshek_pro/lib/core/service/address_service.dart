@@ -1,11 +1,11 @@
 import 'dart:convert';
 
-import 'package:bolshek_pro/core/models/address_response.dart';
-import 'package:bolshek_pro/core/utils/constants.dart';
-import 'package:bolshek_pro/core/utils/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:pretty_http_logger/pretty_http_logger.dart';
 import 'package:provider/provider.dart';
+import 'package:bolshek_pro/core/models/address_response.dart';
+import 'package:bolshek_pro/core/utils/constants.dart';
+import 'package:bolshek_pro/core/utils/provider.dart';
 
 class AddressService {
   final httpClient = HttpWithMiddleware.build(

@@ -1,116 +1,17 @@
-import 'package:bolshek_pro/core/models/order_detail_response.dart';
-import 'package:bolshek_pro/core/models/product_response.dart';
-import 'package:bolshek_pro/core/service/city_service.dart';
+import 'package:flutter_svg/svg.dart';
+import 'package:bolshek_pro/app/pages/return/return_page.dart';
+import 'package:bolshek_pro/app/widgets/main_controller.dart';
 import 'package:bolshek_pro/app/pages/home/add_name_product_page.dart';
-import 'package:bolshek_pro/app/pages/settings/settings_widget/city_widgets/city_selection.dart';
+import 'package:bolshek_pro/core/service/orders_service.dart';
 import 'package:bolshek_pro/core/service/product_service.dart';
-import 'package:bolshek_pro/core/utils/constants.dart';
+import 'package:bolshek_pro/core/service/returnings_service.dart';
 import 'package:bolshek_pro/core/utils/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:bolshek_pro/core/utils/theme.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../widgets/custom_button.dart';
 import '../../widgets/home_widgets/empty_state.dart';
-
-// class HomePage extends StatefulWidget {
-//   const HomePage({Key? key}) : super(key: key);
-
-//   @override
-//   _HomePageState createState() => _HomePageState();
-// }
-
-// class _HomePageState extends State<HomePage> {
-//   final CityService _cityService = CityService();
-//   String? _selectedCity;
-
-//   @override
-//   void initState() {
-//     super.initState();
-//     _loadSelectedCity();
-//   }
-
-//   Future<void> _loadSelectedCity() async {
-//     final city = await _cityService.getSavedCity();
-//     setState(() {
-//       _selectedCity = city;
-//     });
-//   }
-
-//   void _changeCity() async {
-//     final selectedCity = await Navigator.push(
-//       context,
-//       MaterialPageRoute(builder: (context) => const CitySelectionPage()),
-//     );
-//     if (selectedCity != null) {
-//       setState(() {
-//         _selectedCity = selectedCity;
-//       });
-//     }
-//   }
-
-//   Future<void> _openWhatsAppChat() async {
-//     const phoneNumber = '77001012200'; // Пример для Казахстана
-//     final Uri whatsappUri = Uri.parse('https://wa.me/$phoneNumber');
-
-//     // Проверяем, можно ли запустить ссылку
-//     if (await canLaunchUrl(whatsappUri)) {
-//       // Используем launchUrl с LaunchMode.externalApplication
-//       await launchUrl(
-//         whatsappUri,
-//         mode: LaunchMode.externalApplication,
-//       );
-//     } else {
-//       // Показываем сообщение об ошибке
-//       ScaffoldMessenger.of(context).showSnackBar(
-//         const SnackBar(
-//           content: Text('Не удалось открыть WhatsApp'),
-//         ),
-//       );
-//     }
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       backgroundColor: Colors.white,
-//       body: Center(
-//         child: Column(
-//           mainAxisAlignment: MainAxisAlignment.center,
-//           children: [
-//             const EmptyState(),
-//             const SizedBox(height: 20),
-//             CustomButton(
-//               text: 'Добавить первый товар',
-//               onPressed: () {
-//                 final globalProvider =
-//                     Provider.of<GlobalProvider>(context, listen: false);
-//                 globalProvider
-//                     .clearProductData(); // Очистка данных в провайдере
-
-//                 Navigator.push(
-//                   context,
-//                   MaterialPageRoute(
-//                     builder: (context) => ProductNameInputPage(),
-//                   ),
-//                 );
-//               },
-//             ),
-//             const SizedBox(height: 13),
-//             CustomButton(
-//               text: 'Открыть чат с Bolshek',
-//               onPressed: _openWhatsAppChat,
-//               isPrimary: false,
-//             ),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }
-
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -120,25 +21,29 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final CityService _cityService = CityService();
   final ProductService _productService = ProductService();
-
-  String? _selectedCity;
+  final OrdersService _ordersService = OrdersService();
+  final ReturningsService _returningsService = ReturningsService();
 
   int _activeTotal = 0;
   int _inactiveTotal = 0;
-  int _statusesTotal = 0;
+  int _watingTotal = 0;
+  int _newOrdersTotal = 0;
+  int _processingOrderTotal = 0;
+  int _deliveredOrdersTotal = 0;
+  int _cancelledOrdersTotal = 0;
+  int _newReturnsTotal = 0;
+  int _completedReturnsTotal = 0;
+  int _currentIndex = 0;
 
   /// Список товаров со статусами (результат fetchProductsStatuses)
-  List<ProductResponse> _productStatuses = [];
 
   bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    _loadSelectedCity();
-    _loadTotals();
+    _loadData();
   }
 
   Future<void> _openWhatsAppChat() async {
@@ -159,65 +64,42 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  Future<void> _loadSelectedCity() async {
-    final city = await _cityService.getSavedCity();
+  Future<void> _loadData() async {
     setState(() {
-      _selectedCity = city;
+      _isLoading = true;
     });
-  }
 
-  Future<void> _loadTotals() async {
     try {
+      // Загружаем данные по заказам и товарам параллельно
+      final results = await Future.wait([
+        _ordersService.fetchOrdersTotals(context: context),
+        _productService.fetchProductTotals(context: context),
+        _returningsService.fetchReturnTotals(context: context)
+      ]);
+
+      final ordersData = results[0] as Map<String, int>;
+      final productsData = results[1] as Map<String, int>;
+      final returnsData = results[2] as Map<String, int>;
+
       setState(() {
-        _isLoading = true;
-      });
+        _newOrdersTotal = ordersData['newOrders']!;
+        _processingOrderTotal = ordersData['processingOrders']!;
+        _deliveredOrdersTotal = ordersData['deliveredOrders']!;
+        _cancelledOrdersTotal = ordersData['cancelledOrders']!;
 
-      // Загружаем активные товары
-      final activeResponse = await _productService.fetchProductsForMain(
-        context: context,
-        status: Constants.activeStatus,
-      );
-      final activeTotal = activeResponse.total ?? 0;
+        _activeTotal = productsData['active']!;
+        _inactiveTotal = productsData['inactive']!;
+        _watingTotal = productsData['awaiting']!;
 
-      // Загружаем неактивные товары
-      final inactiveResponse = await _productService.fetchProductsForMain(
-        context: context,
-        status: Constants.awaitingStatus,
-      );
-      final inactiveTotal = inactiveResponse.total ?? 0;
-
-      // Загружаем товары из fetchProductsStatuses
-      final statusesResponse = await _productService.fetchProductsStatuses(
-        context: context,
-      );
-
-      final statusesTotal = statusesResponse.total ?? 0;
-
-      // Сохраняем полученные значения в стейт
-      setState(() {
-        _activeTotal = activeTotal;
-        _inactiveTotal = inactiveTotal;
-        _statusesTotal = statusesTotal;
-        // Сохраняем список товаров, чтобы показать их в таблице
+        _newReturnsTotal = returnsData['newReturnsTotal']!;
+        _completedReturnsTotal = returnsData['completedReturnsTotal']!;
 
         _isLoading = false;
       });
     } catch (e) {
-      print('Ошибка при загрузке данных: $e');
+      debugPrint('Ошибка загрузки данных: $e');
       setState(() {
         _isLoading = false;
-      });
-    }
-  }
-
-  void _changeCity() async {
-    final selectedCity = await Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const CitySelectionPage()),
-    );
-    if (selectedCity != null) {
-      setState(() {
-        _selectedCity = selectedCity;
       });
     }
   }
@@ -229,35 +111,257 @@ class _HomePageState extends State<HomePage> {
       body: Center(
         child:
             // Если идёт загрузка — показываем прелоадер
-            // child: _isLoading
-            //     ? const CircularProgressIndicator()
-            //     // Если товары (statusesTotal) есть, показываем таблицу
-            //     : _activeTotal > 0
-            //         ? _buildStatusesTable()
-            // Если товаров нет — ваш текущий EmptyState и кнопки
-            // :
-            Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const EmptyState(),
-            const SizedBox(height: 20),
-            CustomButton(
-              text: 'Добавить первый товар',
-              onPressed: () {
-                final globalProvider =
-                    Provider.of<GlobalProvider>(context, listen: false);
-                globalProvider
-                    .clearProductData(); // Очистка данных в провайдере
+            _isLoading
+                ? const CircularProgressIndicator()
+                // Если товары (statusesTotal) есть, показываем таблицу
+                : _activeTotal > 0
+                    ? _buildStatusesTable()
+                    // Если товаров нет — ваш текущий EmptyState и кнопки
+                    : Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const EmptyState(),
+                          const SizedBox(height: 20),
+                          CustomButton(
+                            text: 'Добавить первый товар',
+                            onPressed: () {
+                              final globalProvider =
+                                  Provider.of<GlobalProvider>(context,
+                                      listen: false);
+                              globalProvider
+                                  .clearProductData(); // Очистка данных в провайдере
 
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => ProductNameInputPage(),
+                                ),
+                              );
+                            },
+                          ),
+                          const SizedBox(height: 13),
+                          CustomButton(
+                            text: 'Открыть чат с Bolshek',
+                            onPressed: _openWhatsAppChat,
+                            isPrimary: false,
+                          ),
+                        ],
+                      ),
+      ),
+    );
+  }
+
+  /// Метод, создающий таблицу со списком товаров/статусов
+
+  Widget _buildStatusesTable() {
+    return Card(
+      color: Colors.white,
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(14.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Заказы',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            SizedBox(
+              height: 10,
+            ),
+            _buildStatusRow(
+              label: 'Новые заказы',
+              value: _newOrdersTotal,
+              color: Colors.green,
+              onTap: () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => ProductNameInputPage(),
+                    builder: (context) => MainControllerNavigator(
+                      initialIndex: 1,
+                      ordersTabIndex: 0,
+                    ),
                   ),
                 );
               },
             ),
-            const SizedBox(height: 13),
+            _buildStatusRow(
+              label: 'В обработке',
+              value: _processingOrderTotal,
+              color: Colors.red,
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => MainControllerNavigator(
+                      initialIndex: 1,
+                      ordersTabIndex: 2,
+                    ),
+                  ),
+                );
+              },
+            ),
+            _buildStatusRow(
+              label: 'Доставки',
+              value: _deliveredOrdersTotal,
+              color: Colors.green,
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => MainControllerNavigator(
+                      initialIndex: 1,
+                      ordersTabIndex: 3,
+                    ),
+                  ),
+                );
+              },
+            ),
+
+            _buildStatusRow(
+              label: 'Отмененные заказы',
+              value: _cancelledOrdersTotal,
+              color: Colors.blue,
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => MainControllerNavigator(
+                      initialIndex: 1,
+                      ordersTabIndex: 4,
+                    ),
+                  ),
+                );
+              },
+            ),
+            SizedBox(
+              height: 20,
+            ),
+            Text(
+              'Товары',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            SizedBox(
+              height: 10,
+            ),
+            _buildStatusRow(
+              label: 'В продаже',
+              value: _activeTotal,
+              color: Colors.green,
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => MainControllerNavigator(
+                      initialIndex: 2,
+                      goodsIndex: 0,
+                    ),
+                  ),
+                );
+              },
+            ),
+            _buildStatusRow(
+              label: 'Сняти с продажи',
+              value: _inactiveTotal,
+              color: Colors.red,
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => MainControllerNavigator(
+                      initialIndex: 2,
+                      goodsIndex: 2,
+                    ),
+                  ),
+                );
+              },
+            ),
+            _buildStatusRow(
+              label: 'Ожидает',
+              value: _watingTotal,
+              color: Colors.blue,
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => MainControllerNavigator(
+                      initialIndex: 2,
+                      goodsIndex: 1,
+                    ),
+                  ),
+                );
+              },
+            ),
+            SizedBox(
+              height: 20,
+            ),
+            Text(
+              'Возвраты',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            SizedBox(
+              height: 10,
+            ),
+            _buildStatusRow(
+              label: 'Заявки на возврат',
+              value: _newReturnsTotal,
+              color: Colors.green,
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => Scaffold(
+                      appBar: AppBar(
+                        title: Text(
+                          'Заявки на возврат',
+                          textAlign: TextAlign.start,
+                        ),
+                        backgroundColor: Colors.white,
+                        elevation: 0,
+                      ),
+                      body: ReturnPage(), // Показываем страницу возврата
+                      bottomNavigationBar:
+                          _buildBottomNavigationBar(), // Навигатор остаётся
+                    ),
+                  ),
+                );
+              },
+            ),
+            _buildStatusRow(
+              label: 'Закрытые заявки',
+              value: _completedReturnsTotal,
+              color: Colors.red,
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => Scaffold(
+                      appBar: AppBar(
+                        title: Text(
+                          'Заявки на возврат',
+                          textAlign: TextAlign.start,
+                        ),
+                        backgroundColor: Colors.white,
+                        elevation: 0,
+                      ),
+                      body: ReturnPage(
+                        initialTabIndex: 5,
+                      ), // Показываем страницу возврата
+                      bottomNavigationBar:
+                          _buildBottomNavigationBar(), // Навигатор остаётся
+                    ),
+                  ),
+                );
+              },
+            ),
+
+            // ),
+            SizedBox(
+              height: 20,
+            ),
             CustomButton(
               text: 'Открыть чат с Bolshek',
               onPressed: _openWhatsAppChat,
@@ -269,21 +373,113 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  /// Метод, создающий таблицу со списком товаров/статусов
-  Widget _buildStatusesTable() {
-    return Column(children: [
-      Row(
-        children: [
-          Text('Активные товары: '),
-          Text(_activeTotal.toString()),
-        ],
+  Widget _buildBottomNavigationBar() {
+    return BottomNavigationBar(
+      backgroundColor: Colors.white,
+      type: BottomNavigationBarType.fixed,
+      iconSize: 25,
+      selectedLabelStyle: const TextStyle(fontSize: 12, height: 1.2),
+      unselectedLabelStyle: const TextStyle(fontSize: 12, height: 1.2),
+      onTap: (index) {
+        Navigator.pop(context);
+      },
+      items: [
+        BottomNavigationBarItem(
+          icon: SvgPicture.asset(
+            _currentIndex == 0
+                ? 'assets/svg/home_icon_on.svg'
+                : 'assets/svg/home_icon2.svg',
+            width: 24,
+            height: 24,
+            color: _currentIndex == 0 ? ThemeColors.orange : Colors.grey,
+          ),
+          label: 'Главная',
+        ),
+        BottomNavigationBarItem(
+          icon: SvgPicture.asset(
+            _currentIndex == 1
+                ? 'assets/svg/orders_off.svg'
+                : 'assets/svg/orders_on.svg',
+            width: 24,
+            height: 24,
+            color: _currentIndex == 1 ? ThemeColors.orange : Colors.grey,
+          ),
+          label: 'Заказы',
+        ),
+        BottomNavigationBarItem(
+          icon: SvgPicture.asset(
+            _currentIndex == 2
+                ? 'assets/svg/goods_off.svg'
+                : 'assets/svg/goods_on.svg',
+            width: 24,
+            height: 24,
+            color: _currentIndex == 2 ? ThemeColors.orange : Colors.grey,
+          ),
+          label: 'Товары',
+        ),
+        BottomNavigationBarItem(
+          icon: SvgPicture.asset(
+            _currentIndex == 3
+                ? 'assets/svg/settings_off.svg'
+                : 'assets/svg/settings_on.svg',
+            width: 24,
+            height: 24,
+            color: _currentIndex == 3 ? ThemeColors.orange : Colors.grey,
+          ),
+          label: 'Настройки',
+        ),
+      ],
+    );
+  }
+
+  Widget _buildStatusRow({
+    required String label,
+    required int value,
+    required Color color,
+    required VoidCallback onTap, // Добавил колбэк для нажатия
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(8.0),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8.0),
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(top: 2),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    label,
+                    style: const TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  Row(
+                    children: [
+                      Text(
+                        value.toString(),
+                        style: const TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Icon(
+                        Icons.chevron_right,
+                        color: Colors.black,
+                        size: 25,
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
-      Row(
-        children: [
-          Text('Неактивные товары: '),
-          Text(_inactiveTotal.toString()),
-        ],
-      )
-    ]);
+    );
   }
 }

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:pretty_http_logger/pretty_http_logger.dart';
 import 'package:bolshek_pro/core/models/auth_response.dart';
 import 'package:bolshek_pro/core/models/auth_session_response.dart';
 import 'package:bolshek_pro/core/utils/constants.dart';
@@ -8,6 +9,9 @@ import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 
 class AuthService {
+  final httpClient = HttpWithMiddleware.build(
+    middlewares: [HttpLogger(logLevel: LogLevel.BODY)],
+  );
   final String baseUrl = Constants.baseUrl;
 
   Future<AuthResponse> registerUser(String email, String password) async {
@@ -20,7 +24,7 @@ class AuthService {
       print('POST $baseUrl/auth/user');
       print('Request body: ${jsonEncode(requestBody)}');
 
-      final response = await http.post(
+      final response = await httpClient.post(
         Uri.parse('$baseUrl/auth/user'),
         headers: {
           "Content-Type": "application/json",
@@ -55,7 +59,7 @@ class AuthService {
       print('GET $baseUrl/auth/session');
       print('Authorization token: Bearer $token');
 
-      final response = await http.get(
+      final response = await httpClient.get(
         Uri.parse('$baseUrl/auth/session'),
         headers: {
           'Authorization': 'Bearer $token',
@@ -82,7 +86,7 @@ class AuthService {
   Future<AuthSessionResponse> checkAuthToken(
       BuildContext context, String token) async {
     try {
-      final response = await http.get(
+      final response = await httpClient.get(
         Uri.parse('$baseUrl/auth/session'),
         headers: {
           'Authorization': 'Bearer $token',
@@ -108,7 +112,7 @@ class AuthService {
         "phoneNumber": phoneNumber,
       };
 
-      final response = await http.post(
+      final response = await httpClient.post(
         Uri.parse('$baseUrl/auth/user/request-otp'),
         headers: {
           'Content-Type': 'application/json',
@@ -193,10 +197,10 @@ class AuthService {
         "organizationAddress": address,
         "organizationAddressLatitude": latitude,
         "organizationAddressLongitude": longitude,
-        "organizationAddressCityId": '60f95c44-05e8-4031-9d9b-fad22fcd0d0c',
+        "organizationAddressCityId": '1d7eb308-dbd8-496e-8875-3dd6e917c7f6',
       };
 
-      final response = await http.post(
+      final response = await httpClient.post(
         Uri.parse('$baseUrl/auth/user/register'),
         headers: {
           'Content-Type': 'application/json',

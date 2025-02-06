@@ -1,14 +1,8 @@
-// Пример использования:
-// final order = orderFromJson(jsonString);
-// print(order.address?.address); // => "улица Кахарман, 158"
-
 import 'dart:convert';
 
-// Функции для парсинга из/в JSON
 Order orderFromJson(String str) => Order.fromJson(json.decode(str));
 String orderToJson(Order data) => json.encode(data.toJson());
 
-// Главный класс заказа
 class Order {
   Order({
     this.id,

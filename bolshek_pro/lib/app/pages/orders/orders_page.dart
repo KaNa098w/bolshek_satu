@@ -1,9 +1,13 @@
+import 'package:extended_tabs/extended_tabs.dart';
 import 'package:bolshek_pro/app/pages/orders/orders_list_page.dart';
 import 'package:flutter/material.dart';
+import 'package:bolshek_pro/core/utils/constants.dart';
 import 'package:bolshek_pro/core/utils/theme.dart';
 
 class OrdersPage extends StatefulWidget {
-  const OrdersPage({Key? key}) : super(key: key);
+  final int initialTabIndex;
+
+  const OrdersPage({Key? key, this.initialTabIndex = 0}) : super(key: key);
 
   @override
   _OrdersPageState createState() => _OrdersPageState();
@@ -16,7 +20,8 @@ class _OrdersPageState extends State<OrdersPage>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 6, vsync: this);
+    _tabController = TabController(
+        length: 5, vsync: this, initialIndex: widget.initialTabIndex);
   }
 
   @override
@@ -35,16 +40,23 @@ class _OrdersPageState extends State<OrdersPage>
             preferredSize: const Size.fromHeight(50.0),
             child: Container(
               color: Colors.white,
-              child: TabBar(
+              child: ExtendedTabBar(
                 labelColor: ThemeColors.orange,
-                indicatorColor: ThemeColors.orange,
+
+                unselectedLabelColor: ThemeColors.grey, // менее заметный цвет
+                labelStyle: const TextStyle(
+                  fontSize: 15, // размер шрифта для выбранной вкладки
+                  fontWeight: FontWeight.bold,
+                ),
+                unselectedLabelStyle: const TextStyle(
+                  fontSize: 14, // меньший размер шрифта для неактивных вкладок
+                ),
                 controller: _tabController,
+                indicatorColor: ThemeColors.orange,
                 indicatorWeight: 4.0,
-                indicatorSize: TabBarIndicatorSize.tab,
                 isScrollable: true,
                 tabs: const [
                   Tab(text: 'Новые'),
-                  // Tab(text: 'Ожидание оплаты'),
                   Tab(text: 'Оплаченный'),
                   Tab(text: 'В обработке'),
                   Tab(text: 'Доставлены'),
@@ -57,16 +69,11 @@ class _OrdersPageState extends State<OrdersPage>
             child: TabBarView(
               controller: _tabController,
               children: const [
-                OrderListPage(
-                    statusFilter:
-                        'awaiting_confirmation&status=awaiting_payment&status=new'),
-                // OrderListPage(statusFilter: 'awaiting_payment'),
-                OrderListPage(statusFilter: 'paid'),
-                OrderListPage(statusFilter: 'processing'),
-                OrderListPage(
-                    statusFilter: 'delivered&status=partially_delivired'),
-                OrderListPage(
-                    statusFilter: 'cancelled&status=partially_cancelled'),
+                OrderListPage(statusFilter: Constants.newOrders),
+                OrderListPage(statusFilter: Constants.paidOrders),
+                OrderListPage(statusFilter: Constants.processingOrders),
+                OrderListPage(statusFilter: Constants.deliveredOrders),
+                OrderListPage(statusFilter: Constants.cancelledOrders),
               ],
             ),
           ),
