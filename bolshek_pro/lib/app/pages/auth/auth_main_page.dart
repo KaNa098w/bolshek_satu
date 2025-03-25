@@ -2,8 +2,11 @@ import 'package:bolshek_pro/app/pages/auth/auth_number_page.dart';
 import 'package:bolshek_pro/app/pages/auth/auth_page.dart';
 import 'package:bolshek_pro/app/pages/auth/auth_register_page.dart';
 import 'package:bolshek_pro/app/widgets/main_controller.dart';
+import 'package:bolshek_pro/core/service/notification_service.dart';
 import 'package:bolshek_pro/core/utils/theme.dart';
 import 'package:bolshek_pro/core/utils/provider.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
@@ -16,6 +19,8 @@ class AuthMainScreen extends StatefulWidget {
 
 class _AuthMainScreenState extends State<AuthMainScreen> {
   late Future<bool> _isAuthenticated;
+  String?
+      _lastSentFcmToken; // Переменная для хранения ранее отправленного токена
 
   @override
   void initState() {
@@ -25,9 +30,29 @@ class _AuthMainScreenState extends State<AuthMainScreen> {
 
   Future<bool> _checkAuthStatus() async {
     try {
-      // Проверяем авторизационные данные через GlobalProvider
+      // Загружаем данные авторизации через GlobalProvider
       await context.read<GlobalProvider>().loadAuthData(context);
-      return context.read<GlobalProvider>().authResponse != null;
+      bool isAuth = context.read<GlobalProvider>().authResponse != null;
+      if (isAuth) {
+        // Получаем FCM-токен
+        String? fcmToken = await FirebaseMessaging.instance.getToken();
+        print("FCM Device Token: $fcmToken");
+        if (fcmToken != null) {
+          // Если токен не совпадает с ранее отправленным, отправляем его
+          if (_lastSentFcmToken != fcmToken) {
+            try {
+              await NotificationService().sendDeviceToken(context, fcmToken);
+              print("FCM token отправлен успешно");
+              _lastSentFcmToken = fcmToken; // Обновляем сохранённый токен
+            } catch (e) {
+              print("Ошибка при отправке FCM token: $e");
+            }
+          } else {
+            print("FCM token не изменился, повторная отправка не требуется.");
+          }
+        }
+      }
+      return isAuth;
     } catch (e) {
       print('Error checking auth status: $e');
       return false;
@@ -38,20 +63,24 @@ class _AuthMainScreenState extends State<AuthMainScreen> {
     const phoneNumber = '77001012200'; // Пример для Казахстана
     final Uri whatsappUri = Uri.parse('https://wa.me/$phoneNumber');
 
-    // Проверяем, можно ли запустить ссылку
     if (await canLaunchUrl(whatsappUri)) {
-      // Используем launchUrl с LaunchMode.externalApplication
       await launchUrl(
         whatsappUri,
         mode: LaunchMode.externalApplication,
       );
     } else {
-      // Показываем сообщение об ошибке
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Не удалось открыть WhatsApp'),
         ),
       );
+    }
+  }
+
+  void _launchURL() async {
+    final url = 'https://bolshek.kz/legal/privacy';
+    if (!await launchUrl(Uri.parse(url))) {
+      throw 'Could not launch $url';
     }
   }
 
@@ -76,7 +105,7 @@ class _AuthMainScreenState extends State<AuthMainScreen> {
           return MainControllerNavigator();
         }
 
-        // Если пользователь не авторизован, отображаем стандартный экран
+        // Если пользователь не авторизован, отображаем экран входа/регистрации
         return Scaffold(
           backgroundColor: Colors.blueGrey[900],
           appBar: AppBar(
@@ -84,9 +113,7 @@ class _AuthMainScreenState extends State<AuthMainScreen> {
             elevation: 0,
             actions: [
               TextButton(
-                onPressed: () {
-                  _openWhatsAppChat();
-                },
+                onPressed: _openWhatsAppChat,
                 child: Text(
                   'Поддержка',
                   style: TextStyle(
@@ -116,7 +143,8 @@ class _AuthMainScreenState extends State<AuthMainScreen> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => AuthRegisterScreen()),
+                          builder: (context) => AuthRegisterScreen(),
+                        ),
                       );
                     },
                     style: ElevatedButton.styleFrom(
@@ -129,9 +157,10 @@ class _AuthMainScreenState extends State<AuthMainScreen> {
                     child: Text(
                       'Я новый пользователь',
                       style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.black,
-                          fontWeight: FontWeight.bold),
+                        fontSize: 16,
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                 ),
@@ -156,19 +185,37 @@ class _AuthMainScreenState extends State<AuthMainScreen> {
                     ),
                     child: Text(
                       'У меня есть аккаунт. Войти',
-                      style: TextStyle(fontSize: 16, color: ThemeColors.white),
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: ThemeColors.white,
+                      ),
                     ),
                   ),
                 ),
                 SizedBox(height: 40),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 30.0),
-                  child: Text(
-                    'Пользуясь приложением, вы принимаете соглашение и политику конфиденциальности',
+                  child: RichText(
                     textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 12,
+                    text: TextSpan(
+                      text:
+                          'Пользуясь приложением, вы принимаете соглашение и ',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 12,
+                      ),
+                      children: [
+                        TextSpan(
+                          text: 'политику конфиденциальности',
+                          style: const TextStyle(
+                            decoration: TextDecoration.underline,
+                            color: ThemeColors
+                                .orange, // можно изменить цвет по желанию
+                          ),
+                          recognizer: TapGestureRecognizer()
+                            ..onTap = _launchURL,
+                        ),
+                      ],
                     ),
                   ),
                 ),

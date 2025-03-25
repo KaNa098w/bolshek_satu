@@ -182,24 +182,26 @@ class ProductService {
   }
 
   Future<http.Response> createProduct(
-    BuildContext context,
-    String name,
-    String slug,
-    String brandId,
-    String deliveryType,
-    String categoryId,
-    String vendorCode,
-    String descriptionText, // Передаём ваш текст для описания
-  ) async {
+      BuildContext context,
+      String name,
+      String slug,
+      String brandId,
+      String deliveryType,
+      String categoryId,
+      String vendorCode,
+      String descriptionText, // Передаём ваш текст для описания
+      String crossNumber,
+      String vehicleGenerationId) async {
     try {
       final token = _getToken(context);
+
+      // Формирование базового тела запроса
       final body = {
         "name": name,
         "slug": slug,
         "brandId": brandId,
         "deliveryType": deliveryType,
         "categoryId": categoryId,
-        "compatibleVehicleIds": [],
         "vendorCode": vendorCode,
         "description": {
           "time": DateTime.now().millisecondsSinceEpoch,
@@ -211,11 +213,17 @@ class ProductService {
             }
           ],
         },
+        "crossNumber": crossNumber,
       };
+
+      // Добавляем ключ vehicleGenerationId, если значение не пустое
+      if (vehicleGenerationId.isNotEmpty) {
+        body["vehicleGenerationId"] = vehicleGenerationId;
+      }
 
       print('Creating product with data: ${jsonEncode(body)}');
 
-      final response = await http.post(
+      final response = await httpClient.post(
         Uri.parse(_baseUrl),
         headers: {
           'Authorization': 'Bearer $token',

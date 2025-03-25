@@ -26,8 +26,13 @@ class _OTPInputFieldState extends State<OTPInputField> {
   @override
   void initState() {
     super.initState();
-    _controller = TextEditingController(
-        text: widget.initialValue); // Устанавливаем начальное значение
+    // Если initialValue пустое, задаем начальное значение как "+7 "
+    final initialText =
+        widget.initialValue.isEmpty ? "+7 " : widget.initialValue;
+    _controller = TextEditingController(text: initialText);
+    // Устанавливаем курсор в конец текста, чтобы он стоял после "+7 "
+    _controller.selection =
+        TextSelection.collapsed(offset: _controller.text.length);
     _focusNode = FocusNode();
   }
 
@@ -45,7 +50,7 @@ class _OTPInputFieldState extends State<OTPInputField> {
         keyboardType: TextInputType.phone,
         cursorColor: ThemeColors.orange,
         inputFormatters: [
-          FilteringTextInputFormatter.digitsOnly,
+          FilteringTextInputFormatter.allow(RegExp(r'[+\d]')),
           PhoneNumberFormatter(), // Форматирование номера телефона
         ],
         onChanged: (value) {
@@ -53,14 +58,14 @@ class _OTPInputFieldState extends State<OTPInputField> {
         },
         decoration: InputDecoration(
           labelText: widget.title,
-          contentPadding: EdgeInsets.only(left: 12, top: 10, bottom: 10),
+          contentPadding: const EdgeInsets.only(left: 12, top: 10, bottom: 10),
           hintText: "+7 ",
           labelStyle: TextStyle(
             color: Colors.black54,
             fontSize: 16,
           ),
-          hintStyle: TextStyle(
-            color: Colors.grey,
+          hintStyle: const TextStyle(
+            color: Colors.black,
             fontSize: 16,
           ),
           border: InputBorder.none,

@@ -1,13 +1,19 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:bolshek_pro/app/pages/home/cross_number_screen.dart';
+import 'package:bolshek_pro/app/pages/home/vehicle_screen.dart';
+import 'package:bolshek_pro/app/widgets/custom_dropdown_field.dart';
+import 'package:bolshek_pro/app/widgets/editable_dropdown_field.dart';
 import 'package:bolshek_pro/app/widgets/home_widgets/add_variant_widget.dart';
 import 'package:bolshek_pro/app/widgets/home_widgets/color_picker_widget.dart';
 import 'package:bolshek_pro/app/widgets/main_controller.dart';
 import 'package:bolshek_pro/app/widgets/textfield_widget.dart';
+import 'package:bolshek_pro/core/service/cross_number_service.dart';
 import 'package:bolshek_pro/core/service/images_service.dart';
 import 'package:bolshek_pro/core/service/product_service.dart';
 import 'package:bolshek_pro/core/service/variants_service.dart';
 import 'package:bolshek_pro/core/utils/provider.dart';
+
 import 'package:bolshek_pro/core/utils/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -266,6 +272,7 @@ class _CharacteristicsTabState extends State<CharacteristicsTab>
 
       final imagesService = ImagesService();
       final propertiesService = PropertiesService();
+      final crossNumberService = CrossNumberGenerateService();
 
       // 1. Создание продукта
       currentStepNotifier.value = 'Создание товара';
@@ -275,7 +282,13 @@ class _CharacteristicsTabState extends State<CharacteristicsTab>
       final deliveryType = authProvider.deliveryType;
       final vendorCode = authProvider.vendorCode;
       final descriptionText = authProvider.descriptionText ?? '';
-
+      final carMappings = context.read<GlobalProvider>().carMappings;
+      String firstCrossNumber = '';
+      String firstVehicleId = '';
+      if (carMappings.isNotEmpty) {
+        firstCrossNumber = carMappings.first['oem'] ?? '';
+        firstVehicleId = carMappings.first['vehicleId'] ?? '';
+      }
       final response = await ProductService().createProduct(
           context,
           productName,
@@ -284,7 +297,9 @@ class _CharacteristicsTabState extends State<CharacteristicsTab>
           deliveryType,
           categoryId,
           vendorCode,
-          descriptionText);
+          descriptionText,
+          firstCrossNumber,
+          firstVehicleId);
 
       final Map<String, dynamic> responseData = jsonDecode(response.body);
       final String productId = responseData['id'] ?? '';
@@ -309,6 +324,36 @@ class _CharacteristicsTabState extends State<CharacteristicsTab>
         uploadProgressNotifier.value += (1.0 / totalSteps) / images.length;
       }
       completedStepsNotifier.value.add('Фотографии загружены');
+      final List<Map<String, dynamic>> crossNumberGenerations = [];
+      for (var mapping in carMappings) {
+        // Добавляем основное соответствие только если vehicleId не пустой
+        if ((mapping['oem'] as String?)?.isNotEmpty == true &&
+            (mapping['vehicleId'] as String?)?.isNotEmpty == true) {
+          crossNumberGenerations.add({
+            "crossNumber": mapping['oem'],
+            "vehicleGenerationId": mapping['vehicleId'],
+          });
+        }
+
+        // Обрабатываем альтернативы, добавляем только если alt['id'] не пустой
+        final List<dynamic> alternatives =
+            mapping['alternatives'] as List<dynamic>? ?? [];
+        for (var alt in alternatives) {
+          final altId = alt['id'] as String? ?? '';
+          if (altId.isNotEmpty) {
+            crossNumberGenerations.add({
+              "crossNumber": alt['crossNumber'] ?? '',
+              "vehicleGenerationId": altId,
+            });
+          }
+        }
+      }
+
+      await crossNumberService.generateCrossNumber(
+        context: context,
+        productId: productId,
+        crossNumberGenerations: crossNumberGenerations,
+      );
 
       // 3. Создание варианта
       currentStepNotifier.value = 'Создание варианта товара';
@@ -355,6 +400,7 @@ class _CharacteristicsTabState extends State<CharacteristicsTab>
       authProvider.setSku('');
       authProvider.clearImages();
       authProvider.setPropertyValues({});
+      authProvider.clearProductData();
 
       // Закрыть диалог загрузки
       Navigator.pop(context);
@@ -392,15 +438,26 @@ class _CharacteristicsTabState extends State<CharacteristicsTab>
       // Закрыть диалог загрузки
       Navigator.pop(context);
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Ошибка: $e')),
-      );
+      print('Какая ошибка: $e');
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    super.build(context); // Для работы AutomaticKeepAliveClientMixin
+    final carMappings = context.read<GlobalProvider>().carMappings;
+
+    // Если список не пустой, для каждого элемента берём поле 'brandName'
+    // и берем только первое слово (первое имя), затем объединяем их через запятую.
+    print(carMappings);
+    final displayValue = carMappings.isNotEmpty
+        ? carMappings.map((mapping) {
+            final brand = mapping['brandName'] ?? '';
+            final oem = mapping['oem'] ?? '';
+            final vehicleId = mapping['vehicleId'] ?? '';
+            final firstName = brand.split(' ').first;
+            return oem.isNotEmpty ? '$firstName ($oem)' : firstName;
+          }).join(', ')
+        : 'Выберите подходящие марки';
 
     if (isLoading) {
       return const Center(
@@ -415,11 +472,36 @@ class _CharacteristicsTabState extends State<CharacteristicsTab>
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // const Text(
-            //   'Основные характеристики',
-            //   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            // EditableDropdownField(
+            //   title: 'OEM номер',
+            //   value: '',
+            //   // hint: 'Введите код запчасти',
+            //   maxLines: 1, // Поле для ввода одной строки
+            //   onChanged: (value) {},
             // ),
-            // const SizedBox(height: 20),
+            CustomDropdownField(
+                title: 'Соотвествие с автомобилем',
+                value: displayValue,
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const CrossNumberScreen()),
+                  );
+                }),
+            // TextButton(
+            //     onPressed: () {
+            //       Navigator.push(
+            //         context,
+            //         MaterialPageRoute(
+            //             builder: (context) => const CrossNumberScreen()),
+            //       );
+            //     },
+            //     child: Text(
+            //       'Добавить соотвествие +',
+            //       textAlign: TextAlign.end,
+            //     )),
+            const SizedBox(height: 12),
             ValueListenableBuilder<List<PropertyItems>>(
               valueListenable: propertiesNotifier,
               builder: (context, properties, child) {

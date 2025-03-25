@@ -10,10 +10,7 @@ import 'package:bolshek_pro/core/models/brands_response.dart';
 import 'package:bolshek_pro/core/models/properties_response.dart';
 import 'package:bolshek_pro/core/service/brands_service.dart';
 import 'package:bolshek_pro/core/service/category_service.dart';
-import 'package:bolshek_pro/core/service/properties_service.dart';
-import 'package:bolshek_pro/app/pages/home/add_name_product_page.dart';
-import 'package:bolshek_pro/app/widgets/home_widgets/add_variant_widget.dart';
-import 'package:bolshek_pro/app/widgets/custom_input_widget.dart';
+
 import 'package:bolshek_pro/core/utils/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:bolshek_pro/app/widgets/custom_button.dart';
@@ -47,6 +44,7 @@ class _InfoTabState extends State<InfoTab> with AutomaticKeepAliveClientMixin {
   String selectedBrand = 'Выберите бренд';
   final BrandsService _brandsService = BrandsService();
   List<BrandItems> brands = [];
+
   List<BrandItems> filteredBrands = [];
   bool isLoading = true;
   String selectedCategory = 'Выберите категорию';
@@ -406,25 +404,15 @@ class _InfoTabState extends State<InfoTab> with AutomaticKeepAliveClientMixin {
     );
   }
 
-  void _filterBrands(String query) {
-    if (query.length < 3) {
-      setState(() {
-        filteredBrands =
-            brands; // Возвращаем весь список, если менее 3 символов
-      });
-      return;
-    }
+  void _showBrands() async {
+    // Загружаем бренды перед открытием модального окна
+    // await _loadBrands();
+    filteredBrands = List.from(brands);
 
-    setState(() {
-      filteredBrands = brands
-          .where((brand) =>
-              brand.name != null &&
-              brand.name!.toLowerCase().contains(query.toLowerCase()))
-          .toList();
-    });
-  }
+    // Создаем контроллер и ноду фокуса для текстового поля поиска
+    final TextEditingController searchController = TextEditingController();
+    final FocusNode searchFocusNode = FocusNode();
 
-  void _showBrands() {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -433,97 +421,89 @@ class _InfoTabState extends State<InfoTab> with AutomaticKeepAliveClientMixin {
       ),
       backgroundColor: Colors.white,
       builder: (context) {
-        String searchQuery = ''; // Локальная переменная для поиска
         return StatefulBuilder(
           builder: (context, setStateModal) {
-            return FutureBuilder<void>(
-              future: _loadBrands(), // Загружаем бренды при открытии диалога
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-
-                return SizedBox(
-                  height: MediaQuery.of(context).size.height * 0.9,
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
+            return SizedBox(
+              height: MediaQuery.of(context).size.height * 0.9,
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  children: [
+                    const SizedBox(height: 14),
+                    Row(
                       children: [
-                        const SizedBox(height: 14),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: TextField(
-                                decoration: InputDecoration(
-                                  hintText: 'Поиск бренда',
-                                  prefixIcon: const Icon(Icons.search),
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  contentPadding: const EdgeInsets.symmetric(
-                                    vertical: 10,
-                                    horizontal: 12,
-                                  ),
-                                ),
-                                onChanged: (value) {
-                                  setStateModal(() {
-                                    searchQuery = value;
-                                    filteredBrands = brands
-                                        .where((brand) =>
-                                            brand.name != null &&
-                                            brand.name!.toLowerCase().contains(
-                                                searchQuery.toLowerCase()))
-                                        .toList();
-                                  });
-                                },
+                        Expanded(
+                          child: TextField(
+                            controller: searchController,
+                            focusNode: searchFocusNode,
+                            decoration: InputDecoration(
+                              hintText: 'Поиск бренда',
+                              prefixIcon: const Icon(Icons.search),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              contentPadding: const EdgeInsets.symmetric(
+                                vertical: 10,
+                                horizontal: 12,
                               ),
                             ),
-                            const SizedBox(width: 10),
-                            IconButton(
-                              icon: const Icon(Icons.close),
-                              onPressed: () => Navigator.pop(context),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 10),
-                        brands.isEmpty
-                            ? const Center(child: Text('Нет брендов'))
-                            : Expanded(
-                                child: ListView.builder(
-                                  itemCount: filteredBrands.length,
-                                  itemBuilder: (context, index) {
-                                    final brand = filteredBrands[index];
-                                    return ListTile(
-                                      title: Text(brand.name ?? 'Без названия'),
-                                      onTap: () {
-                                        Navigator.pop(context);
-                                        setState(() {
-                                          selectedBrand =
-                                              brand.name ?? 'Без названия';
-                                          context
-                                              .read<GlobalProvider>()
-                                              .setBrandId(brand.id ?? '');
-                                        });
-                                      },
-                                    );
-                                  },
-                                ),
-                              ),
-                        const SizedBox(height: 10),
-                        Align(
-                          alignment: Alignment.bottomCenter,
-                          child: CustomButton(
-                            text: 'Создать свой бренд',
-                            onPressed: () {
-                              _showAddBrandDialog(setStateModal);
+                            onChanged: (value) {
+                              setStateModal(() {
+                                filteredBrands = brands
+                                    .where((brand) =>
+                                        brand.name != null &&
+                                        brand.name!
+                                            .toLowerCase()
+                                            .contains(value.toLowerCase()))
+                                    .toList();
+                              });
                             },
                           ),
                         ),
+                        const SizedBox(width: 10),
+                        IconButton(
+                          icon: const Icon(Icons.close),
+                          onPressed: () => Navigator.pop(context),
+                        ),
                       ],
                     ),
-                  ),
-                );
-              },
+                    const SizedBox(height: 10),
+                    filteredBrands.isEmpty
+                        ? const Center(child: Text('Нет брендов'))
+                        : Expanded(
+                            child: ListView.builder(
+                              itemCount: filteredBrands.length,
+                              itemBuilder: (context, index) {
+                                final brand = filteredBrands[index];
+                                return ListTile(
+                                  title: Text(brand.name ?? 'Без названия'),
+                                  onTap: () {
+                                    Navigator.pop(context);
+                                    setState(() {
+                                      selectedBrand =
+                                          brand.name ?? 'Без названия';
+                                      context
+                                          .read<GlobalProvider>()
+                                          .setBrandId(brand.id ?? '');
+                                    });
+                                  },
+                                );
+                              },
+                            ),
+                          ),
+                    const SizedBox(height: 10),
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 25.0),
+                      child: CustomButton(
+                        text: 'Создать свой бренд',
+                        onPressed: () {
+                          _showAddBrandDialog(setStateModal);
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             );
           },
         );
@@ -536,10 +516,6 @@ class _InfoTabState extends State<InfoTab> with AutomaticKeepAliveClientMixin {
         .read<GlobalProvider>()
         .setCategoryId(categoryId); // Передача через AuthProvider
     widget.onCategorySelected(categoryId); // Ваш текущий callback
-  }
-
-  void _selectBrand(String brandId) {
-    context.read<GlobalProvider>().setBrandId(brandId);
   }
 
   void _showAddBrandDialog(Function setStateModal) {
@@ -607,7 +583,7 @@ class _InfoTabState extends State<InfoTab> with AutomaticKeepAliveClientMixin {
                 children: [
                   const Text(
                     'Загрузите от 1 до 5 фото',
-                    style: TextStyle(fontWeight: FontWeight.bold),
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
                   ),
                   const SizedBox(height: 10),
                   Row(
@@ -629,7 +605,7 @@ class _InfoTabState extends State<InfoTab> with AutomaticKeepAliveClientMixin {
                               ),
                             ),
                             Positioned(
-                              right: 0,
+                              right: 5,
                               top: 0,
                               child: GestureDetector(
                                 onTap: () => _removeImage(index),
@@ -721,7 +697,7 @@ class _InfoTabState extends State<InfoTab> with AutomaticKeepAliveClientMixin {
                                 BorderRadius.circular(10), // Закругленные углы
                           ),
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
+                              horizontal: 18,
                               vertical: 4), // Отступы внутри контейнера
                           child: Row(
                             children: [
@@ -730,7 +706,13 @@ class _InfoTabState extends State<InfoTab> with AutomaticKeepAliveClientMixin {
                                   keyboardType: TextInputType.number,
                                   decoration: const InputDecoration(
                                     labelText: 'Цена',
+                                    labelStyle: TextStyle(
+                                        color: Colors.grey,
+                                        fontWeight: FontWeight.w500),
                                     hintText: 'Введите цену',
+                                    hintStyle: TextStyle(
+                                        color: ThemeColors.grey5,
+                                        fontWeight: FontWeight.w500),
                                     border: InputBorder
                                         .none, // Убираем стандартную границу
                                   ),
@@ -749,9 +731,9 @@ class _InfoTabState extends State<InfoTab> with AutomaticKeepAliveClientMixin {
                               const Text(
                                 'KZT',
                                 style: TextStyle(
-                                  fontWeight: FontWeight.bold, // Жирный шрифт
-                                  fontSize: 16, // Размер текста
-                                ),
+                                    fontWeight: FontWeight.bold, // Жирный шрифт
+                                    fontSize: 16, // Размер текста
+                                    color: Colors.grey),
                               ),
                             ],
                           ),
@@ -769,7 +751,7 @@ class _InfoTabState extends State<InfoTab> with AutomaticKeepAliveClientMixin {
                         FocusScope.of(context).unfocus();
 
                         final price = context.read<GlobalProvider>().price;
-                        if (price == null || price <= 0) {
+                        if (price <= 0) {
                           widget.showError(
                               'Пожалуйста, введите корректную цену.');
                           return;
@@ -788,63 +770,5 @@ class _InfoTabState extends State<InfoTab> with AutomaticKeepAliveClientMixin {
               ),
             ),
           );
-  }
-
-  Widget _buildTextField({required String label, required String hint}) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(label,
-            style: TextStyle(fontSize: 14.0, color: Colors.grey.shade600)),
-        const SizedBox(height: 8.0),
-        TextField(
-          decoration: InputDecoration(
-            hintText: hint,
-            hintStyle: TextStyle(color: Colors.grey),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8.0),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildStyledDropdown({
-    required String label,
-    required List<String> items,
-    String? value,
-    String? valueStatus,
-    ValueChanged<String?>? onChanged,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: TextStyle(fontSize: 14.0, color: Colors.grey.shade600),
-        ),
-        const SizedBox(height: 8.0),
-        DropdownButtonFormField<String>(
-          value: value ?? items.first,
-          isExpanded: true,
-          decoration: InputDecoration(
-            contentPadding:
-                const EdgeInsets.symmetric(horizontal: 12.0, vertical: 10.0),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8.0),
-              borderSide: BorderSide(color: Colors.grey.shade400),
-            ),
-          ),
-          items: items.map((item) {
-            return DropdownMenuItem<String>(
-              value: item,
-              child: Text(item),
-            );
-          }).toList(),
-          onChanged: onChanged,
-        ),
-      ],
-    );
   }
 }

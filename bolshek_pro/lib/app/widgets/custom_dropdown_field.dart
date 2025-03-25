@@ -7,6 +7,9 @@ class CustomDropdownField extends StatelessWidget {
   final VoidCallback onTap;
   final Widget? trailing;
   final bool showIcon;
+
+  /// Если true, то справа показывается стрелка направо, иначе — стрелка вниз.
+  final bool rightIcon;
   final Function(String)?
       onValueChanged; // Новый параметр для изменения значения
   final int maxLines; // Параметр для ограничения строк
@@ -18,6 +21,7 @@ class CustomDropdownField extends StatelessWidget {
     required this.onTap,
     this.trailing,
     this.showIcon = true,
+    this.rightIcon = false,
     this.onValueChanged,
     this.maxLines = 1, // Значение по умолчанию — одна строка
   }) : super(key: key);
@@ -36,7 +40,7 @@ class CustomDropdownField extends StatelessWidget {
         }
       },
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10),
           color: Colors.grey.shade100,
@@ -58,7 +62,7 @@ class CustomDropdownField extends StatelessWidget {
                   const SizedBox(height: 4),
                   Text(
                     value,
-                    maxLines: maxLines, // Применение ограничения строк
+                    maxLines: maxLines, // Ограничение строк
                     overflow: TextOverflow
                         .ellipsis, // Добавляем троеточие при переполнении
                     style: const TextStyle(
@@ -72,7 +76,12 @@ class CustomDropdownField extends StatelessWidget {
             ),
             trailing ??
                 (showIcon
-                    ? const Icon(Icons.keyboard_arrow_down)
+                    ? Icon(
+                        rightIcon
+                            ? Icons.keyboard_arrow_right_sharp
+                            : Icons.keyboard_arrow_down,
+                        color: Colors.grey,
+                      )
                     : const SizedBox()),
           ],
         ),
@@ -83,8 +92,7 @@ class CustomDropdownField extends StatelessWidget {
   /// Показывает диалог для редактирования значения
   Future<String?> _showEditDialog(
       BuildContext context, String title, String initialValue) async {
-    TextEditingController controller =
-        TextEditingController(text: initialValue);
+    final controller = TextEditingController(text: initialValue);
     return showDialog<String>(
       context: context,
       builder: (context) {

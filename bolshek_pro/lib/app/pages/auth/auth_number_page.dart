@@ -19,7 +19,9 @@ class AuthPage extends StatefulWidget {
 }
 
 class _AuthPageState extends State<AuthPage> {
-  final TextEditingController _phoneController = TextEditingController();
+  // Инициализируем контроллер с "+7"
+  final TextEditingController _phoneController =
+      TextEditingController(text: '+7');
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   StreamController<ErrorAnimationType>? errorController;
   String currentText = "";
@@ -61,7 +63,7 @@ class _AuthPageState extends State<AuthPage> {
   void _showSuccessDialog() {
     showDialog(
       context: context,
-      barrierDismissible: true, // Запрет закрытия окна по клику вне его
+      barrierDismissible: true, // Разрешаем закрытие по клику вне диалога
       builder: (BuildContext context) {
         return Dialog(
           backgroundColor: Colors.white,
@@ -73,9 +75,7 @@ class _AuthPageState extends State<AuthPage> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                SizedBox(
-                  height: 10,
-                ),
+                SizedBox(height: 10),
                 Icon(
                   Icons.no_accounts_outlined,
                   size: 59,
@@ -116,7 +116,7 @@ class _AuthPageState extends State<AuthPage> {
                       );
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: ThemeColors.orange, // Жёлтый цвет кнопки
+                      backgroundColor: ThemeColors.primary,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
                       ),
@@ -234,40 +234,24 @@ class _AuthPageState extends State<AuthPage> {
                       color: Colors.grey.shade100,
                       borderRadius: BorderRadius.circular(12)),
                   child: TextFormField(
-                    controller: _phoneController,
+                    controller:
+                        _phoneController, // Инициализирован с TextEditingController(text: '+7')
                     keyboardType: TextInputType.phone,
-                    cursorColor: ThemeColors.orange,
+                    cursorColor: ThemeColors.primary,
                     inputFormatters: [
-                      FilteringTextInputFormatter.digitsOnly,
+                      // Разрешаем ввод только символов "+" и цифр
+                      FilteringTextInputFormatter.allow(RegExp(r'[+\d]')),
                       PhoneNumberFormatter(),
                     ],
                     decoration: InputDecoration(
-                        contentPadding:
-                            EdgeInsets.only(left: 20, top: 10, bottom: 10),
-                        labelText: "Введите номер телефона",
-                        hintText: "+7 777 777-77-77",
-                        labelStyle: TextStyle(color: Colors.black54),
-                        hintStyle: TextStyle(color: Colors.grey),
-                        // prefixIcon: Icon(
-                        //   Icons.phone,
-                        //   color: ThemeColors.grey,
-                        // ),
-                        border: InputBorder.none
-                        // border: OutlineInputBorder(
-                        //   borderRadius: BorderRadius.circular(12),
-                        // ),
-                        // enabledBorder: OutlineInputBorder(
-                        //     borderRadius: BorderRadius.circular(12),
-                        //     borderSide: BorderSide(color: ThemeColors.grey)),
-                        // focusedBorder: OutlineInputBorder(
-                        //   borderRadius: BorderRadius.circular(12),
-                        //   borderSide: BorderSide(
-                        //     color: ThemeColors
-                        //         .orange, // Цвет границы, когда поле в фокусе
-                        //     width: 2.0,
-                        //   ),
-                        // ),
-                        ),
+                      contentPadding:
+                          EdgeInsets.only(left: 20, top: 10, bottom: 10),
+                      labelText: "Введите номер телефона",
+                      hintText: "+7 777 777-77-77",
+                      labelStyle: TextStyle(color: Colors.black54),
+                      hintStyle: TextStyle(color: Colors.grey),
+                      border: InputBorder.none,
+                    ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return "Введите номер телефона";
@@ -283,16 +267,15 @@ class _AuthPageState extends State<AuthPage> {
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: _isLoading
-                        ? null
-                        : _handleSendSms, // Блокировка кнопки во время загрузки
+                    onPressed: _isLoading ? null : _handleSendSms,
                     style: ElevatedButton.styleFrom(
-                        backgroundColor: ThemeColors.orange,
-                        padding: EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        elevation: 0),
+                      backgroundColor: ThemeColors.orange,
+                      padding: EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      elevation: 0,
+                    ),
                     child: _isLoading
                         ? SizedBox(
                             width: 24,
@@ -306,9 +289,10 @@ class _AuthPageState extends State<AuthPage> {
                         : Text(
                             "Отправить SMS",
                             style: TextStyle(
-                                fontSize: 16,
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold),
+                              fontSize: 16,
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                   ),
                 )

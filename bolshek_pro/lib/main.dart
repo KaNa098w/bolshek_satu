@@ -3,46 +3,67 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:bolshek_pro/app/pages/auth/auth_main_page.dart';
-import 'package:bolshek_pro/core/service/firebase_api.dart';
 import 'package:bolshek_pro/firebase_options.dart';
 import 'core/utils/provider.dart';
 import 'core/utils/theme.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
-void main() async {
+// Глобальный RouteObserver для отслеживания навигации
+final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
+
+// Обработчик фоновых уведомлений
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  print("Фоновое сообщение: ${message.messageId}");
+  // Дополнительная обработка, если необходимо.
+}
+
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  await FirebaseApi().initNotifications();
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
-  runApp(MyApp());
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => GlobalProvider()),
+      ],
+      child: MyApp(),
+    ),
+  );
 }
 
-Future<void> setupFirebaseMessaging() async {
-  FirebaseMessaging messaging = FirebaseMessaging.instance;
+class MyApp extends StatefulWidget {
+  MyApp({Key? key}) : super(key: key);
 
-  // Запрос разрешения на уведомления для iOS
-  NotificationSettings settings = await messaging.requestPermission(
-    alert: true,
-    badge: true,
-    sound: true,
-  );
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
 
-  if (settings.authorizationStatus == AuthorizationStatus.authorized) {
-    print('Разрешение на уведомления получено.');
-  } else if (settings.authorizationStatus == AuthorizationStatus.provisional) {
-    print('Разрешение на уведомления предоставлено временно.');
-  } else {
-    print('Разрешение на уведомления не предоставлено.');
+class _MyAppState extends State<MyApp> {
+  @override
+  void initState() {
+    super.initState();
+    _setupFirebaseMessaging();
   }
 
-  // Подписка на топик
-  const topic = "user_topic_79474460-4437-47ef-a9d6-13c70588db8f";
-  await messaging.subscribeToTopic(topic);
-  print("Подписка на топик '$topic' успешно выполнена.");
-}
+  Future<void> _setupFirebaseMessaging() async {
+    FirebaseMessaging messaging = FirebaseMessaging.instance;
+    NotificationSettings settings = await messaging.requestPermission(
+      alert: true,
+      badge: true,
+      sound: true,
+    );
 
-class MyApp extends StatelessWidget {
-  MyApp({Key? key}) : super(key: key);
+    print("Статус разрешения на уведомления: ${settings.authorizationStatus}");
+
+    if (settings.authorizationStatus == AuthorizationStatus.authorized ||
+        settings.authorizationStatus == AuthorizationStatus.provisional) {
+      String? fcmToken = await messaging.getToken();
+      print("FCM Device Token: $fcmToken");
+    } else {
+      print("Разрешение не предоставлено. Уведомления не будут получаться.");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -57,28 +78,26 @@ class MyApp extends StatelessWidget {
         ),
       );
     });
-    return MultiProvider(
-      providers: [
-        ChangeNotifierProvider(
-            create: (_) => GlobalProvider()), // Добавляем AuthProvider
-      ],
-      child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        theme: ThemeColors.lightTheme,
-        supportedLocales: const [
-          Locale('ru'), // Русский
-          Locale('en'), // Английский или любые другие
-        ],
-        localizationsDelegates: const [
-          GlobalMaterialLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
-        ],
 
-        // (Необязательно) Можете явно указать, чтобы приложение всегда было на русском:
-        locale: const Locale('ru'),
-        home: AuthMainScreen(), // Начальный экран
-      ),
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      theme: ThemeColors.lightTheme,
+      // Подключаем глобальный RouteObserver для отслеживания навигационных событий
+      navigatorObservers: [routeObserver],
+      // Указываем поддерживаемые локали
+      supportedLocales: const [
+        Locale('ru'),
+        // Если нужно поддерживать другие локали, добавьте их сюда
+      ],
+      // Указываем делегаты локализации
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      // Принудительно устанавливаем русский язык
+      locale: const Locale('ru'),
+      home: AuthMainScreen(),
     );
   }
 }

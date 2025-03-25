@@ -11,6 +11,7 @@ class FetchProductResponse {
   List<String>? compatibleVehicleIds; // Изменено на List<String>
   String? brandId;
   String? categoryId;
+  String? crossNumber;
   List<Variants>? variants;
   List<Properties>? properties;
 
@@ -27,6 +28,7 @@ class FetchProductResponse {
     this.compatibleVehicleIds,
     this.brandId,
     this.categoryId,
+    this.crossNumber,
     this.variants,
     this.properties,
   });
@@ -50,6 +52,7 @@ class FetchProductResponse {
         .toList(); // Конвертация в List<String>
     brandId = json['brandId'];
     categoryId = json['categoryId'];
+    crossNumber = json['crossNumber'];
     variants = (json['variants'] as List<dynamic>?)
         ?.map((v) => Variants.fromJson(v))
         .toList();
@@ -78,6 +81,7 @@ class FetchProductResponse {
     }
     data['brandId'] = brandId;
     data['categoryId'] = categoryId;
+    data['crossNumber'] = crossNumber;
     if (variants != null) {
       data['variants'] = variants!.map((v) => v.toJson()).toList();
     }

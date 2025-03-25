@@ -197,7 +197,8 @@ class AuthService {
         "organizationAddress": address,
         "organizationAddressLatitude": latitude,
         "organizationAddressLongitude": longitude,
-        "organizationAddressCityId": '1d7eb308-dbd8-496e-8875-3dd6e917c7f6',
+        // "organizationAddressCityId": '60f95c44-05e8-4031-9d9b-fad22fcd0d0c',
+        "organizationAddressCityId": '60f95c44-05e8-4031-9d9b-fad22fcd0d0c',
       };
 
       final response = await httpClient.post(

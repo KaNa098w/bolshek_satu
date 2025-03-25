@@ -54,10 +54,7 @@ class PropertiesService {
   }) async {
     try {
       final token = _getToken(context);
-      final body = {
-        "value": value,
-        "propertyId": propertyId
-      }; // Убираем jsonEncode(value)
+      final body = {"value": jsonEncode(value), "propertyId": propertyId};
 
       print('Creating product properties with data: ${jsonEncode(body)}');
 

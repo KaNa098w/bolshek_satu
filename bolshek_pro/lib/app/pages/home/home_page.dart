@@ -112,7 +112,9 @@ class _HomePageState extends State<HomePage> {
         child:
             // Если идёт загрузка — показываем прелоадер
             _isLoading
-                ? const CircularProgressIndicator()
+                ? const CircularProgressIndicator(
+                    color: Colors.grey,
+                  )
                 // Если товары (statusesTotal) есть, показываем таблицу
                 : _activeTotal > 0
                     ? _buildStatusesTable()

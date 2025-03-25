@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:bolshek_pro/app/pages/home/cross_number_screen.dart';
 import 'package:bolshek_pro/app/widgets/animation_rotation_widget.dart';
 import 'package:bolshek_pro/app/widgets/custom_alert_dialog_widget.dart';
 import 'package:bolshek_pro/app/widgets/editable_dropdown_field.dart';
@@ -1101,6 +1102,7 @@ class _ProductChangePageState extends State<ProductChangePage> {
   }
 
   Widget _buildProductDetails() {
+    final displayValue = '';
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16.0),
       child: Column(
@@ -1299,6 +1301,17 @@ class _ProductChangePageState extends State<ProductChangePage> {
           ),
 
           const SizedBox(height: 10),
+          EditableDropdownField(
+            title: 'OEM номер',
+            change: false,
+            value: _product?.crossNumber ?? '',
+            onChanged: (newValue) {
+              setState(() {
+                _product?.crossNumber = newValue; // Обновляем код товара
+              });
+            },
+          ),
+          const SizedBox(height: 10),
 
           // Артикул товара
           EditableDropdownField(
@@ -1313,8 +1326,18 @@ class _ProductChangePageState extends State<ProductChangePage> {
           ),
 
           const SizedBox(height: 10),
-
-          // Тип
+          // CustomDropdownField(
+          //     title: 'Соотвествие с автомобилем',
+          //     value: displayValue,
+          //     onTap: () {
+          //       Navigator.push(
+          //         context,
+          //         MaterialPageRoute(
+          //             builder: (context) => const CrossNumberScreen()),
+          //       );
+          //     }),
+          // // Тип
+          // const SizedBox(height: 10),
 
           CustomDropdownField(
             title: 'Тип',

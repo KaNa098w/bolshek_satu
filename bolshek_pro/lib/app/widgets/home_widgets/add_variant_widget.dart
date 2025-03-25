@@ -1,6 +1,7 @@
 import 'package:bolshek_pro/app/widgets/custom_alert_dialog_widget.dart';
 import 'package:bolshek_pro/app/widgets/custom_dropdown_field.dart';
 import 'package:bolshek_pro/app/widgets/editable_dropdown_field.dart';
+import 'package:bolshek_pro/app/widgets/textfield_widget.dart';
 import 'package:bolshek_pro/core/models/manufacturers_response.dart';
 import 'package:bolshek_pro/core/service/maufacturers_service.dart';
 import 'package:bolshek_pro/app/widgets/custom_button.dart';
@@ -153,7 +154,7 @@ class _ProductDetailsWidgetState extends State<ProductDetailsWidget> {
   }
 
   void _showDeliveryMethods() {
-    final deliveryMethods = ['Эксперт', 'Стандартная', 'Индивидуальная'];
+    final deliveryMethods = ['Экспресс', 'Стандартная', 'Индивидуальная'];
 
     showModalBottomSheet(
       context: context,
@@ -193,7 +194,7 @@ class _ProductDetailsWidgetState extends State<ProductDetailsWidget> {
                               setState(() {
                                 selectedDelivery = method;
                                 String deliveryType = '';
-                                if (method == 'Эксперт')
+                                if (method == 'Экспресс')
                                   deliveryType = 'express';
                                 if (method == 'Стандартная')
                                   deliveryType = 'standard';
@@ -322,8 +323,8 @@ class _ProductDetailsWidgetState extends State<ProductDetailsWidget> {
                       ),
                     ),
                     const SizedBox(height: 10),
-                    Align(
-                      alignment: Alignment.bottomCenter,
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 25.0),
                       child: CustomButton(
                         text: 'Добавить производителя',
                         onPressed: () async {
@@ -404,7 +405,7 @@ class _ProductDetailsWidgetState extends State<ProductDetailsWidget> {
             children: [
               Expanded(
                 child: CustomDropdownField(
-                  title: 'Тип',
+                  title: 'Вариант',
                   value: selectedType ?? 'Выберите тип',
                   onTap: _showTypeOptions,
                 ),
@@ -435,7 +436,7 @@ class _ProductDetailsWidgetState extends State<ProductDetailsWidget> {
           // ),
           CustomDropdownField(
               title: 'Производитель',
-              value: _selectedManufacturer?.name ?? '',
+              value: _selectedManufacturer?.name ?? 'Выберите производителя',
               onTap: _showManufacturers),
           const SizedBox(height: 12.0),
           Row(
@@ -458,11 +459,11 @@ class _ProductDetailsWidgetState extends State<ProductDetailsWidget> {
           Row(
             children: [
               Expanded(
-                child: EditableDropdownField(
+                child: CustomEditableField(
                   title: 'SKU',
                   value: '',
                   // hint: 'Введите артикул',
-                  maxLines: 1, // Поле для ввода одной строки
+                  // maxLines: 1, // Поле для ввода одной строки
                   onChanged: (value) {
                     context.read<GlobalProvider>().setSku(value);
                   },
@@ -475,11 +476,11 @@ class _ProductDetailsWidgetState extends State<ProductDetailsWidget> {
           Row(
             children: [
               Expanded(
-                child: EditableDropdownField(
+                child: CustomEditableField(
                   title: 'Код запчасти',
                   value: '',
                   // hint: 'Введите код запчасти',
-                  maxLines: 1, // Поле для ввода одной строки
+                  // maxLines: 1, // Поле для ввода одной строки
                   onChanged: (value) {
                     context.read<GlobalProvider>().setVendorCode(value);
                   },

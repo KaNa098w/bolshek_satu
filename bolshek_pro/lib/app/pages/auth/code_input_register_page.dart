@@ -181,9 +181,7 @@ class _CodeInputRegisterState extends State<CodeInputRegister> {
         widget.selectedBrandIds.toList(),
       );
 
-      if (response != null) {
-        _showSuccessDialog();
-      }
+      _showSuccessDialog();
     } catch (e) {
       String errorMessage = 'Ошибка регистрации: $e';
 

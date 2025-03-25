@@ -1,4 +1,5 @@
 import 'package:bolshek_pro/app/widgets/home_widgets/category_colors_widget.dart';
+import 'package:bolshek_pro/core/utils/theme.dart';
 import 'package:flutter/material.dart';
 
 class ColorPicker extends StatefulWidget {
@@ -103,7 +104,7 @@ class _ColorPickerState extends State<ColorPicker> {
     return GestureDetector(
       onTap: _showColorOptions,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10),
           color: Colors.grey.shade100,
@@ -128,6 +129,7 @@ class _ColorPickerState extends State<ColorPicker> {
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
                       fontSize: 16,
+                      color: ThemeColors.grey5,
                       fontWeight: FontWeight.w500,
                     ),
                   ),

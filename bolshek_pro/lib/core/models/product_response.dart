@@ -42,6 +42,7 @@ class ProductItems {
   List<dynamic>? compatibleVehicleIds;
   String? brandId;
   String? categoryId;
+  String? crossNumber;
   Category? category;
   List<Variants>? variants;
 
@@ -63,6 +64,7 @@ class ProductItems {
     this.compatibleVehicleIds,
     this.brandId,
     this.categoryId,
+    this.crossNumber,
     this.category,
     this.variants,
   });
@@ -92,6 +94,7 @@ class ProductItems {
     compatibleVehicleIds = json['compatibleVehicleIds'];
     brandId = json['brandId'];
     categoryId = json['categoryId'];
+    crossNumber = json['crossNumber'];
     category =
         json['category'] != null ? Category.fromJson(json['category']) : null;
     if (json['variants'] != null) {
@@ -127,6 +130,7 @@ class ProductItems {
     }
     data['brandId'] = brandId;
     data['categoryId'] = categoryId;
+    data['crossNumber'] = crossNumber;
     if (category != null) {
       data['category'] = category!.toJson();
     }

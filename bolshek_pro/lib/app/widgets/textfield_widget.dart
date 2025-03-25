@@ -52,7 +52,7 @@ class _CustomEditableFieldState extends State<CustomEditableField> {
         FocusScope.of(context).requestFocus(FocusNode());
       },
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 3),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10),
           color: Colors.grey.shade100,
@@ -73,7 +73,11 @@ class _CustomEditableFieldState extends State<CustomEditableField> {
                 hintText: widget.title,
                 labelStyle: TextStyle(
                   fontSize: 16,
-                  color: ThemeColors.grey5,
+                  color: ThemeColors.grey, // начальный стиль метки
+                ),
+                floatingLabelStyle: const TextStyle(
+                  fontSize: 16,
+                  color: Colors.grey, // стиль плавающей метки (верхнего текста)
                 ),
                 hintStyle: const TextStyle(
                   fontSize: 16,
@@ -85,7 +89,7 @@ class _CustomEditableFieldState extends State<CustomEditableField> {
                 fontSize: 16,
                 fontWeight: FontWeight.w500,
               ),
-            ),
+            )
           ],
         ),
       ),

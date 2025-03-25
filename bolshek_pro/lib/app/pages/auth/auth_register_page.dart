@@ -105,7 +105,15 @@ class _AuthRegisterScreenState extends State<AuthRegisterScreen> {
                   )),
         );
       } else {
-        print('Регистрация есть');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Такой номер уже был зарегистрирован ',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            backgroundColor: Colors.grey[600],
+          ),
+        );
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(

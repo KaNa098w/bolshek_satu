@@ -19,6 +19,13 @@ class GlobalProvider extends ChangeNotifier {
   String _sku = '';
   String? _manufacturerId;
 
+  String? _fcmToken;
+  String? get fcmToken => _fcmToken;
+  void setFcmToken(String token) {
+    _fcmToken = token;
+    notifyListeners();
+  }
+
   // Геттерый
   double get price => _price;
   String get kind => _kind;
@@ -42,6 +49,14 @@ class GlobalProvider extends ChangeNotifier {
   Map<String, String> _propertyValues = {};
 
   Map<String, String> get propertyValues => _propertyValues;
+
+  List<Map<String, dynamic>> _carMappings = [];
+  List<Map<String, dynamic>> get carMappings => _carMappings;
+
+  void setCarMappings(List<Map<String, dynamic>> mappings) {
+    _carMappings = mappings;
+    notifyListeners();
+  }
 
   void setPropertyValues(Map<String, String> values) {
     _propertyValues = values;
@@ -208,6 +223,7 @@ class GlobalProvider extends ChangeNotifier {
     _manufacturerId = null;
     _images.clear();
     _propertyValues.clear();
+    _carMappings.clear();
     notifyListeners();
   }
 

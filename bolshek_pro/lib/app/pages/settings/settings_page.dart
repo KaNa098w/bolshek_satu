@@ -467,9 +467,9 @@ class _MyOrganizationPageState extends State<MyOrganizationPage> {
 
           final data = snapshot.data!;
           final organization = data.user?.organization;
-          final topic = data.user?.fcmTopic;
+          // final topic = data.user?.fcmTopic;
 
-          print('ВАШ ТОПИК $topic');
+          // print('ВАШ ТОПИК $topic');
 
           if (organization == null) {
             return Center(child: Text("Информация об организации отсутствует"));
