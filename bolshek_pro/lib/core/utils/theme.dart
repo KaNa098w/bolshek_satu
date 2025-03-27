@@ -44,5 +44,5 @@ class ThemeColors {
   static const error = Color(0xFFE2100C);
   static const iBrandPrimary = Color(0xFF2B63F3);
 
-  static var primary;
+  static const primary = Colors.greenAccent;
 }

@@ -33,7 +33,9 @@ class FullScreenImage extends StatelessWidget {
             color: Colors.white, // Белый фон для PhotoView
           ),
           loadingBuilder: (context, event) => Center(
-            child: CircularProgressIndicator(),
+            child: CircularProgressIndicator(
+              color: Colors.grey,
+            ),
           ),
           errorBuilder: (context, error, stackTrace) => Center(
             child: Icon(

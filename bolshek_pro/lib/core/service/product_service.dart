@@ -92,6 +92,29 @@ class ProductService {
     }
   }
 
+  Future<ProductResponse> fetchProductsName({
+    required BuildContext context,
+    required String name,
+  }) async {
+    try {
+      final response = await httpClient.get(
+        Uri.parse('$_baseUrl?name=$name&take=25&categoryWithChildren=true'),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final json = jsonDecode(response.body);
+        return ProductResponse.fromJson(json);
+      } else {
+        throw Exception('Failed to load products: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Error fetching products: $e');
+    }
+  }
+
   Future<ProductResponse> fetchProductsForMain({
     required BuildContext context,
     required String status,
@@ -146,16 +169,16 @@ class ProductService {
     required BuildContext context,
     required String id,
   }) async {
-    final String token = _getToken(context);
+    // final String token = _getToken(context);
 
     try {
       print('Запрос к сервису: $_baseUrl/$id'); // Лог URL
-      print('Токен: $token'); // Лог токена
+      // print('Токен: $token'); // Лог токена
 
       final response = await http.get(
         Uri.parse('$_baseUrl/$id'),
         headers: {
-          'Authorization': 'Bearer $token',
+          // 'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
         },
       );

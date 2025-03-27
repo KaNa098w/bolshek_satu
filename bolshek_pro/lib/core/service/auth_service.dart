@@ -124,9 +124,9 @@ class AuthService {
         print('Номер успешно отправлен');
         // Возвращаем распакованный JSON
         return jsonDecode(response.body) as Map<String, dynamic>;
-      } else if (response.statusCode == 400) {
+      } else if (response.statusCode == 400 || response.statusCode == 403) {
         final responseData = jsonDecode(response.body) as Map<String, dynamic>;
-        if (responseData['code'] == 10002) {
+        if (responseData['code'] == 10002 || responseData['code'] == 9040) {
           // Сообщение для неактивного аккаунта
           throw Exception(
               'Ваш аккаунт еще не активен. Пожалуйста, ждите ответа менеджера.');

@@ -42,7 +42,7 @@ class BrandsService {
       // final token = _getToken(context);
       final url = '${Constants.baseUrl}/brands/$id';
 
-      final response = await http.get(
+      final response = await httpClient.get(
         Uri.parse(url),
         headers: {
           // 'Authorization': 'Bearer $token',

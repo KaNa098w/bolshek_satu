@@ -40,7 +40,7 @@ class CrossNumberInput extends StatefulWidget {
 
 class _CrossNumberInputState extends State<CrossNumberInput> {
   Timer? _debounce;
-  List<Items> _suggestedItems = []; // список объектов Items
+  List<Items> _suggestedItems = [];
   AlternativeCrossResponse? _alternativeResponse; // для хранения альтернатив
   final LayerLink _layerLink = LayerLink();
   OverlayEntry? _overlayEntry;

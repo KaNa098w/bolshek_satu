@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:bolshek_pro/core/models/category_response.dart';
+import 'package:bolshek_pro/core/models/categorybyId_response.dart';
 import 'package:bolshek_pro/core/utils/constants.dart';
 import 'package:bolshek_pro/core/utils/provider.dart';
 import 'package:http/http.dart' as http;
@@ -34,7 +35,7 @@ class CategoriesService {
     }
   }
 
-  Future<CategoryResponse> fetchCategoriesById(
+  Future<CategoryByIdResponse> fetchCategoriesById(
       BuildContext context, String id) async {
     try {
       // final token = _getToken(context);
@@ -50,7 +51,7 @@ class CategoriesService {
 
       if (response.statusCode == 200) {
         final json = jsonDecode(response.body);
-        return CategoryResponse.fromJson(json);
+        return CategoryByIdResponse.fromJson(json);
       } else {
         throw Exception('Failed to load brand: ${response.statusCode}');
       }

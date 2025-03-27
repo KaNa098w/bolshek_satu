@@ -116,7 +116,7 @@ class _AuthPageState extends State<AuthPage> {
                       );
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: ThemeColors.primary,
+                      backgroundColor: ThemeColors.orange,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
                       ),
