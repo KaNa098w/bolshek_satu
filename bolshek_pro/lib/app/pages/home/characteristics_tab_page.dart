@@ -1,25 +1,26 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'package:bolshek_pro/app/pages/home/cross_number_screen.dart';
-import 'package:bolshek_pro/app/pages/home/vehicle_screen.dart';
+import 'package:bolshek_pro/app/widgets/custom_button.dart';
 import 'package:bolshek_pro/app/widgets/custom_dropdown_field.dart';
-import 'package:bolshek_pro/app/widgets/editable_dropdown_field.dart';
 import 'package:bolshek_pro/app/widgets/home_widgets/add_variant_widget.dart';
 import 'package:bolshek_pro/app/widgets/home_widgets/color_picker_widget.dart';
 import 'package:bolshek_pro/app/widgets/main_controller.dart';
 import 'package:bolshek_pro/app/widgets/textfield_widget.dart';
+import 'package:bolshek_pro/core/models/properties_response.dart';
 import 'package:bolshek_pro/core/service/cross_number_service.dart';
 import 'package:bolshek_pro/core/service/images_service.dart';
 import 'package:bolshek_pro/core/service/product_service.dart';
+import 'package:bolshek_pro/core/service/properties_service.dart';
+import 'package:bolshek_pro/core/service/tags_service.dart';
 import 'package:bolshek_pro/core/service/variants_service.dart';
 import 'package:bolshek_pro/core/utils/provider.dart';
-
 import 'package:bolshek_pro/core/utils/theme.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart'; // Для FilteringTextInputFormatter
 import 'package:provider/provider.dart';
-import 'package:bolshek_pro/core/models/properties_response.dart';
-import 'package:bolshek_pro/core/service/properties_service.dart';
-import 'package:bolshek_pro/app/widgets/custom_button.dart';
+import 'package:bolshek_pro/generated/l10n.dart';
 
 class CharacteristicsTab extends StatefulWidget {
   const CharacteristicsTab({Key? key}) : super(key: key);
@@ -30,6 +31,7 @@ class CharacteristicsTab extends StatefulWidget {
 
 class _CharacteristicsTabState extends State<CharacteristicsTab>
     with AutomaticKeepAliveClientMixin {
+  // Значения свойств сохраняются в виде строки, преобразование происходит при отправке.
   Map<String, String> _propertyValues = {};
   ValueNotifier<List<PropertyItems>> propertiesNotifier = ValueNotifier([]);
   ValueNotifier<double> uploadProgressNotifier = ValueNotifier(0.0);
@@ -38,13 +40,12 @@ class _CharacteristicsTabState extends State<CharacteristicsTab>
   Map<String, bool> _fieldErrors = {};
 
   @override
-  bool get wantKeepAlive => true; // Гарантирует сохранение состояния
+  bool get wantKeepAlive => true; // Сохраняем состояние
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     final categoryId = context.watch<GlobalProvider>().selectedCategoryId;
-
     if (categoryId != null) {
       _loadProperties(categoryId);
     }
@@ -62,43 +63,39 @@ class _CharacteristicsTabState extends State<CharacteristicsTab>
       setState(() {
         isLoading = false;
       });
-      _showError('Ошибка загрузки свойств: $e');
+      _showError('${S.of(context).error_loading_properties}: $e');
     }
   }
 
-  String _convertPropertyValue(String type, String value) {
+  /// Преобразование значения свойства в строку в зависимости от типа
+  dynamic _convertPropertyValue(String type, String value) {
     switch (type) {
       case 'boolean':
-        return (value.toLowerCase() == 'true').toString(); // true -> "true"
+        return value.toLowerCase() == 'true';
       case 'number':
-        return (int.tryParse(value) ?? 0).toString(); // 123 -> "123"
+        return int.tryParse(value) ?? 0;
       case 'float':
-        return (double.tryParse(value) ?? 0.0).toString(); // 123.45 -> "123.45"
+        return double.tryParse(value) ?? 0.0;
       case 'color':
-        return value; // HEX-код цвета остается строкой
+        return value; // Например, HEX-код
       case 'string':
       default:
-        return value; // Оставляем как есть
+        return value;
     }
   }
 
   void _validateFields() {
-    _propertyErrors.clear(); // Сброс ошибок свойств
-    _fieldErrors.clear(); // Сброс ошибок ключевых полей
+    _propertyErrors.clear();
+    _fieldErrors.clear();
 
-    // Проверить свойства
+    // Валидация свойств
     propertiesNotifier.value.forEach((property) {
       final propertyId = property.id ?? '';
       final value = _propertyValues[propertyId] ?? '';
-
-      if (value.isEmpty) {
-        _propertyErrors[propertyId] = true;
-      } else {
-        _propertyErrors[propertyId] = false;
-      }
+      _propertyErrors[propertyId] = value.isEmpty;
     });
 
-    // Проверить ключевые поля
+    // Валидация ключевых полей
     final authProvider = context.read<GlobalProvider>();
     _fieldErrors['productName'] = (authProvider.name?.isEmpty ?? true);
     _fieldErrors['brandId'] = (authProvider.brandId?.isEmpty ?? true);
@@ -114,13 +111,11 @@ class _CharacteristicsTabState extends State<CharacteristicsTab>
     _fieldErrors['manufacturerId'] =
         (authProvider.manufacturerId?.isEmpty ?? true);
 
-    setState(() {}); // Обновить интерфейс
+    setState(() {});
   }
 
   bool _areAllFieldsValid() {
     _validateFields();
-
-    // Если есть хотя бы одно поле или свойство с ошибкой, вернуть false
     final hasPropertyErrors =
         _propertyErrors.values.any((hasError) => hasError);
     final hasFieldErrors = _fieldErrors.values.any((hasError) => hasError);
@@ -132,12 +127,12 @@ class _CharacteristicsTabState extends State<CharacteristicsTab>
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Ошибка'),
+          title: Text(S.of(context).error),
           content: Text(message),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('ОК'),
+              child: Text(S.of(context).ok),
             ),
           ],
         );
@@ -148,28 +143,20 @@ class _CharacteristicsTabState extends State<CharacteristicsTab>
   void _createProduct() async {
     if (!_areAllFieldsValid()) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Заполните все поля')),
+        SnackBar(content: Text(S.of(context).fill_all_fields)),
       );
-      return; // Остановить выполнение
+      return;
     }
-
     try {
       final authProvider = context.read<GlobalProvider>();
-      // print('descriptionText: ${authProvider.descriptionText}');
-      // print('categoryId: ${authProvider.selectedCategoryId}');
-      // print('brandId: ${authProvider.brandId}');
-      // print('images: ${authProvider.images}');
-      // print('_propertyValues: $_propertyValues');
-
       // Инициализация прогресса загрузки
-      const totalSteps = 4.0; // Количество этапов
+      const totalSteps = 4.0;
       ValueNotifier<double> uploadProgressNotifier = ValueNotifier(0.0);
       ValueNotifier<List<String>> completedStepsNotifier = ValueNotifier([]);
       ValueNotifier<String> currentStepNotifier =
-          ValueNotifier('Инициализация');
+          ValueNotifier(S.of(context).initialization);
       ValueNotifier<int> dotsNotifier = ValueNotifier(0);
 
-      // Анимация для мигающих точек
       Timer.periodic(const Duration(milliseconds: 500), (timer) {
         if (dotsNotifier.value >= 3) {
           dotsNotifier.value = 0;
@@ -178,7 +165,7 @@ class _CharacteristicsTabState extends State<CharacteristicsTab>
         }
       });
 
-      // Отображение прогресса загрузки
+      // Диалог загрузки
       showDialog(
         context: context,
         barrierDismissible: false,
@@ -186,7 +173,10 @@ class _CharacteristicsTabState extends State<CharacteristicsTab>
           return StatefulBuilder(
             builder: (context, setState) {
               return AlertDialog(
-                title: const Text('Создание товара'),
+                title: Text(
+                  S.of(context).creating_product,
+                  style: const TextStyle(fontSize: 18),
+                ),
                 content: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -202,7 +192,7 @@ class _CharacteristicsTabState extends State<CharacteristicsTab>
                               child: CircularProgressIndicator(
                                 value: progress,
                                 color: ThemeColors.orange,
-                                strokeWidth: 8.0,
+                                strokeWidth: 7.0,
                               ),
                             );
                           },
@@ -225,18 +215,28 @@ class _CharacteristicsTabState extends State<CharacteristicsTab>
                     ValueListenableBuilder<String>(
                       valueListenable: currentStepNotifier,
                       builder: (context, currentStep, child) {
-                        return ValueListenableBuilder<int>(
-                          valueListenable: dotsNotifier,
-                          builder: (context, dots, child) {
-                            return Text(
-                              '$currentStep${'.' * dots}',
+                        return Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              currentStep,
                               textAlign: TextAlign.center,
                               style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            );
-                          },
+                                  fontSize: 16, fontWeight: FontWeight.bold),
+                            ),
+                            ValueListenableBuilder<int>(
+                              valueListenable: dotsNotifier,
+                              builder: (context, dots, child) {
+                                return Text(
+                                  '${'.' * dots}',
+                                  textAlign: TextAlign.center,
+                                  style: const TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold),
+                                );
+                              },
+                            ),
+                          ],
                         );
                       },
                     ),
@@ -275,8 +275,8 @@ class _CharacteristicsTabState extends State<CharacteristicsTab>
       final crossNumberService = CrossNumberGenerateService();
 
       // 1. Создание продукта
-      currentStepNotifier.value = 'Создание товара';
-      final productName = authProvider.name ?? 'Не указано';
+      currentStepNotifier.value = S.of(context).creating_product;
+      final productName = authProvider.name ?? S.of(context).not_specified;
       final brandId = authProvider.brandId ?? '';
       final categoryId = authProvider.selectedCategoryId ?? '';
       final deliveryType = authProvider.deliveryType;
@@ -290,28 +290,34 @@ class _CharacteristicsTabState extends State<CharacteristicsTab>
         firstVehicleId = carMappings.first['vehicleId'] ?? '';
       }
       final response = await ProductService().createProduct(
-          context,
-          productName,
-          productName.toLowerCase().replaceAll(' ', '-'), // slug
-          brandId,
-          deliveryType,
-          categoryId,
-          vendorCode,
-          descriptionText,
-          firstCrossNumber,
-          firstVehicleId);
+        context,
+        productName,
+        productName.toLowerCase().replaceAll(' ', '-'),
+        brandId,
+        deliveryType,
+        categoryId,
+        vendorCode,
+        descriptionText,
+        firstCrossNumber,
+        firstVehicleId,
+        authProvider.price,
+        authProvider.kind,
+        authProvider.sku,
+        authProvider.manufacturerId ?? '',
+      );
+
+      // 3. Создание варианта товара
 
       final Map<String, dynamic> responseData = jsonDecode(response.body);
       final String productId = responseData['id'] ?? '';
-
       if (productId.isEmpty) {
-        throw Exception('ID продукта не найден в ответе');
+        throw Exception(S.of(context).product_id_not_found);
       }
       uploadProgressNotifier.value += 1.0 / totalSteps;
-      completedStepsNotifier.value.add('Товар создан');
+      completedStepsNotifier.value.add(S.of(context).product_created);
 
       // 2. Загрузка фотографий
-      currentStepNotifier.value = 'Загрузка фотографий';
+      currentStepNotifier.value = S.of(context).uploading_photos;
       final images = authProvider.images;
       for (var i = 0; i < images.length; i++) {
         await imagesService.createProductImage(
@@ -323,10 +329,10 @@ class _CharacteristicsTabState extends State<CharacteristicsTab>
         );
         uploadProgressNotifier.value += (1.0 / totalSteps) / images.length;
       }
-      completedStepsNotifier.value.add('Фотографии загружены');
+      completedStepsNotifier.value.add(S.of(context).photos_uploaded);
+
       final List<Map<String, dynamic>> crossNumberGenerations = [];
       for (var mapping in carMappings) {
-        // Добавляем основное соответствие только если vehicleId не пустой
         if ((mapping['oem'] as String?)?.isNotEmpty == true &&
             (mapping['vehicleId'] as String?)?.isNotEmpty == true) {
           crossNumberGenerations.add({
@@ -334,8 +340,6 @@ class _CharacteristicsTabState extends State<CharacteristicsTab>
             "vehicleGenerationId": mapping['vehicleId'],
           });
         }
-
-        // Обрабатываем альтернативы, добавляем только если alt['id'] не пустой
         final List<dynamic> alternatives =
             mapping['alternatives'] as List<dynamic>? ?? [];
         for (var alt in alternatives) {
@@ -348,47 +352,53 @@ class _CharacteristicsTabState extends State<CharacteristicsTab>
           }
         }
       }
-
       await crossNumberService.generateCrossNumber(
         context: context,
         productId: productId,
         crossNumberGenerations: crossNumberGenerations,
       );
 
-      // 3. Создание варианта
-      currentStepNotifier.value = 'Создание варианта товара';
-      await VariantsService().createProductVariant(
-        context,
-        productId: productId,
-        priceAmount: authProvider.price,
-        sku: authProvider.sku,
-        manufacturerId: authProvider.manufacturerId ?? '',
-        kind: authProvider.kind ?? 'original',
-      );
-      uploadProgressNotifier.value += 1.0 / totalSteps;
-      completedStepsNotifier.value.add('Вариант товара создан');
+      // // 3. Создание варианта товара
+      // currentStepNotifier.value = S.of(context).creating_variant;
+      // await VariantsService().createProductVariant(context,
+      //     productId: productId,
+      //     priceAmount: authProvider.price,
+      //     sku: authProvider.sku,
+      //     manufacturerId: authProvider.manufacturerId ?? '',
+      //     kind: authProvider.kind ?? 'original',
+      //     discountedAmount: 0,
+      //     discountedPersent: 0);
+      // uploadProgressNotifier.value += 1.0 / totalSteps;
+      // completedStepsNotifier.value.add(S.of(context).variant_created);
+
+      // if (authProvider.tagsId != null && authProvider.tagsId != '') {
+      //   currentStepNotifier.value = S.of(context).creating_tags;
+      //   await TagsService()
+      //       .createTags(context, authProvider.tagsId ?? '', productId);
+      //   uploadProgressNotifier.value = 1.0;
+      //   completedStepsNotifier.value.add(S.of(context).tags_saved);
+      // } else {
+      //   currentStepNotifier.value = S.of(context).tags_empty;
+      // }
 
       // 4. Отправка свойств
-      currentStepNotifier.value = 'Сохранение характеристик';
+      currentStepNotifier.value = S.of(context).saving_properties;
       for (final property in propertiesNotifier.value) {
         final propertyId = property.id ?? '';
-        final type = property.type ?? 'string'; // Гарантируем, что type не null
+        final type = property.type ?? 'string';
         final rawValue = _propertyValues[propertyId] ?? '';
-
         if (rawValue.isNotEmpty) {
           final convertedValue = _convertPropertyValue(type, rawValue);
-
           await propertiesService.createProductProperties(
             context,
             productId: productId,
             propertyId: propertyId,
-            value: convertedValue, // Теперь это всегда String
+            value: convertedValue,
           );
         }
       }
-
       uploadProgressNotifier.value = 1.0;
-      completedStepsNotifier.value.add('Характеристики сохранены');
+      completedStepsNotifier.value.add(S.of(context).properties_saved);
 
       // Очистка данных
       authProvider.setCategoryId(null);
@@ -402,16 +412,14 @@ class _CharacteristicsTabState extends State<CharacteristicsTab>
       authProvider.setPropertyValues({});
       authProvider.clearProductData();
 
-      // Закрыть диалог загрузки
       Navigator.pop(context);
 
-      // Уведомление об успехе
       showDialog(
         context: context,
+        barrierDismissible: false,
         builder: (context) {
           return AlertDialog(
-            // title: const Text('Успех'),
-            content: const Text('Товар успешно создан!'),
+            content: Text(S.of(context).product_created_successfully),
             actions: [
               TextButton(
                 onPressed: () {
@@ -425,9 +433,9 @@ class _CharacteristicsTabState extends State<CharacteristicsTab>
                     (route) => false,
                   );
                 },
-                child: const Text(
-                  'Перейти к товарам',
-                  style: TextStyle(color: ThemeColors.orange),
+                child: Text(
+                  S.of(context).go_to_products,
+                  style: const TextStyle(color: ThemeColors.orange),
                 ),
               ),
             ],
@@ -435,126 +443,170 @@ class _CharacteristicsTabState extends State<CharacteristicsTab>
         },
       );
     } catch (e) {
-      // Закрыть диалог загрузки
       Navigator.pop(context);
-
-      print('Какая ошибка: $e');
+      print('${S.of(context).error}: $e');
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final carMappings = context.read<GlobalProvider>().carMappings;
-
-    // Если список не пустой, для каждого элемента берём поле 'brandName'
-    // и берем только первое слово (первое имя), затем объединяем их через запятую.
-    print(carMappings);
-    final displayValue = carMappings.isNotEmpty
-        ? carMappings.map((mapping) {
+    final displayValue = (context.read<GlobalProvider>().carMappings.isNotEmpty)
+        ? context.read<GlobalProvider>().carMappings.map((mapping) {
             final brand = mapping['brandName'] ?? '';
             final oem = mapping['oem'] ?? '';
-            final vehicleId = mapping['vehicleId'] ?? '';
             final firstName = brand.split(' ').first;
             return oem.isNotEmpty ? '$firstName ($oem)' : firstName;
           }).join(', ')
-        : 'Выберите подходящие марки';
-
+        : S.of(context).choose_vehicle;
     if (isLoading) {
       return const Center(
-          child: CircularProgressIndicator(
-        color: ThemeColors.grey4,
-      ));
+        child: CircularProgressIndicator(
+          color: ThemeColors.grey4,
+        ),
+      );
     }
-
     return SingleChildScrollView(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // EditableDropdownField(
-            //   title: 'OEM номер',
-            //   value: '',
-            //   // hint: 'Введите код запчасти',
-            //   maxLines: 1, // Поле для ввода одной строки
-            //   onChanged: (value) {},
-            // ),
             CustomDropdownField(
-                title: 'Соотвествие с автомобилем',
-                value: displayValue,
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const CrossNumberScreen()),
-                  );
-                }),
-            // TextButton(
-            //     onPressed: () {
-            //       Navigator.push(
-            //         context,
-            //         MaterialPageRoute(
-            //             builder: (context) => const CrossNumberScreen()),
-            //       );
-            //     },
-            //     child: Text(
-            //       'Добавить соотвествие +',
-            //       textAlign: TextAlign.end,
-            //     )),
+              title: S.of(context).vehicle_compatibility,
+              value: displayValue,
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const CrossNumberScreen(),
+                  ),
+                );
+              },
+            ),
             const SizedBox(height: 12),
             ValueListenableBuilder<List<PropertyItems>>(
               valueListenable: propertiesNotifier,
               builder: (context, properties, child) {
                 if (properties.isEmpty) {
-                  return const Center(child: Text('Свойства не найдены'));
+                  return Center(
+                      child: Text(S.of(context).properties_not_found));
                 }
                 return Column(
                   children: properties.map((property) {
                     final propertyId = property.id ?? '';
                     final hasError = _propertyErrors[propertyId] ?? false;
-
-                    if (property.type == 'color') {
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          ColorPicker(
-                            propertyId: propertyId,
-                            onColorSelected: (selectedColor) {
-                              setState(() {
-                                _propertyValues[propertyId] = selectedColor;
-                              });
-                            },
+                    final title = property.unit == null
+                        ? property.name
+                        : '${property.name} (${property.unit})';
+                    switch (property.type) {
+                      case 'boolean':
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 12),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(title ?? ''),
+                              Checkbox(
+                                value: _propertyValues[propertyId]
+                                        ?.toLowerCase() ==
+                                    'true',
+                                onChanged: (value) {
+                                  setState(() {
+                                    _propertyValues[propertyId] =
+                                        value.toString();
+                                  });
+                                },
+                              ),
+                            ],
                           ),
-                          if (hasError)
-                            const Text(
-                              'Выберите цвет',
-                              style: TextStyle(color: Colors.red),
+                        );
+                      case 'number':
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            CustomEditableField(
+                              title: title ?? '',
+                              value:
+                                  _propertyValues[propertyId]?.toString() ?? '',
+                              keyboardType: TextInputType.number,
+                              inputFormatters: [
+                                FilteringTextInputFormatter.digitsOnly
+                              ],
+                              onChanged: (value) {
+                                _propertyValues[propertyId] = value;
+                              },
                             ),
-                          const SizedBox(height: 12),
-                        ],
-                      );
-                    } else {
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          CustomEditableField(
-                            title: property.unit == null
-                                ? '${property.name}'
-                                : '${property.name} (${property.unit})',
-                            value: _propertyValues[propertyId] ?? '',
-                            // hint: 'Введите значение',
-                            onChanged: (value) {
-                              _propertyValues[propertyId] = value;
-                            },
-                          ),
-                          // if (hasError)
-                          //   const Text(
-                          //     'Заполните это поле',
-                          //     style: TextStyle(color: Colors.red),
-                          //   ),
-                          const SizedBox(height: 12),
-                        ],
-                      );
+                            if (hasError)
+                              Text(
+                                S.of(context).enter_number,
+                                style: const TextStyle(color: Colors.red),
+                              ),
+                            const SizedBox(height: 12),
+                          ],
+                        );
+                      case 'float':
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            CustomEditableField(
+                              title: title ?? '',
+                              value:
+                                  _propertyValues[propertyId]?.toString() ?? '',
+                              keyboardType:
+                                  const TextInputType.numberWithOptions(
+                                      decimal: true),
+                              inputFormatters: [
+                                FilteringTextInputFormatter.allow(
+                                    RegExp(r'^\d*\.?\d*')),
+                              ],
+                              onChanged: (value) {
+                                _propertyValues[propertyId] = value;
+                              },
+                            ),
+                            if (hasError)
+                              Text(
+                                S.of(context).enter_number,
+                                style: const TextStyle(color: Colors.red),
+                              ),
+                            const SizedBox(height: 12),
+                          ],
+                        );
+                      case 'string':
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            CustomEditableField(
+                              title: title ?? '',
+                              value: _propertyValues[propertyId] ?? '',
+                              onChanged: (value) {
+                                _propertyValues[propertyId] = value;
+                              },
+                            ),
+                            const SizedBox(height: 12),
+                          ],
+                        );
+                      case 'color':
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            ColorPicker(
+                              propertyId: propertyId,
+                              onColorSelected: (selectedColor) {
+                                setState(() {
+                                  _propertyValues[propertyId] = selectedColor;
+                                });
+                              },
+                            ),
+                            if (hasError)
+                              Text(
+                                S.of(context).choose_color,
+                                style: const TextStyle(color: Colors.red),
+                              ),
+                            const SizedBox(height: 12),
+                          ],
+                        );
+                      default:
+                        return const SizedBox();
                     }
                   }).toList(),
                 );
@@ -564,10 +616,8 @@ class _CharacteristicsTabState extends State<CharacteristicsTab>
             const SizedBox(height: 12),
             Center(
               child: CustomButton(
-                text: 'Создать товар',
-                onPressed: () {
-                  _createProduct();
-                },
+                text: S.of(context).create_product,
+                onPressed: _createProduct,
               ),
             ),
             const SizedBox(height: 12),

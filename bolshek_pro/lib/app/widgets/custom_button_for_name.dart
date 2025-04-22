@@ -1,3 +1,4 @@
+import 'package:bolshek_pro/generated/l10n.dart';
 import 'package:flutter/material.dart';
 import 'package:bolshek_pro/core/utils/theme.dart';
 
@@ -28,13 +29,13 @@ class CustomButtonForName extends StatelessWidget {
               bottom: MediaQuery.of(context).viewInsets.bottom,
             ),
             child: Container(
-              padding: const EdgeInsets.all(8.0),
+              padding: const EdgeInsets.all(3.0),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   TextField(
-                    decoration: const InputDecoration(
-                      labelText: 'Введите текст',
+                    decoration: InputDecoration(
+                      labelText: S.of(context).enter_product_name,
                     ),
                     onSubmitted: (value) {
                       Navigator.pop(context); // Закрываем модальное окно
@@ -42,7 +43,7 @@ class CustomButtonForName extends StatelessWidget {
                   ),
                   if (predefinedTexts != null) ...[
                     const SizedBox(height: 16),
-                    const Text('Или выберите текст:'),
+                    Text(S.of(context).choose),
                     const SizedBox(height: 8),
                     Wrap(
                       spacing: 10,
@@ -79,7 +80,7 @@ class CustomButtonForName extends StatelessWidget {
             Colors.transparent, // Дополнительно делаем цвет тени прозрачным
         foregroundColor: isPrimary ? Colors.white : Colors.black54,
         backgroundColor: ThemeColors.orange,
-        minimumSize: const Size(100, 40), // Фиксированный размер кнопок
+        minimumSize: const Size(100, 33), // Фиксированный размер кнопок
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10), // Немного квадратные углы
         ),
@@ -87,11 +88,11 @@ class CustomButtonForName extends StatelessWidget {
       child: isPrimary
           ? Text(
               text,
-              style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
             )
           : Text(
               text,
-              style: TextStyle(fontSize: 15, fontWeight: FontWeight.w400),
+              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
             ),
     );
   }

@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'dart:math';
-import 'package:bolshek_pro/core/models/fetch_product_response.dart';
+import 'package:bolshek_pro/core/models/product_responses.dart';
 import 'package:bolshek_pro/core/models/product_response.dart';
 import 'package:bolshek_pro/core/utils/constants.dart';
 import 'package:bolshek_pro/core/utils/provider.dart';

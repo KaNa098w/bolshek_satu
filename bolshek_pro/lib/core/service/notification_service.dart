@@ -84,7 +84,7 @@ class NotificationService {
         },
       );
 
-      if (response.statusCode == 200 || response.statusCode == 204) {
+      if (response.statusCode == 200 || response.statusCode == 204) { 
         print('Уведомление успешно отмечено как прочитанное');
       } else {
         throw Exception(

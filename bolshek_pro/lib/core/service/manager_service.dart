@@ -12,13 +12,18 @@ class ManagerService {
   );
   final String _baseUrl = '${Constants.baseUrl}/users';
 
-  Future<void> createManager(BuildContext context, String firstName,
-      String lastname, String phoneNumber, String organizationId) async {
+  Future<({String id})> createManager(
+    BuildContext context,
+    String firstName,
+    String lastName,
+    String phoneNumber,
+    String organizationId,
+  ) async {
     try {
       final token = _getToken(context);
       final body = {
         "firstName": firstName,
-        "lastName": lastname,
+        "lastName": lastName,
         "phoneNumber": phoneNumber,
         "organizationId": organizationId,
       };
@@ -33,10 +38,17 @@ class ManagerService {
       );
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        print('Manager created successfully');
+        final json = jsonDecode(response.body);
+        final dynamic rawId = json['id'] ?? json['data']?['id'];
+        if (rawId != null) {
+          return (id: rawId.toString()); // 👈 тоже String
+        } else {
+          throw Exception('Manager created, but no ID returned');
+        }
       } else {
         throw Exception(
-            'Failed to create manager: ${response.statusCode}, ${response.body}');
+          'Failed to create manager: ${response.statusCode}, ${response.body}',
+        );
       }
     } catch (e) {
       throw Exception('Error creating manager: $e');

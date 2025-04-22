@@ -1,16 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:bolshek_pro/core/utils/theme.dart';
 
 class CustomEditableField extends StatefulWidget {
   final String title;
   final String value;
   final ValueChanged<String> onChanged;
+  final TextInputType? keyboardType;
+  final List<TextInputFormatter>? inputFormatters;
 
   const CustomEditableField({
     Key? key,
     required this.title,
     required this.value,
     required this.onChanged,
+    this.keyboardType,
+    this.inputFormatters,
   }) : super(key: key);
 
   @override
@@ -63,6 +68,8 @@ class _CustomEditableFieldState extends State<CustomEditableField> {
             TextFormField(
               controller: _controller,
               focusNode: _focusNode,
+              keyboardType: widget.keyboardType,
+              inputFormatters: widget.inputFormatters,
               autofocus: false,
               textInputAction: TextInputAction.done,
               onChanged: (value) {

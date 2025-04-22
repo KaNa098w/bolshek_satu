@@ -5,11 +5,13 @@ import 'package:flutter/material.dart';
 class ColorPicker extends StatefulWidget {
   final String propertyId;
   final ValueChanged<String> onColorSelected;
+  final String? initialColor; // Добавлен параметр для начального значения
 
   const ColorPicker({
     Key? key,
     required this.propertyId,
     required this.onColorSelected,
+    this.initialColor,
   }) : super(key: key);
 
   @override
@@ -17,7 +19,14 @@ class ColorPicker extends StatefulWidget {
 }
 
 class _ColorPickerState extends State<ColorPicker> {
-  String _selectedColorName = 'Выбрать цвет';
+  late String _selectedColorName;
+
+  @override
+  void initState() {
+    super.initState();
+    // Если задано начальное значение, используем его, иначе значение по умолчанию
+    _selectedColorName = widget.initialColor ?? 'Выбрать цвет';
+  }
 
   void _showColorOptions() {
     showModalBottomSheet(
@@ -49,18 +58,6 @@ class _ColorPickerState extends State<ColorPicker> {
                       style:
                           TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     ),
-                    // const SizedBox(height: 10),
-                    // TextField(
-                    //   decoration: const InputDecoration(
-                    //     hintText: 'Поиск',
-                    //     prefixIcon: Icon(Icons.search),
-                    //   ),
-                    //   onChanged: (value) {
-                    //     setStateModal(() {
-                    //       searchQuery = value;
-                    //     });
-                    //   },
-                    // ),
                     const SizedBox(height: 10),
                     Expanded(
                       child: ListView.builder(

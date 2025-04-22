@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'dart:math';
-import 'package:bolshek_pro/core/models/fetch_product_response.dart';
+import 'package:bolshek_pro/core/models/product_responses.dart';
 import 'package:bolshek_pro/core/models/order_detail_response.dart';
 import 'package:bolshek_pro/core/models/orders_response.dart';
 import 'package:bolshek_pro/core/models/product_response.dart';
@@ -81,7 +81,7 @@ class OrdersService {
     try {
       final token = _getToken(context);
 
-      final response = await http.get(
+      final response = await httpClient.get(
         Uri.parse('$_baseUrl?take=$take&skip=$skip&status=$status'),
         headers: {
           'Authorization': 'Bearer $token',
@@ -107,7 +107,7 @@ class OrdersService {
     try {
       final token = _getToken(context); // Предположим, вы получаете токен здесь
 
-      final response = await http.get(
+      final response = await httpClient.get(
         Uri.parse('$_baseUrl/$id'),
         headers: {
           'Authorization': 'Bearer $token',

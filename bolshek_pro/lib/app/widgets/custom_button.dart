@@ -7,6 +7,7 @@ class CustomButton extends StatelessWidget {
   final bool isPrimary;
   final bool enableTextInput; // Новый параметр для включения ввода текста
   final List<String>? predefinedTexts; // Опциональный список готовых текстов
+  final bool isLoading; // Новый параметр для состояния загрузки
 
   const CustomButton({
     Key? key,
@@ -15,6 +16,7 @@ class CustomButton extends StatelessWidget {
     this.isPrimary = true,
     this.enableTextInput = false, // По умолчанию текстовый ввод выключен
     this.predefinedTexts, // Можно передавать список готовых текстов
+    this.isLoading = false, // По умолчанию загрузка выключена
   }) : super(key: key);
 
   void _showInputDialog(BuildContext context) {
@@ -72,27 +74,35 @@ class CustomButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ElevatedButton(
-      onPressed: () => _showInputDialog(context),
+      onPressed: isLoading ? null : () => _showInputDialog(context),
       style: ElevatedButton.styleFrom(
         elevation: 0, // Убираем тень
-        shadowColor:
-            Colors.transparent, // Дополнительно делаем цвет тени прозрачным
+        shadowColor: Colors.transparent, // Цвет тени делаем прозрачным
         foregroundColor: isPrimary ? Colors.white : Colors.black54,
-        backgroundColor: isPrimary ? ThemeColors.orange : Colors.grey[200],
+        backgroundColor: isLoading
+            ? Colors.grey
+            : (isPrimary ? ThemeColors.orange : Colors.grey[200]),
         minimumSize: const Size(355, 53), // Фиксированный размер кнопок
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10), // Немного квадратные углы
         ),
       ),
-      child: isPrimary
-          ? Text(
-              text,
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+      child: isLoading
+          ? CircularProgressIndicator(
+              valueColor: AlwaysStoppedAnimation<Color>(ThemeColors.black),
+              strokeWidth: 3.0,
             )
-          : Text(
-              text,
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w400),
-            ),
+          : (isPrimary
+              ? Text(
+                  text,
+                  style: const TextStyle(
+                      fontSize: 16, fontWeight: FontWeight.w600),
+                )
+              : Text(
+                  text,
+                  style: const TextStyle(
+                      fontSize: 16, fontWeight: FontWeight.w400),
+                )),
     );
   }
 }

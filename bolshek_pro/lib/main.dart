@@ -1,9 +1,12 @@
+import 'package:bolshek_pro/generated/kz.dart';
+import 'package:bolshek_pro/core/utils/locale_provider.dart';
+import 'package:bolshek_pro/generated/l10n.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:bolshek_pro/app/pages/auth/auth_main_page.dart';
-import 'package:bolshek_pro/firebase_options.dart';
+import 'package:bolshek_pro/core/firebase/firebase_options.dart';
 import 'core/utils/provider.dart';
 import 'core/utils/theme.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -26,6 +29,7 @@ Future<void> main() async {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => GlobalProvider()),
+        ChangeNotifierProvider(create: (_) => LocaleProvider()),
       ],
       child: MyApp(),
     ),
@@ -67,6 +71,7 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
+    final localeProvider = Provider.of<LocaleProvider>(context);
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       print(
           'Получено уведомление в активном приложении: ${message.notification?.title}');
@@ -82,21 +87,20 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeColors.lightTheme,
-      // Подключаем глобальный RouteObserver для отслеживания навигационных событий
       navigatorObservers: [routeObserver],
-      // Указываем поддерживаемые локали
-      supportedLocales: const [
-        Locale('ru'),
-        // Если нужно поддерживать другие локали, добавьте их сюда
-      ],
-      // Указываем делегаты локализации
+      // Передаём локаль, выбранную пользователем
+      locale: localeProvider.locale,
+      // Используем поддерживаемые локали из сгенерированного делегата
+      supportedLocales: S.delegate.supportedLocales,
+      // Подключаем делегаты локализации, включая наш S.delegate
       localizationsDelegates: const [
+        S.delegate,
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
+        KzMaterialLocalizationsDelegate(), // ваш кастомный делегат для казахской локали
       ],
-      // Принудительно устанавливаем русский язык
-      locale: const Locale('ru'),
+
       home: AuthMainScreen(),
     );
   }

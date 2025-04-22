@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:bolshek_pro/app/pages/auth/auth_register_page.dart';
 import 'package:bolshek_pro/app/pages/auth/code_input_page.dart';
 import 'package:bolshek_pro/app/widgets/phone_number_formatter.dart';
@@ -10,8 +9,8 @@ import 'package:bolshek_pro/core/utils/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:math';
-
 import 'package:pin_code_fields/pin_code_fields.dart';
+import 'package:bolshek_pro/generated/l10n.dart';
 
 class AuthPage extends StatefulWidget {
   @override
@@ -63,7 +62,7 @@ class _AuthPageState extends State<AuthPage> {
   void _showSuccessDialog() {
     showDialog(
       context: context,
-      barrierDismissible: true, // Разрешаем закрытие по клику вне диалога
+      barrierDismissible: true, // закрытие по клику вне диалога
       builder: (BuildContext context) {
         return Dialog(
           backgroundColor: Colors.white,
@@ -75,7 +74,7 @@ class _AuthPageState extends State<AuthPage> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                SizedBox(height: 10),
+                const SizedBox(height: 10),
                 Icon(
                   Icons.no_accounts_outlined,
                   size: 59,
@@ -83,7 +82,7 @@ class _AuthPageState extends State<AuthPage> {
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  "Ваш номер не зарегистрирован.",
+                  S.of(context).numberNotRegistered ?? '',
                   textAlign: TextAlign.center,
                   style: const TextStyle(
                     fontFamily: 'InterRegular',
@@ -94,7 +93,7 @@ class _AuthPageState extends State<AuthPage> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  "Пожалуйста, переходите на \nстраницу регистрации.",
+                  S.of(context).registrationPrompt ?? '',
                   textAlign: TextAlign.center,
                   style: const TextStyle(
                     fontFamily: 'InterRegular',
@@ -123,9 +122,9 @@ class _AuthPageState extends State<AuthPage> {
                       elevation: 0,
                       padding: const EdgeInsets.symmetric(vertical: 10),
                     ),
-                    child: const Text(
-                      "Перейти",
-                      style: TextStyle(
+                    child: Text(
+                      S.of(context).goToRegister ?? '',
+                      style: const TextStyle(
                         fontFamily: 'InterRegular',
                         fontSize: 16,
                         fontWeight: FontWeight.w400,
@@ -217,47 +216,46 @@ class _AuthPageState extends State<AuthPage> {
               children: [
                 const SizedBox(height: 10),
                 Text(
-                  Constants.welcome1,
+                  S.of(context).welcomeMessage ?? '',
                   textAlign: TextAlign.center,
                   style: ThemeTextMontserratBold.size21,
                   maxLines: 1,
                 ),
                 const SizedBox(height: 10),
                 Text(
-                  "Мы используем ваш номер телефона для уведомлений о заказе",
+                  S.of(context).phoneNotification ?? '',
                   textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 16, color: Colors.grey),
+                  style: const TextStyle(fontSize: 16, color: Colors.grey),
                 ),
                 const SizedBox(height: 30),
                 Container(
                   decoration: BoxDecoration(
-                      color: Colors.grey.shade100,
-                      borderRadius: BorderRadius.circular(12)),
+                    color: Colors.grey.shade100,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                   child: TextFormField(
-                    controller:
-                        _phoneController, // Инициализирован с TextEditingController(text: '+7')
+                    controller: _phoneController,
                     keyboardType: TextInputType.phone,
                     cursorColor: ThemeColors.primary,
                     inputFormatters: [
-                      // Разрешаем ввод только символов "+" и цифр
                       FilteringTextInputFormatter.allow(RegExp(r'[+\d]')),
                       PhoneNumberFormatter(),
                     ],
                     decoration: InputDecoration(
                       contentPadding:
-                          EdgeInsets.only(left: 20, top: 10, bottom: 10),
-                      labelText: "Введите номер телефона",
-                      hintText: "+7 777 777-77-77",
-                      labelStyle: TextStyle(color: Colors.black54),
-                      hintStyle: TextStyle(color: Colors.grey),
+                          const EdgeInsets.only(left: 20, top: 10, bottom: 10),
+                      labelText: S.of(context).enterPhone,
+                      hintText: S.of(context).phoneHint,
+                      labelStyle: const TextStyle(color: Colors.black54),
+                      hintStyle: const TextStyle(color: Colors.grey),
                       border: InputBorder.none,
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return "Введите номер телефона";
+                        return S.of(context).enterPhone;
                       }
                       if (value.length != 16) {
-                        return "Введите корректный номер";
+                        return S.of(context).enterValidPhone;
                       }
                       return null;
                     },
@@ -270,14 +268,14 @@ class _AuthPageState extends State<AuthPage> {
                     onPressed: _isLoading ? null : _handleSendSms,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: ThemeColors.orange,
-                      padding: EdgeInsets.symmetric(vertical: 14),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
                       elevation: 0,
                     ),
                     child: _isLoading
-                        ? SizedBox(
+                        ? const SizedBox(
                             width: 24,
                             height: 24,
                             child: CircularProgressIndicator(
@@ -287,8 +285,8 @@ class _AuthPageState extends State<AuthPage> {
                             ),
                           )
                         : Text(
-                            "Отправить SMS",
-                            style: TextStyle(
+                            S.of(context).sendSMS ?? '',
+                            style: const TextStyle(
                               fontSize: 16,
                               color: Colors.white,
                               fontWeight: FontWeight.bold,

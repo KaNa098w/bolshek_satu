@@ -1,6 +1,7 @@
 import 'package:bolshek_pro/app/pages/home/with_search_name/characteristics_tab_with_name.dart';
 import 'package:bolshek_pro/app/pages/home/with_search_name/info_tab_with_name.dart';
 import 'package:bolshek_pro/core/utils/provider.dart';
+import 'package:bolshek_pro/generated/l10n.dart';
 import 'package:flutter/material.dart';
 import 'package:bolshek_pro/core/utils/theme.dart';
 import 'package:provider/provider.dart';
@@ -41,6 +42,7 @@ class _AddProductWithNameState extends State<AddProductWithName>
 
   @override
   Widget build(BuildContext context) {
+    final local = S.of(context);
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -54,9 +56,9 @@ class _AddProductWithNameState extends State<AddProductWithName>
           controller: _tabController,
           indicatorWeight: 4.0,
           indicatorSize: TabBarIndicatorSize.tab,
-          tabs: const [
-            Tab(text: 'Инфо'),
-            Tab(text: 'Характеристики'),
+          tabs: [
+            Tab(text: local.info_tab),
+            Tab(text: local.characteristics),
           ],
         ),
       ),

@@ -10,6 +10,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 import 'package:bolshek_pro/core/service/auth_service.dart';
 import 'package:provider/provider.dart';
+import 'package:bolshek_pro/generated/l10n.dart'; // Импортируем сгенерированные локализации
 
 class CodeInputRegister extends StatefulWidget {
   final String otpId;
@@ -62,6 +63,7 @@ class _CodeInputRegisterState extends State<CodeInputRegister> {
   void dispose() {
     _timer?.cancel();
     errorController?.close();
+    _codeController.dispose();
     super.dispose();
   }
 
@@ -82,6 +84,7 @@ class _CodeInputRegisterState extends State<CodeInputRegister> {
   }
 
   void _showSuccessDialog() {
+    final localizations = S.of(context);
     showDialog(
       context: context,
       barrierDismissible: false, // Запрет закрытия окна по клику вне его
@@ -96,17 +99,16 @@ class _CodeInputRegisterState extends State<CodeInputRegister> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                SizedBox(
-                  height: 10,
-                ),
+                const SizedBox(height: 10),
                 SvgPicture.asset(
                   'assets/svg/check_icon.svg',
-                  width: 59, // Задайте ширину
-                  height: 59, // Задайте высоту
+                  width: 59, // Задаём ширину
+                  height: 59, // Задаём высоту
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  "Ваш запрос на\nрегистрацию отправлен!",
+                  localizations.registration_sent ??
+                      '', // "Ваш запрос на\nрегистрацию отправлен!"
                   textAlign: TextAlign.center,
                   style: const TextStyle(
                     fontFamily: 'InterRegular',
@@ -117,7 +119,8 @@ class _CodeInputRegisterState extends State<CodeInputRegister> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  "Пожалуйста, ожидайте ответа\nот менеджера.",
+                  localizations.please_wait_manager ??
+                      '', // "Пожалуйста, ожидайте ответа\nот менеджера."
                   textAlign: TextAlign.center,
                   style: const TextStyle(
                     fontFamily: 'InterRegular',
@@ -139,16 +142,16 @@ class _CodeInputRegisterState extends State<CodeInputRegister> {
                       );
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: ThemeColors.orange, // Жёлтый цвет кнопки
+                      backgroundColor: ThemeColors.orange,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
                       ),
                       elevation: 0,
                       padding: const EdgeInsets.symmetric(vertical: 10),
                     ),
-                    child: const Text(
-                      "Хорошо",
-                      style: TextStyle(
+                    child: Text(
+                      localizations.ok, // "Хорошо"
+                      style: const TextStyle(
                         fontFamily: 'InterRegular',
                         fontSize: 16,
                         fontWeight: FontWeight.w400,
@@ -166,8 +169,9 @@ class _CodeInputRegisterState extends State<CodeInputRegister> {
   }
 
   Future<void> _registerUser() async {
+    final localizations = S.of(context);
     try {
-      final response = await _authService.sendRegister(
+      await _authService.sendRegister(
         context,
         _otpId,
         _codeController.text,
@@ -180,22 +184,19 @@ class _CodeInputRegisterState extends State<CodeInputRegister> {
         widget.selectedCategoryIds.toList(),
         widget.selectedBrandIds.toList(),
       );
-
       _showSuccessDialog();
     } catch (e) {
-      String errorMessage = 'Ошибка регистрации: $e';
-
+      String errorMessage = localizations.registerError(e.toString());
       if (e.toString().contains('otp_invalid: Invalid OTP code')) {
-        errorMessage = 'Неправильный SMS-код. Попробуйте снова.';
+        errorMessage = localizations.invalidOtp;
       }
       if (e.toString().contains('otp_invalid: OTP is used or expired')) {
-        errorMessage = 'Слишком много попыток. Попробуйте позже.';
+        errorMessage = localizations.otpExpired;
       }
       if (e
           .toString()
           .contains('user_already_registered: User already registered')) {
-        errorMessage =
-            'Магазин "${widget.shopName}" уже существует. Придумайте другое.';
+        errorMessage = '';
       }
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(errorMessage)),
@@ -204,6 +205,7 @@ class _CodeInputRegisterState extends State<CodeInputRegister> {
   }
 
   Future<void> _sendSms() async {
+    final localizations = S.of(context);
     setState(() {
       _isLoading = true;
       _codeController.clear(); // Очищаем поле ввода
@@ -225,7 +227,8 @@ class _CodeInputRegisterState extends State<CodeInputRegister> {
       // Показываем сообщение об успешной отправке
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('SMS-код успешно отправлен'),
+          content: Text(localizations.smsSentMessageSuccess ??
+              ''), // "SMS-код успешно отправлен"
           backgroundColor: Colors.green,
         ),
       );
@@ -236,7 +239,7 @@ class _CodeInputRegisterState extends State<CodeInputRegister> {
       // Обрабатываем ошибки
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Ошибка при отправке SMS: $e'),
+          content: Text((e.toString()) ?? ''),
           backgroundColor: Colors.red,
         ),
       );
@@ -248,6 +251,7 @@ class _CodeInputRegisterState extends State<CodeInputRegister> {
   }
 
   void _verifyCode() async {
+    final localizations = S.of(context);
     if (_isLoading) return; // Предотвращаем повторное нажатие во время загрузки
 
     if (currentText.length == 6) {
@@ -261,11 +265,12 @@ class _CodeInputRegisterState extends State<CodeInputRegister> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              'Ошибка подтверждения: ${e.toString().replaceAll('Exception: ', '')}',
+              e.toString().replaceAll('Exception: ', ''),
             ),
             backgroundColor: Colors.red,
           ),
         );
+
         if (errorController?.isClosed == false) {
           errorController?.add(ErrorAnimationType.shake);
         }
@@ -283,9 +288,10 @@ class _CodeInputRegisterState extends State<CodeInputRegister> {
 
   @override
   Widget build(BuildContext context) {
+    final localizations = S.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: Text("Введите SMS-код"),
+        title: Text(localizations.enter_sms_code ?? ''), // "Введите SMS-код"
         centerTitle: true,
         backgroundColor: Colors.white,
         elevation: 0,
@@ -300,15 +306,17 @@ class _CodeInputRegisterState extends State<CodeInputRegister> {
             children: [
               const SizedBox(height: 30),
               Text(
-                "Подтверждение номера",
+                localizations.number_confirmation ??
+                    '', // "Подтверждение номера"
                 style: ThemeTextMontserratBold.size21,
                 maxLines: 1,
               ),
               const SizedBox(height: 10),
               Text(
-                "Мы отправили код на номер \n${widget.phoneNumber}.",
+                localizations.smsSentText,
+                // "Мы отправили код на номер \n${widget.phoneNumber}."
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 16, color: Colors.grey),
+                style: const TextStyle(fontSize: 16, color: Colors.grey),
               ),
               const SizedBox(height: 30),
               PinCodeTextField(
@@ -372,9 +380,9 @@ class _CodeInputRegisterState extends State<CodeInputRegister> {
                             strokeWidth: 2,
                           ),
                         )
-                      : const Text(
-                          "Подтвердить",
-                          style: TextStyle(
+                      : Text(
+                          localizations.confirm, // "Подтвердить"
+                          style: const TextStyle(
                             fontSize: 16,
                             color: Colors.white,
                             fontWeight: FontWeight.bold,
@@ -385,15 +393,16 @@ class _CodeInputRegisterState extends State<CodeInputRegister> {
               const SizedBox(height: 15),
               if (_start > 0)
                 Text(
-                  "Отправить повторно через $_start сек.",
-                  style: TextStyle(color: Colors.grey),
+                  localizations.resend_timer(_start) ?? '',
+                  // "Отправить повторно через $_start сек."
+                  style: const TextStyle(color: Colors.grey),
                 )
               else
                 GestureDetector(
                   onTap: _isLoading ? null : _sendSms,
                   child: Text(
-                    "Отправить код снова",
-                    style: TextStyle(
+                    localizations.resend_code ?? '', // "Отправить код снова"
+                    style: const TextStyle(
                       fontSize: 16,
                       color: Colors.grey,
                       fontWeight: FontWeight.w600,

@@ -48,6 +48,8 @@ class VariantsService {
     required String sku,
     required String manufacturerId,
     required String kind,
+    required int discountedPersent,
+    required int discountedAmount,
   }) async {
     try {
       final token = _getToken(context);
@@ -66,6 +68,12 @@ class VariantsService {
         "quantity": '1000',
         "sku": sku,
         "manufacturerId": manufacturerId,
+        "discountPercent": discountedPersent,
+        "discountedPrice": {
+          "amount": discountedAmount,
+          "precision": '2',
+          "currency": "KZT"
+        }
       };
 
       print(
@@ -104,6 +112,8 @@ class VariantsService {
     required String? manufacturerId,
     required String? sku,
     required String? kind,
+    required int discountedPersent,
+    required double discountedAmount,
   }) async {
     try {
       final token = _getToken(context);
@@ -122,13 +132,19 @@ class VariantsService {
         "sku": sku,
         "manufacturerId": manufacturerId,
         "kind": kind,
+        "discountPercent": discountedPersent,
+        "discountedPrice": {
+          "amount": discountedAmount,
+          "precision": 2,
+          "currency": "KZT"
+        }
       };
 
       print(
           'Updating product variant with data: ${jsonEncode(body)}'); // Логируем тело запроса
 
       final response = await httpClient.put(
-        Uri.parse('$_baseUrl/$productId/variants/$variantId'),
+        Uri.parse('$_baseUrl/$productId'),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',

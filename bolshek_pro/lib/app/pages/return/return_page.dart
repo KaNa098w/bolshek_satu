@@ -1,3 +1,4 @@
+import 'package:bolshek_pro/generated/l10n.dart';
 import 'package:flutter/material.dart';
 import 'package:extended_tabs/extended_tabs.dart';
 import 'package:bolshek_pro/app/pages/return/return_list_page.dart';
@@ -32,6 +33,7 @@ class _ReturnPageState extends State<ReturnPage>
 
   @override
   Widget build(BuildContext context) {
+    final local = S.of(context);
     return Scaffold(
       backgroundColor: Colors.white,
       body: Column(
@@ -50,13 +52,13 @@ class _ReturnPageState extends State<ReturnPage>
             indicatorColor: ThemeColors.orange,
             indicatorWeight: 4.0,
             isScrollable: true,
-            tabs: const [
-              Tab(text: 'Новые'),
-              Tab(text: 'В обработке'),
-              Tab(text: 'Забрать товар'),
-              Tab(text: 'Отмененные'),
-              Tab(text: 'Возврат средств'),
-              Tab(text: 'Завершенные'),
+            tabs: [
+              Tab(text: local.orders_tab_new),
+              Tab(text: local.orders_tab_processing),
+              Tab(text: local.pick_up_item),
+              Tab(text: local.orders_tab_cancelled),
+              Tab(text: local.refund),
+              Tab(text: local.completed),
             ],
           ),
           Expanded(

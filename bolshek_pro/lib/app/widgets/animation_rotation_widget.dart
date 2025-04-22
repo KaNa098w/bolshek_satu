@@ -1,4 +1,5 @@
 import 'package:bolshek_pro/core/utils/theme.dart';
+import 'package:bolshek_pro/generated/l10n.dart';
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
 
@@ -52,7 +53,7 @@ class _UpdatingAnimationPageState extends State<UpdatingAnimationPage>
             ),
             const SizedBox(height: 20),
             Text(
-              'Обновление товара...',
+              S.of(context).updateProductLoading,
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,

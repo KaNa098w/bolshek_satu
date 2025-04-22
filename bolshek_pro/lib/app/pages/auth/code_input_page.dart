@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 import 'package:bolshek_pro/core/service/auth_service.dart';
 import 'package:provider/provider.dart';
+import 'package:bolshek_pro/generated/l10n.dart'; // Импортируйте сгенерированные локализации
 
 class CodeInputPage extends StatefulWidget {
   final bool isRegistered;
@@ -26,26 +27,29 @@ class CodeInputPage extends StatefulWidget {
 
 class _CodeInputPageState extends State<CodeInputPage> {
   final TextEditingController _codeController = TextEditingController();
-  final AuthService _authService = AuthService();
+  final FocusNode _pinFocusNode = FocusNode();
   StreamController<ErrorAnimationType>? errorController =
       StreamController<ErrorAnimationType>();
+  AuthService _authService = AuthService();
   String currentText = "";
   Timer? _timer;
   int _start = 60;
   bool _isLoading = false;
-  late String _otpId; // Хранение текущего otpId
+  late String _otpId;
 
   @override
   void initState() {
     super.initState();
     startTimer();
-    _otpId = widget.otpId; // Инициализация начальным значением
+    _otpId = widget.otpId;
   }
 
   @override
   void dispose() {
     _timer?.cancel();
     errorController?.close();
+    _pinFocusNode.dispose();
+    _codeController.dispose();
     super.dispose();
   }
 
@@ -71,29 +75,27 @@ class _CodeInputPageState extends State<CodeInputPage> {
     });
 
     try {
-      // Повторно вызываем fetchOtpId для переотправки SMS
       final response =
           await _authService.fetchOtpId(context, widget.phoneNumber);
       final newOtpId = response['otpId'] as String;
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('SMS-код успешно отправлен'),
+          content: Text(
+              S.of(context).smsSentMessageSuccess), // Локализованное сообщение
           backgroundColor: Colors.green,
         ),
       );
 
-      // Сбрасываем таймер и запускаем снова
       setState(() {
         _otpId = newOtpId;
-
         _start = 60;
       });
       startTimer();
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Ошибка при отправке SMS: $e'),
+          content: Text(S.of(context).smsSentMessageError(e.toString())),
           backgroundColor: Colors.red,
         ),
       );
@@ -111,45 +113,36 @@ class _CodeInputPageState extends State<CodeInputPage> {
       });
 
       try {
-        // Вызов метода signWithPhone из AuthService
         final response = await _authService.signWitpPhone(
           context,
           _otpId,
           currentText,
         );
 
-        // Преобразование ответа в AuthResponse
         final authResponse = AuthResponse.fromJson(response);
 
-        // Сохранение данных авторизации в GlobalProvider
         context.read<GlobalProvider>().setAuthData(authResponse);
 
-        // Безвозвратный переход на главный экран
         Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(builder: (context) => MainControllerNavigator()),
-          (route) => false, // Удаляет все предыдущие маршруты
+          (route) => false,
         );
       } catch (e) {
-        String errorMessage = 'Ошибка регистрации: $e';
+        String errorMessage = S.of(context).registerError(e.toString());
 
-        // Обработка ошибок
-        if (e.toString().contains('code: 9040')) {
-          errorMessage =
-              'Ваш аккаунт еще не активен. Пожалуйста, ждите ответа менеджера.';
-        }
-        if (e.toString().contains('User account deactivated')) {
-          errorMessage =
-              'Ваш аккаунт еще не активен. Пожалуйста, ждите ответа менеджера.';
+        if (e.toString().contains('code: 9040') ||
+            e.toString().contains('User account deactivated')) {
+          errorMessage = S.of(context).accountNotActive;
         }
         if (errorController?.isClosed == false) {
           errorController?.add(ErrorAnimationType.shake);
         }
         if (e.toString().contains('otp_invalid: Invalid OTP code')) {
-          errorMessage = 'Неправильный SMS-код. Попробуйте снова.';
+          errorMessage = S.of(context).invalidOtp;
         }
         if (e.toString().contains('otp_invalid: OTP is used or expired')) {
-          errorMessage = 'Слишком много попыток. Попробуйте позже.';
+          errorMessage = S.of(context).otpExpired;
         }
 
         ScaffoldMessenger.of(context).showSnackBar(
@@ -171,7 +164,8 @@ class _CodeInputPageState extends State<CodeInputPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Введите SMS-код"),
+        title: Text(
+            S.of(context).smsCodeInputTitle), // например, "Введите SMS-код"
         centerTitle: true,
         backgroundColor: Colors.white,
         elevation: 0,
@@ -186,19 +180,25 @@ class _CodeInputPageState extends State<CodeInputPage> {
             children: [
               const SizedBox(height: 30),
               Text(
-                "Подтверждение номера",
+                S
+                    .of(context)
+                    .phoneConfirmation, // например, "Подтверждение номера"
                 style: ThemeTextMontserratBold.size21,
                 maxLines: 1,
               ),
               const SizedBox(height: 10),
               Text(
-                "Мы отправили код на ваш номер телефона.",
+                S
+                    .of(context)
+                    .smsSentText, // например, "Мы отправили код на ваш номер телефона."
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 16, color: Colors.grey),
+                style: const TextStyle(fontSize: 16, color: Colors.grey),
               ),
               const SizedBox(height: 30),
               PinCodeTextField(
                 appContext: context,
+                autoFocus: true,
+                focusNode: _pinFocusNode,
                 length: 6,
                 animationType: AnimationType.fade,
                 pinTheme: PinTheme(
@@ -229,9 +229,7 @@ class _CodeInputPageState extends State<CodeInputPage> {
                 onChanged: (value) {
                   currentText = value;
                 },
-                beforeTextPaste: (text) {
-                  return true;
-                },
+                beforeTextPaste: (text) => true,
               ),
               const SizedBox(height: 20),
               SizedBox(
@@ -240,32 +238,34 @@ class _CodeInputPageState extends State<CodeInputPage> {
                   onPressed: _isLoading ? null : _verifyCode,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: ThemeColors.orange,
-                    padding: EdgeInsets.symmetric(vertical: 14),
+                    padding: const EdgeInsets.symmetric(vertical: 14),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
                   child: Text(
-                    "Подтвердить",
-                    style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold),
+                    S.of(context).verifyButtonText, // "Подтвердить"
+                    style: const TextStyle(
+                      fontSize: 16,
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ),
               const SizedBox(height: 15),
               if (_start > 0)
                 Text(
-                  "Отправить повторно через $_start сек.",
-                  style: TextStyle(color: Colors.grey),
+                  S.of(context).resendTimerText(
+                      _start), // например, "Отправить повторно через {seconds} сек."
+                  style: const TextStyle(color: Colors.grey),
                 )
               else
                 GestureDetector(
                   onTap: _isLoading ? null : _sendSms,
                   child: Text(
-                    "Отправить код снова",
-                    style: TextStyle(
+                    S.of(context).resendText, // "Отправить код снова"
+                    style: const TextStyle(
                       fontSize: 16,
                       color: Colors.grey,
                       fontWeight: FontWeight.w600,

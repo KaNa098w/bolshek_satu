@@ -1,3 +1,4 @@
+import 'package:bolshek_pro/generated/l10n.dart';
 import 'package:extended_tabs/extended_tabs.dart';
 import 'package:bolshek_pro/app/pages/orders/orders_list_page.dart';
 import 'package:flutter/material.dart';
@@ -21,7 +22,10 @@ class _OrdersPageState extends State<OrdersPage>
   void initState() {
     super.initState();
     _tabController = TabController(
-        length: 5, vsync: this, initialIndex: widget.initialTabIndex);
+      length: 5,
+      vsync: this,
+      initialIndex: widget.initialTabIndex,
+    );
   }
 
   @override
@@ -32,6 +36,7 @@ class _OrdersPageState extends State<OrdersPage>
 
   @override
   Widget build(BuildContext context) {
+    final localizations = S.of(context);
     return Scaffold(
       backgroundColor: Colors.white,
       body: Column(
@@ -42,25 +47,24 @@ class _OrdersPageState extends State<OrdersPage>
               color: Colors.white,
               child: ExtendedTabBar(
                 labelColor: ThemeColors.orange,
-
-                unselectedLabelColor: ThemeColors.grey, // менее заметный цвет
+                unselectedLabelColor: ThemeColors.grey,
                 labelStyle: const TextStyle(
-                  fontSize: 15, // размер шрифта для выбранной вкладки
+                  fontSize: 15,
                   fontWeight: FontWeight.bold,
                 ),
                 unselectedLabelStyle: const TextStyle(
-                  fontSize: 14, // меньший размер шрифта для неактивных вкладок
+                  fontSize: 14,
                 ),
                 controller: _tabController,
                 indicatorColor: ThemeColors.orange,
                 indicatorWeight: 4.0,
                 isScrollable: true,
-                tabs: const [
-                  Tab(text: 'Новые'),
-                  Tab(text: 'Оплаченный'),
-                  Tab(text: 'В обработке'),
-                  Tab(text: 'Доставлены'),
-                  Tab(text: 'Отмененные'),
+                tabs: [
+                  Tab(text: localizations.orders_tab_new),
+                  Tab(text: localizations.orders_tab_paid),
+                  Tab(text: localizations.orders_tab_processing),
+                  Tab(text: localizations.orders_tab_delivered),
+                  Tab(text: localizations.orders_tab_cancelled),
                 ],
               ),
             ),

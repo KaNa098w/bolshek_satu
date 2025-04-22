@@ -1,10 +1,11 @@
 import 'package:bolshek_pro/app/widgets/custom_dropdown_field.dart';
 import 'package:bolshek_pro/app/widgets/editable_dropdown_field.dart';
 import 'package:bolshek_pro/core/models/brands_response.dart';
-import 'package:bolshek_pro/core/models/fetch_product_response.dart';
+import 'package:bolshek_pro/core/models/product_responses.dart';
 import 'package:bolshek_pro/core/service/brands_service.dart';
 import 'package:bolshek_pro/core/service/product_service.dart';
 import 'package:bolshek_pro/core/utils/theme.dart';
+import 'package:bolshek_pro/generated/l10n.dart';
 import 'package:flutter/material.dart';
 
 class CharacteristicsTabWithName extends StatefulWidget {
@@ -19,7 +20,7 @@ class CharacteristicsTabWithName extends StatefulWidget {
 class _CharacteristicsTabWithNameState extends State<CharacteristicsTabWithName>
     with AutomaticKeepAliveClientMixin {
   final ProductService _productService = ProductService();
-  FetchProductResponse? product;
+  ProductItems? product;
   bool isLoading = true;
   final BrandsService _brandsService = BrandsService();
   BrandItems? brand;
@@ -68,18 +69,19 @@ class _CharacteristicsTabWithNameState extends State<CharacteristicsTabWithName>
 
   String getVariantTitle(String? variantKind) {
     if (variantKind == 'original') {
-      return 'Оригинал';
+      return S.of(context).original;
     } else if (variantKind == 'sub_original') {
-      return 'Под оригинал';
+      return S.of(context).sub_original;
     } else if (variantKind == 'disassemble') {
-      return 'Авторазбор';
+      return S.of(context).auto_disassembly;
     } else {
-      return 'Неизвестный';
+      return S.of(context).no_name;
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final local = S.of(context);
     super.build(
         context); // Не забудьте вызвать super.build при использовании AutomaticKeepAliveClientMixin
     return Scaffold(
@@ -91,13 +93,13 @@ class _CharacteristicsTabWithNameState extends State<CharacteristicsTabWithName>
               ),
             )
           : (product?.properties == null || product!.properties!.isEmpty)
-              ? const Center(child: Text('Нет характеристик'))
+              ? Center(child: Text(local.not_specified))
               : Column(
                   children: [
                     Padding(
                       padding: const EdgeInsets.only(top: 8.0, bottom: 5),
                       child: Text(
-                        'Изменение доступно только после создания товара',
+                        S.of(context).editOnlyAfterProductCreated,
                         style: TextStyle(
                           color: Colors.blueGrey,
                           fontSize: 12,
@@ -130,15 +132,15 @@ class _CharacteristicsTabWithNameState extends State<CharacteristicsTabWithName>
                           }).toList(),
                           // Виджет бренда
                           CustomDropdownField(
-                            title: 'Бренд',
-                            value: brand?.name ?? '',
+                            title: local.brand,
+                            value: brand?.name ?? local.no_brands,
                             onTap: () {},
                             showIcon: false,
                           ),
                           const SizedBox(height: 12),
                           // Виджет кода товара
                           CustomDropdownField(
-                            title: 'Код товара',
+                            title: local.vendor_code,
                             value: product?.vendorCode ?? '',
                             onTap: () {},
                             showIcon: false,
@@ -146,9 +148,8 @@ class _CharacteristicsTabWithNameState extends State<CharacteristicsTabWithName>
                           const SizedBox(height: 12),
                           // Виджет типа
                           CustomDropdownField(
-                            title: 'Тип',
-                            value:
-                                getVariantTitle(product?.variants?.first.kind),
+                            title: local.choose_type,
+                            value: getVariantTitle(product?.kind),
                             onTap: () {},
                             showIcon: false,
                           ),

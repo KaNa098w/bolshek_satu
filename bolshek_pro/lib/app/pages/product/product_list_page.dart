@@ -1,6 +1,10 @@
+import 'dart:convert';
+
 import 'package:bolshek_pro/app/pages/product/product_change_page.dart';
+import 'package:bolshek_pro/core/models/product_responses.dart';
 import 'package:bolshek_pro/core/service/variants_service.dart';
 import 'package:bolshek_pro/core/utils/constants.dart';
+import 'package:bolshek_pro/generated/l10n.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:intl/intl.dart';
@@ -12,7 +16,6 @@ import 'package:bolshek_pro/app/widgets/custom_button.dart';
 import 'package:bolshek_pro/core/utils/theme.dart';
 import 'package:bolshek_pro/app/widgets/loading_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:convert';
 
 class ProductListPage extends StatefulWidget {
   final String status;
@@ -35,6 +38,7 @@ class _ProductListPageState extends State<ProductListPage> {
   int _skip = 0;
   final int _take = 25;
 
+  // ──────────────────────────────────────────────── lifecycle
   @override
   void initState() {
     super.initState();
@@ -55,7 +59,7 @@ class _ProductListPageState extends State<ProductListPage> {
     super.dispose();
   }
 
-  /// Загрузка данных из кэша
+  // ──────────────────────────────────────────────── cache helpers
   Future<void> _loadCachedProducts() async {
     final prefs = await SharedPreferences.getInstance();
     final cachedData = prefs.getString('cached_products_${widget.status}');
@@ -76,12 +80,11 @@ class _ProductListPageState extends State<ProductListPage> {
     await prefs.setString('cached_products_${widget.status}', jsonEncode(data));
   }
 
+  // ──────────────────────────────────────────────── data
   Future<void> _fetchProducts() async {
     if (_isLoading || !_hasMore) return;
 
-    setState(() {
-      _isLoading = true;
-    });
+    setState(() => _isLoading = true);
 
     try {
       final response = await _productService.fetchProductsPaginated(
@@ -93,25 +96,21 @@ class _ProductListPageState extends State<ProductListPage> {
 
       setState(() {
         final newProducts = response.items ?? [];
-        for (var product in newProducts) {
-          if (!_products.any((p) => p.id == product.id)) {
-            _products.add(product);
-          }
+        for (var p in newProducts) {
+          if (!_products.any((e) => e.id == p.id)) _products.add(p);
         }
         _skip += _take;
-        _hasMore = (response.items?.length ?? 0) == _take;
+        _hasMore = newProducts.length == _take;
       });
 
-      // Сохраняем обновлённый список в кэш
       await _cacheProducts();
     } catch (e) {
+      final loc = S.of(context);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Ошибка загрузки: $e')),
+        SnackBar(content: Text('${loc.load_error}$e')),
       );
     } finally {
-      setState(() {
-        _isLoading = false;
-      });
+      setState(() => _isLoading = false);
     }
   }
 
@@ -124,148 +123,115 @@ class _ProductListPageState extends State<ProductListPage> {
     await _fetchProducts();
   }
 
-  void _addNewProduct(ProductItems newProduct) {
-    if (!_products.any((product) => product.id == newProduct.id)) {
-      setState(() {
-        _products.insert(0, newProduct);
-      });
-      _cacheProducts(); // Обновляем кэш
-    }
+  void _addNewProduct(ProductItems p) {
+    if (_products.any((e) => e.id == p.id)) return;
+    setState(() => _products.insert(0, p));
+    _cacheProducts();
   }
 
-  String _formatPrice(double price) {
-    if (price == price.toInt()) {
-      // Если число целое, убираем дробную часть
-      return price.toInt().toString();
-    } else {
-      // Если дробная часть есть, оставляем её
-      return price
-          .toStringAsFixed(2)
-          .replaceAll(RegExp(r"0+$"), "")
-          .replaceAll(RegExp(r"\.$"), "");
-    }
+  // ──────────────────────────────────────────────── formatting
+  String _formatPriceWithSpaces(double value) {
+    final formatter = NumberFormat('#,###', 'ru_RU');
+    return formatter.format(value).replaceAll(',', ' ');
   }
 
-  void _showPriceEditDialog(
-    String productId,
-    String variantId,
-    double currentPrice,
-    String sku,
-    String manufacturerId,
-    String kind,
-  ) {
-    final TextEditingController _priceController = TextEditingController(
-      text: _formatPrice(currentPrice),
+  // ──────────────────────────────────────────────── dialogs
+  void _showPriceEditDialog({
+    required ProductItems product,
+  }) {
+    final loc = S.of(context);
+    final controller = TextEditingController(
+      text: _formatPriceWithSpaces((product.price?.amount ?? 0) / 100),
     );
 
     showDialog(
       context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text(
-            "Изменить цену",
-            style: TextStyle(fontSize: 18),
-          ),
-          content: TextField(
-            controller: _priceController,
-            keyboardType: TextInputType.number,
-            decoration: const InputDecoration(
-              hintText: "Введите новую цену",
+      builder: (_) => AlertDialog(
+        title: Text(
+          loc.change_price_dialog_title,
+          style: const TextStyle(fontSize: 18),
+        ),
+        content: TextField(
+          controller: controller,
+          keyboardType: TextInputType.number,
+          decoration: InputDecoration(hintText: loc.enter_new_price_hint),
+        ),
+        actions: [
+          TextButton(
+            onPressed: Navigator.of(context).pop,
+            child: Text(
+              loc.cancel,
+              style: const TextStyle(
+                  color: Colors.grey, fontWeight: FontWeight.bold),
             ),
           ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text(
-                "Отмена",
-                style:
-                    TextStyle(color: Colors.grey, fontWeight: FontWeight.bold),
-              ),
-            ),
-            TextButton(
-              onPressed: () async {
-                final enteredPrice = double.tryParse(_priceController.text);
-                if (enteredPrice != null) {
-                  final newPrice = enteredPrice * 100;
+          TextButton(
+            onPressed: () async {
+              final entered =
+                  double.tryParse(controller.text.replaceAll(' ', ''));
+              if (entered == null) return;
+              final newAmount = (entered * 100).toInt();
 
-                  // Показать индикатор загрузки
-                  showDialog(
-                    context: context,
-                    barrierDismissible: false,
-                    builder: (BuildContext context) {
-                      return const Center(
-                        child: CircularProgressIndicator(
-                          color: ThemeColors.orange,
-                        ),
-                      );
-                    },
-                  );
+              // loader
+              showDialog(
+                context: context,
+                barrierDismissible: false,
+                builder: (_) => const Center(
+                  child: CircularProgressIndicator(color: ThemeColors.orange),
+                ),
+              );
 
-                  try {
-                    // Обновить цену через сервис
-                    final variantsService = VariantsService();
-                    await variantsService.updateProductVariant(
-                      context,
-                      productId: productId,
-                      variantId: variantId,
-                      newAmount: newPrice,
-                      sku: sku,
-                      manufacturerId: manufacturerId,
-                      kind: kind,
-                    );
+              try {
+                await VariantsService().updateProductVariant(
+                  context,
+                  productId: product.id ?? '',
+                  variantId: product.id ?? '', // вариант = сам товар
+                  newAmount: newAmount.toDouble(),
+                  sku: product.sku ?? '',
+                  manufacturerId: product.manufacturerId ?? '',
+                  kind: product.kind ?? '',
+                  discountedAmount:
+                      (product.discountedPrice?.amount ?? 0).toDouble(),
+                  discountedPersent: product.discountPercent ?? 0,
+                );
 
-                    setState(() {
-                      // Найдите и обновите товар в списке
-                      final productIndex = _products.indexWhere(
-                        (product) => product.id == productId,
-                      );
-                      if (productIndex != -1) {
-                        _products[productIndex].variants?.first.price?.amount =
-                            newPrice.toInt();
-                      }
-                    });
-
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text(
-                          "Цена успешно обновлена",
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        backgroundColor: ThemeColors.green,
-                      ),
-                    );
-                  } catch (e) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text("Ошибка: $e")),
-                    );
-                  } finally {
-                    Navigator.of(context).pop(); // Закрываем индикатор загрузки
-                    Navigator.of(context)
-                        .pop(); // Закрываем диалог изменения цены
+                setState(() {
+                  final idx = _products.indexWhere((e) => e.id == product.id);
+                  if (idx != -1) {
+                    _products[idx].price?.amount = newAmount;
                   }
-                }
-              },
-              child: const Text(
-                "Сохранить",
-                style: TextStyle(
-                    color: ThemeColors.orange, fontWeight: FontWeight.bold),
-              ),
+                });
+
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      loc.price_update_success,
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    backgroundColor: ThemeColors.green,
+                  ),
+                );
+              } finally {
+                Navigator.of(context).pop(); // loader
+                Navigator.of(context).pop(); // dialog
+              }
+            },
+            child: Text(
+              loc.save,
+              style: const TextStyle(
+                  color: ThemeColors.orange, fontWeight: FontWeight.bold),
             ),
-          ],
-        );
-      },
+          ),
+        ],
+      ),
     );
   }
 
-  String _formatPriceWithSpaces(double price) {
-    final formatter = NumberFormat("#,###", "ru_RU");
-    return formatter.format(price).replaceAll(',', ' ');
-  }
-
+  // ──────────────────────────────────────────────── build
   @override
   Widget build(BuildContext context) {
+    final loc = S.of(context);
+
     return Scaffold(
       backgroundColor: ThemeColors.greyF,
       body: Stack(
@@ -279,103 +245,8 @@ class _ProductListPageState extends State<ProductListPage> {
                     color: ThemeColors.orange,
                     onRefresh: _refreshProducts,
                     child: _products.isEmpty && !_isLoading
-                        ? SingleChildScrollView(
-                            physics: const AlwaysScrollableScrollPhysics(),
-                            child: SizedBox(
-                              // Чтобы жест срабатывал, нужно чтобы был хоть какой-то
-                              // «пространственный» контент. Можно задать minHeight,
-                              // например, как высоту экрана, чтобы потянуть вниз.
-                              height: MediaQuery.of(context).size.height -
-                                  kToolbarHeight,
-                              child: Center(
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    SvgPicture.asset(
-                                      'assets/svg/empty_goods.svg',
-                                      width: 100,
-                                      height: 100,
-                                    ),
-                                    const SizedBox(height: 15),
-                                    const Text(
-                                      'В данном разделе\nнет товаров',
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        color: Colors.grey,
-                                      ),
-                                      textAlign: TextAlign.center,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          )
-                        : ListView.builder(
-                            controller: _scrollController,
-                            physics: const AlwaysScrollableScrollPhysics(),
-                            padding: EdgeInsets.only(bottom: 62),
-                            itemCount: _products.length + (_hasMore ? 1 : 0),
-                            itemBuilder: (context, index) {
-                              if (index == _products.length) {
-                                return Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      vertical: 16.0, horizontal: 10),
-                                  child: Center(
-                                    child: Column(
-                                      children: widget.status ==
-                                              Constants.activeStatus
-                                          ? List.generate(
-                                              2,
-                                              (index) => const Padding(
-                                                padding:
-                                                    EdgeInsets.only(bottom: 10),
-                                                child: Row(
-                                                  children: [
-                                                    LoadingWidget(
-                                                      width: 360,
-                                                      height: 90,
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                            )
-                                          : List.generate(
-                                              2,
-                                              (index) => const Padding(
-                                                padding:
-                                                    EdgeInsets.only(bottom: 10),
-                                                child: Row(
-                                                  children: [
-                                                    LoadingWidget(
-                                                      width: 360,
-                                                      height: 90,
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                            ),
-                                    ),
-                                  ),
-                                );
-                              }
-
-                              final product = _products[index];
-                              return _buildProductItem(
-                                index: index, // Передаём индекс
-                                product: product, // Передаём продукт
-                                name: product.name ?? 'Без названия',
-                                price: product.variants != null &&
-                                        product.variants!.isNotEmpty
-                                    ? '${_formatPriceWithSpaces((product.variants!.first.price?.amount ?? 0) / 100)} ₸'
-                                    : 'Цена не указана',
-                                imageUrl: product.images?.isNotEmpty == true
-                                    ? product.images!.first.getBestFitImage() ??
-                                        ''
-                                    : '',
-                                productId: product.id ?? '',
-                              );
-                            },
-                          ),
+                        ? _buildEmpty(loc)
+                        : _buildList(loc),
                   ),
                 ),
               ],
@@ -386,18 +257,13 @@ class _ProductListPageState extends State<ProductListPage> {
             left: 16,
             right: 16,
             child: CustomButton(
-              text: Constants.addNewGood,
+              text: loc.add_new_good,
               onPressed: () async {
                 final newProduct = await Navigator.push<ProductItems>(
                   context,
-                  MaterialPageRoute(
-                    builder: (context) => ProductNameInputPage(),
-                  ),
+                  MaterialPageRoute(builder: (_) => ProductNameInputPage()),
                 );
-
-                if (newProduct != null) {
-                  _addNewProduct(newProduct);
-                }
+                if (newProduct != null) _addNewProduct(newProduct);
               },
             ),
           ),
@@ -406,20 +272,86 @@ class _ProductListPageState extends State<ProductListPage> {
     );
   }
 
+  // ──────────────────────────────────────────────── widgets
+  Widget _buildEmpty(S loc) => SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        child: SizedBox(
+          height: MediaQuery.of(context).size.height - kToolbarHeight,
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                SvgPicture.asset('assets/svg/empty_goods.svg',
+                    width: 100, height: 100),
+                const SizedBox(height: 15),
+                Text(
+                  loc.no_products_message,
+                  style: const TextStyle(fontSize: 16, color: Colors.grey),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+
+  Widget _buildList(S loc) => ListView.builder(
+        controller: _scrollController,
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.only(bottom: 62),
+        itemCount: _products.length + (_hasMore ? 1 : 0),
+        itemBuilder: (_, index) {
+          if (index == _products.length) {
+            return Padding(
+              padding:
+                  const EdgeInsets.symmetric(vertical: 16.0, horizontal: 10),
+              child: Center(
+                child: Column(
+                  children: List.generate(
+                    2,
+                    (_) => const Padding(
+                      padding: EdgeInsets.only(bottom: 10),
+                      child: Row(
+                        children: [
+                          LoadingWidget(width: 360, height: 90),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            );
+          }
+
+          final product = _products[index];
+          final amount = product.price?.amount;
+          final priceStr = amount != null
+              ? '${_formatPriceWithSpaces(amount / 100)} ₸'
+              : loc.price_not_specified;
+
+          return _buildProductItem(
+            product: product,
+            price: priceStr,
+            discountPercent: product.discountPercent ?? 0,
+          );
+        },
+      );
+
   Widget _buildProductItem({
-    required int index,
     required ProductItems product,
-    required String name,
     required String price,
-    required String imageUrl,
-    required String productId,
+    required int discountPercent,
   }) {
+    final originalAmount = (product.price?.amount ?? 0) / 100;
+    final loc = S.of(context);
+
     return GestureDetector(
       onTap: () {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => ShopProductDetailScreen(productId: productId),
+            builder: (_) =>
+                ShopProductDetailScreen(productId: product.id ?? ''),
           ),
         );
       },
@@ -434,35 +366,14 @@ class _ProductListPageState extends State<ProductListPage> {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              ConstrainedBox(
-                constraints: const BoxConstraints(
-                  minWidth: 80,
-                  minHeight: 80,
-                  maxWidth: 80,
-                  maxHeight: 80,
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: imageUrl.isEmpty
-                      ? Image.asset('assets/icons/error_image.png',
-                          fit: BoxFit.cover)
-                      : Image.network(
-                          imageUrl,
-                          fit: BoxFit.contain,
-                          errorBuilder: (context, error, stackTrace) {
-                            return Image.asset('assets/icons/error_image.png',
-                                fit: BoxFit.cover);
-                          },
-                        ),
-                ),
-              ),
+              _buildImage(product, discountPercent),
               const SizedBox(width: 10),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      name,
+                      product.name ?? loc.no_name,
                       style: const TextStyle(
                         fontWeight: FontWeight.w400,
                         fontSize: 14,
@@ -470,59 +381,34 @@ class _ProductListPageState extends State<ProductListPage> {
                       ),
                     ),
                     const SizedBox(height: 4),
-                    Text(
-                      price,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+                    _buildPriceWidget(price, discountPercent, originalAmount),
                   ],
                 ),
               ),
-              // SizedBox(
-              //   width: 50,
-              // ),
               PopupMenuButton<String>(
                 icon: const Icon(Icons.more_horiz),
                 elevation: 1,
                 onSelected: (value) {
-                  // Обработка выбранного действия
                   switch (value) {
                     case 'view_product':
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) =>
-                              ShopProductDetailScreen(productId: productId),
+                          builder: (_) => ShopProductDetailScreen(
+                            productId: product.id ?? '',
+                          ),
                         ),
                       );
                       break;
                     case 'change_price':
-                      final variant = _products[index].variants?.first;
-                      if (variant != null) {
-                        final variantId = variant.id ?? '';
-                        final currentPrice = (variant.price?.amount ?? 0) / 100;
-                        final sku = variant.sku ?? '';
-                        final manufacturerId = variant.manufacturerId ?? '';
-                        final kind = variant.kind ?? '';
-
-                        _showPriceEditDialog(product.id ?? '', variantId,
-                            currentPrice, sku, manufacturerId, kind);
-                      } else {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('У товара нет вариантов с ценой'),
-                          ),
-                        );
-                      }
+                      _showPriceEditDialog(product: product);
                       break;
                     case 'edit_product':
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => ProductChangePage(
-                            productId: productId,
+                          builder: (_) => ProductChangePage(
+                            productId: product.id ?? '',
                             productService: _productService,
                           ),
                         ),
@@ -530,18 +416,18 @@ class _ProductListPageState extends State<ProductListPage> {
                       break;
                   }
                 },
-                itemBuilder: (context) => [
-                  const PopupMenuItem(
+                itemBuilder: (_) => [
+                  PopupMenuItem(
                     value: 'view_product',
-                    child: Text('Показать товар'),
+                    child: Text(loc.view_product),
                   ),
-                  const PopupMenuItem(
+                  PopupMenuItem(
                     value: 'change_price',
-                    child: Text('Изменить цену'),
+                    child: Text(loc.change_price),
                   ),
-                  const PopupMenuItem(
+                  PopupMenuItem(
                     value: 'edit_product',
-                    child: Text('Редактировать товар'),
+                    child: Text(loc.edit_product),
                   ),
                 ],
                 shape: RoundedRectangleBorder(
@@ -554,6 +440,93 @@ class _ProductListPageState extends State<ProductListPage> {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildPriceWidget(
+      String price, int discountPercent, double originalAmount) {
+    if (discountPercent != 0) {
+      final discounted = originalAmount * (100 - discountPercent) / 100;
+      return Row(
+        children: [
+          Text(
+            price,
+            style: const TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.bold,
+              decoration: TextDecoration.lineThrough,
+              color: Colors.red,
+            ),
+          ),
+          const SizedBox(width: 8),
+          Text(
+            '${_formatPriceWithSpaces(discounted)} ₸',
+            style: const TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
+              color: Colors.green,
+            ),
+          ),
+        ],
+      );
+    }
+    return Text(
+      price,
+      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+    );
+  }
+
+  Widget _buildImage(ProductItems product, int discountPercent) {
+    final imageUrl = product.images?.isNotEmpty == true
+        ? product.images!.first.getBestFitImage() ?? ''
+        : '';
+    return Stack(
+      children: [
+        ConstrainedBox(
+          constraints: const BoxConstraints(
+            minWidth: 80,
+            minHeight: 80,
+            maxWidth: 80,
+            maxHeight: 80,
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: imageUrl.isEmpty
+                ? Image.asset('assets/icons/error_image.png', fit: BoxFit.cover)
+                : Image.network(
+                    imageUrl,
+                    fit: BoxFit.contain,
+                    errorBuilder: (_, __, ___) => Image.asset(
+                      'assets/icons/error_image.png',
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+          ),
+        ),
+        if (discountPercent != 0)
+          Positioned(
+            bottom: 0,
+            left: 0,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              decoration: const BoxDecoration(
+                color: Colors.green,
+                borderRadius: BorderRadius.only(
+                  topRight: Radius.circular(8),
+                  bottomLeft: Radius.circular(8),
+                ),
+              ),
+              child: Text(
+                '-$discountPercent%',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ),
+      ],
     );
   }
 }

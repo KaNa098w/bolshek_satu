@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:bolshek_pro/app/pages/home/add_product_page.dart';
 import 'package:bolshek_pro/app/pages/home/with_search_name/add_product_with_name.dart';
 import 'package:bolshek_pro/app/widgets/custom_button_for_name.dart';
@@ -7,10 +6,13 @@ import 'package:bolshek_pro/app/widgets/custom_button.dart';
 import 'package:bolshek_pro/app/widgets/custom_editle_drop_down_two.dart';
 import 'package:bolshek_pro/app/widgets/custom_editle_drop_down.dart';
 import 'package:bolshek_pro/app/widgets/textfield_widget.dart';
+import 'package:bolshek_pro/core/models/product_responses.dart';
 import 'package:bolshek_pro/core/models/product_response.dart';
 import 'package:bolshek_pro/core/service/product_service.dart';
 import 'package:bolshek_pro/core/utils/theme.dart';
 import 'package:flutter/material.dart';
+import 'package:bolshek_pro/generated/l10n.dart';
+import 'package:intl/intl.dart';
 
 class ProductNameInputPage extends StatefulWidget {
   @override
@@ -21,7 +23,7 @@ class _ProductNameInputPageState extends State<ProductNameInputPage> {
   String _productName = '';
   Timer? _debounce;
   List<ProductItems> _suggestedItems = [];
-  ProductService _productService = ProductService();
+  final ProductService _productService = ProductService();
 
   // FocusNode для автофокуса поля ввода
   final FocusNode _focusNode = FocusNode();
@@ -69,19 +71,20 @@ class _ProductNameInputPageState extends State<ProductNameInputPage> {
 
   @override
   Widget build(BuildContext context) {
+    final localizations = S.of(context);
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         title: Text(
-          'Введите название товара',
-          style: TextStyle(color: Colors.black, fontSize: 20),
+          localizations.enter_product_name, // ключ: enter_product_name
+          style: const TextStyle(color: Colors.black, fontSize: 20),
         ),
         centerTitle: false,
       ),
       body: GestureDetector(
-        // При нажатии вне поля ввода скрываем клавиатуру
+        // Скрываем клавиатуру при нажатии вне поля ввода
         onTap: () => FocusScope.of(context).unfocus(),
         child: SingleChildScrollView(
           child: Padding(
@@ -96,15 +99,16 @@ class _ProductNameInputPageState extends State<ProductNameInputPage> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: CustomEditableDropdownFieldTwo(
-                    title: 'Введите название товара',
+                    title: localizations
+                        .enter_product_name, // ключ: enter_product_name
                     value: _productName,
                     onChanged: _onChanged,
                     focusNode: _focusNode, // Передаём focusNode
-                    autofocus: true, // Если поддерживается вашим виджетом
+                    autofocus: true,
                   ),
                 ),
-                SizedBox(height: 5),
-                // Кнопка "Применить" показывается только после ввода текста
+                const SizedBox(height: 5),
+                // Кнопка "Не нашли ваш товар? Добавьте сами" показывается только при вводе текста
                 if (_productName.isNotEmpty)
                   TextButton(
                     onPressed: () {
@@ -118,22 +122,23 @@ class _ProductNameInputPageState extends State<ProductNameInputPage> {
                     },
                     child: Row(
                       children: [
-                        Icon(
+                        const Icon(
                           Icons.add,
                           size: 32,
                           color: Colors.orange,
                         ),
-                        SizedBox(width: 5),
+                        const SizedBox(width: 5),
                         Text(
-                          'Не нашли ваш товар? Добавьте сами',
-                          style: TextStyle(
+                          localizations
+                              .not_found_add_yourself, // ключ: not_found_add_yourself
+                          style: const TextStyle(
                               color: Colors.orange,
                               fontWeight: FontWeight.w500),
                         ),
                       ],
                     ),
                   ),
-                SizedBox(height: 5),
+                const SizedBox(height: 5),
                 // Список найденных товаров
                 if (_suggestedItems.isNotEmpty)
                   Column(
@@ -147,81 +152,80 @@ class _ProductNameInputPageState extends State<ProductNameInputPage> {
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 12, vertical: 10),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              // Первая строка с изображением и названием товара
-                              Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  ConstrainedBox(
-                                    constraints: const BoxConstraints(
-                                      minWidth: 50,
-                                      minHeight: 50,
-                                      maxWidth: 50,
-                                      maxHeight: 50,
-                                    ),
-                                    child: ClipRRect(
-                                      borderRadius: BorderRadius.circular(8),
-                                      child: (item.images!.isNotEmpty &&
-                                              item.images!.first.sizes!
-                                                  .isNotEmpty &&
-                                              !(item.images!.first.sizes!.first
-                                                  .url!.isEmpty))
-                                          ? Image.network(
-                                              item.images!.first.sizes!.first
-                                                  .url!,
-                                              fit: BoxFit.contain,
-                                              errorBuilder:
-                                                  (context, error, stackTrace) {
-                                                return Image.asset(
-                                                  'assets/icons/error_image.png',
-                                                  fit: BoxFit.contain,
-                                                );
-                                              },
-                                            )
-                                          : Image.asset(
-                                              'assets/icons/error_image.png',
-                                              fit: BoxFit.contain,
-                                            ),
-                                    ),
+                          padding: const EdgeInsets.all(12),
+                          child: IntrinsicHeight(
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                // Левая часть с изображением
+                                Container(
+                                  width: 70,
+                                  height: 70,
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(8),
+                                    child: (item.images!.isNotEmpty &&
+                                            item.images!.first.sizes!
+                                                .isNotEmpty &&
+                                            !(item.images!.first.sizes!.first
+                                                .url!.isEmpty))
+                                        ? Image.network(
+                                            item.images!.first.sizes!.first
+                                                .url!,
+                                            fit: BoxFit.contain,
+                                            errorBuilder:
+                                                (context, error, stackTrace) {
+                                              return Image.asset(
+                                                'assets/icons/error_image.png',
+                                                fit: BoxFit.contain,
+                                              );
+                                            },
+                                          )
+                                        : Image.asset(
+                                            'assets/icons/error_image.png',
+                                            fit: BoxFit.contain,
+                                          ),
                                   ),
-                                  const SizedBox(width: 8),
-                                  // Текст с названием товара, который может занимать несколько строк
-                                  Expanded(
-                                    child: Text(
-                                      item.name ?? '',
-                                      style: const TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 8),
-                              // Кнопка "Выбрать" на правой стороне, размещённая отдельно
-                              Align(
-                                alignment: Alignment.centerRight,
-                                child: CustomButtonForName(
-                                  text: 'Выбрать',
-                                  onPressed: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) =>
-                                            AddProductWithName(
-                                          productId: item.id ?? '',
-                                          productName: item.name ?? '',
+                                ),
+                                const SizedBox(width: 12),
+                                // Правая часть с названием и кнопкой
+                                Expanded(
+                                  child: Column(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        item.name ?? "",
+                                        style: const TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w500,
                                         ),
                                       ),
-                                    );
-                                  },
+                                      Align(
+                                        alignment: Alignment.centerRight,
+                                        child: CustomButtonForName(
+                                          text: localizations
+                                              .choose, // ключ: choose
+                                          onPressed: () {
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) =>
+                                                    AddProductWithName(
+                                                  productId: item.id ?? '',
+                                                  productName: item.name ?? '',
+                                                ),
+                                              ),
+                                            );
+                                          },
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         ),
                       );

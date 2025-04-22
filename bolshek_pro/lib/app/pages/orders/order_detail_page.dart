@@ -2,6 +2,7 @@ import 'package:bolshek_pro/app/widgets/%20order_status_widget.dart';
 import 'package:bolshek_pro/core/models/order_detail_response.dart';
 import 'package:bolshek_pro/core/service/orders_service.dart';
 import 'package:bolshek_pro/core/utils/theme.dart';
+import 'package:bolshek_pro/generated/l10n.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -10,9 +11,11 @@ class OrderDetailsPage extends StatefulWidget {
   final String orderId;
   final int orderNumber;
 
-  const OrderDetailsPage(
-      {Key? key, required this.orderId, required this.orderNumber})
-      : super(key: key);
+  const OrderDetailsPage({
+    Key? key,
+    required this.orderId,
+    required this.orderNumber,
+  }) : super(key: key);
 
   @override
   State<OrderDetailsPage> createState() => _OrderDetailsPageState();
@@ -33,18 +36,17 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
 
   String _formatPrice(double price) {
     final formatter = NumberFormat("#,###.##", "ru_RU");
-    // Заменяем запятые на пробел, если это нужно (например, "1,234.56" -> "1 234.56")
     return formatter.format(price).replaceAll(',', ' ');
   }
 
   String _formatDate(String isoDate) {
     try {
       final parsedDate = DateTime.parse(isoDate);
-      final formatter =
-          DateFormat('dd.MM.yyyy HH:mm'); // Например, "27.09.2024 11:02"
+      final formatter = DateFormat('dd.MM.yyyy HH:mm');
       return formatter.format(parsedDate);
     } catch (e) {
-      return 'Некорректная дата'; // На случай, если формат даты неправильный
+      final localizations = S.of(context);
+      return localizations.invalid_date;
     }
   }
 
@@ -69,136 +71,121 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
 
   @override
   Widget build(BuildContext context) {
+    final localizations = S.of(context);
+
     // Пока идёт загрузка
     if (isLoading) {
       return Scaffold(
         backgroundColor: ThemeColors.white,
-        appBar: AppBar(title: Text('Заказ № ${widget.orderNumber}')),
+        appBar: AppBar(
+          title: Text('${localizations.order_prefix} ${widget.orderNumber}'),
+        ),
         body: const Center(
-            child: CircularProgressIndicator(
-          color: ThemeColors.grey4,
-        )),
+          child: CircularProgressIndicator(color: ThemeColors.grey4),
+        ),
       );
     }
 
     // Если произошла ошибка
     if (errorMessage != null) {
       return Scaffold(
-        appBar: AppBar(title: Text('Заказ № ${widget.orderId}')),
-        body: Center(child: Text('Ошибка: $errorMessage')),
+        appBar: AppBar(
+          title: Text('${localizations.order_prefix} ${widget.orderId}'),
+        ),
+        body: Center(
+          child: Text('${localizations.error_prefix} $errorMessage'),
+        ),
       );
     }
 
     // Если данных нет вовсе
     if (_order == null) {
       return Scaffold(
-        appBar: AppBar(title: Text('Заказ № ${widget.orderId}')),
-        body: const Center(child: Text('Данные о заказе отсутствуют')),
+        appBar: AppBar(
+          title: Text('${localizations.order_prefix} ${widget.orderId}'),
+        ),
+        body: Center(
+          child: Text(localizations.order_data_not_found),
+        ),
       );
     }
 
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text('Заказ № ${_order!.number}'),
+        title: Text('${localizations.order_prefix} ${_order!.number}'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.pop(context),
         ),
       ),
-      // Для удобства используем ListView, чтобы отобразить и общую информацию, и список товаров
       body: ListView(
         padding: const EdgeInsets.all(16.0),
         children: [
-          // Статус или другая информация о заказе
-          // Align(
-          //   alignment: Alignment.centerLeft,
-          //   child: Chip(
-          //     label: Text(_order!.status ?? 'Нет статуса'),
-          //   ),
-          // ),
-          // const SizedBox(height: 16),
-
           // Заголовок "Состав заказа"
-          const Text(
-            'Состав заказа',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          Text(
+            localizations.order_composition,
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 8),
-
-          // Выводим все items через ListView.builder внутри столбца (через shrinkWrap)
-          // Но так как мы уже *в* ListView, можем просто сгенерировать виджеты через .map
           if (_order!.items != null && _order!.items!.isNotEmpty)
-            ..._order!.items!.map((item) => Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 8.0),
-                  child: _buildOrderLineItem(item),
-                ))
+            ..._order!.items!.map(
+              (item) => Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                child: _buildOrderLineItem(item),
+              ),
+            )
           else
-            const Text('В заказе нет товаров'),
-
+            Text(localizations.order_empty),
           const Divider(height: 32),
-
           // Заголовок "Детали заказа"
-          const Text(
-            'Детали заказа',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          Text(
+            localizations.order_details,
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 8),
           _buildDetailRow(
-            'Общая сумма',
+            localizations.total_amount,
             '${_formatPrice((_order!.price?.amount ?? 0) / 100)} ₸',
           ),
-
           _buildDetailRow(
-            'Сумма доставки',
+            localizations.delivery_amount,
             '${_formatPrice((_order!.deliveryFee?.amount ?? 0) / 100)} ₸',
           ),
           _buildDetailRow(
-            'Итоговая сумма',
+            localizations.final_amount,
             '${_formatPrice((_order!.totalPrice?.amount ?? 0) / 100)} ₸',
           ),
           _buildDetailRow(
-            'Дата оформления',
+            localizations.order_date,
             _order!.createdAt != null
                 ? _formatDate(_order!.createdAt!.toIso8601String())
                 : '—',
           ),
-
           _buildDetailRow(
-            'Покупатель',
+            localizations.buyer,
             _order!.recipientName ?? '—',
-            // trailing: const Icon(Icons.phone, color: Colors.red),
           ),
           _buildDetailRow(
-            'Телефон',
+            localizations.phone,
             _order!.recipientNumber ?? '—',
             trailing: const Icon(Icons.phone, color: Colors.green),
           ),
           _buildDetailRow(
-            'Транзакции',
+            localizations.transactions,
             (_order?.payments?.isEmpty ?? true)
-                ? 'Безналичная оплата'
+                ? localizations.cashless_payment
                 : {
-                      'cash': 'Наличка',
-                      'freedom_pay': 'Freedom Bank',
+                      'cash': localizations.cash_payment,
+                      'freedom_pay': localizations.freedom_pay,
                     }[_order?.payments?.first.system] ??
-                    'Не указано',
+                    localizations.not_specified,
           ),
           const SizedBox(height: 30),
-          // Center(
-          //   child: ElevatedButton(
-          //     onPressed: () {
-          //       // Логика отслеживания доставки
-          //     },
-          //     child: const Text('Отследить доставку'),
-          //   ),
-          // ),
         ],
       ),
     );
   }
-
-  /// Виджет для строки с деталью заказа: ключ + значение + опциональная иконка
 
   Widget _buildDetailRow(String title, String value, {Widget? trailing}) {
     return Padding(
@@ -206,14 +193,12 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          // Название поля
           Expanded(
             child: Text(
               title,
               style: const TextStyle(fontSize: 15),
             ),
           ),
-          // Значение и (опционально) иконка
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -230,7 +215,7 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
                     if (await canLaunchUrl(phoneUri)) {
                       await launchUrl(phoneUri);
                     } else {
-                      debugPrint('Не удалось запустить $phoneUri');
+                      debugPrint('${S.of(context).cannot_launch} $phoneUri');
                     }
                   },
                   child: trailing,
@@ -262,8 +247,7 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
         setState(() {
           final updatedItem = item.copyWith(status: selectedStatus);
           final index = _order!.items!.indexOf(item);
-          _order!.items![index] =
-              updatedItem; // Обновляем список с новым объектом
+          _order!.items![index] = updatedItem;
           isLoading = false;
         });
       }
@@ -272,49 +256,48 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
         isLoading = false;
       });
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Ошибка обновления статуса: $e')),
+        SnackBar(content: Text('${S.of(context).status_update_error} $e')),
       );
     }
   }
 
   Future<void> showConfirmationDialog(BuildContext context) async {
+    final localizations = S.of(context);
     final result = await showDialog<bool>(
       context: context,
-      barrierDismissible: false, // Диалог нельзя закрыть нажатием вне
+      barrierDismissible: false,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Подтвердите действие'),
-          content: Text(
-            'Вы уверены, что хотите отменить товар? Это действие необратимо.',
-          ),
+          title: Text(localizations.confirm_action),
+          content: Text(localizations.cancel_item_confirmation),
           actions: [
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop(false); // Возвращаем "Отмена"
+                Navigator.of(context).pop(false);
               },
-              child: Text('Отмена'),
+              child: Text(localizations.cancel),
             ),
             ElevatedButton(
               onPressed: () {
-                Navigator.of(context).pop(true); // Возвращаем "Подтвердить"
+                Navigator.of(context).pop(true);
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red, // Цвет кнопки подтверждения
+                backgroundColor: Colors.red,
               ),
-              child: Text('Отменить'),
+              child: Text(localizations.cancel_action),
             ),
           ],
         );
       },
     );
 
-    // Обработка результата диалога
     if (result == true) {
       showSuccessDialog(context);
     }
   }
 
   void showSuccessDialog(BuildContext context) {
+    final localizations = S.of(context);
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -324,7 +307,7 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(12.0),
-              boxShadow: [
+              boxShadow: const [
                 BoxShadow(
                   color: Colors.black26,
                   blurRadius: 10,
@@ -335,15 +318,15 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(
+                const Icon(
                   Icons.check_circle,
                   color: Colors.green,
                   size: 48,
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Товар успешно отменён',
-                  style: TextStyle(
+                  localizations.item_cancel_success,
+                  style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
                     color: Colors.black,
@@ -357,8 +340,7 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
       },
     );
 
-    // Автоматическое закрытие через 2 секунды
-    Future.delayed(Duration(seconds: 2), () {
+    Future.delayed(const Duration(seconds: 2), () {
       Navigator.of(context).pop();
     });
   }
@@ -369,27 +351,25 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
     });
 
     try {
-      // Проверяем, что item.id не равен null
       if (item.id == null) {
-        throw Exception('ID товара не может быть null');
+        throw Exception(S.of(context).item_id_null_error);
       }
 
       final response = await _ordersService.cancelGoodOrders(
         context: context,
         id: _order?.id ?? '',
-        ids: [item.id!], // Используем оператор "!" для безопасного извлечения
+        ids: [item.id!],
       );
 
       if (response.statusCode == 200 || response.statusCode == 204) {
         setState(() {
-          // Удаляем товар из списка
           _order!.items!.remove(item);
           isLoading = false;
         });
 
         showSuccessDialog(context);
       } else {
-        throw Exception('Ошибка отмены товара: ${response.body}');
+        throw Exception('${S.of(context).cancel_item_error} ${response.body}');
       }
     } catch (e) {
       setState(() {
@@ -397,7 +377,7 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Ошибка отмены товара: $e')),
+        SnackBar(content: Text('${S.of(context).cancel_item_error} $e')),
       );
     }
   }
@@ -406,28 +386,28 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
     final newStatus = await showDialog<String>(
       context: context,
       builder: (BuildContext context) {
+        final localizations = S.of(context);
         return AlertDialog(
-          title: const Text(
-            'Выберите новый статус',
-            style: TextStyle(fontSize: 18),
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: OrderStatusWidget.statusforItems.entries
-                .where((entry) =>
-                    entry.key != item.status) // Фильтруем текущий статус
-                .map((entry) {
-              return ListTile(
-                dense: true, // Уменьшает внутренние отступы
-                title: Text(
-                  entry.value,
-                  style: TextStyle(fontSize: 14),
-                ),
-                onTap: () => Navigator.pop(context, entry.key),
-              );
-            }).toList(),
-          ),
-        );
+            title: Text(
+              localizations.select_new_status,
+              style: const TextStyle(fontSize: 18),
+            ),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: OrderStatusWidget.statusforItemsLocalized(context)
+                  .entries
+                  .where((entry) => entry.key != item.status)
+                  .map((entry) {
+                return ListTile(
+                  dense: true,
+                  title: Text(
+                    entry.value,
+                    style: const TextStyle(fontSize: 14),
+                  ),
+                  onTap: () => Navigator.pop(context, entry.key),
+                );
+              }).toList(),
+            ));
       },
     );
 
@@ -436,7 +416,6 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
     }
   }
 
-  /// Пример карточки одного товара из заказа
   Widget _buildOrderLineItem(Item item) {
     final imageUrl = item.product?.images?.isNotEmpty == true
         ? (item.product?.images?.first.sizes?.isNotEmpty == true
@@ -445,8 +424,7 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
         : null;
 
     return Row(
-      crossAxisAlignment:
-          CrossAxisAlignment.center, // Центрирование по вертикали
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         ConstrainedBox(
           constraints: const BoxConstraints(
@@ -457,7 +435,7 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
           ),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(8),
-            child: imageUrl!.isEmpty
+            child: imageUrl == null || imageUrl.isEmpty
                 ? Image.asset('assets/icons/error_image.png', fit: BoxFit.cover)
                 : Image.network(
                     imageUrl,
@@ -470,25 +448,24 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
           ),
         ),
         const SizedBox(width: 16),
-        // Описание товара
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                item.product?.name ?? 'Без названия',
+                item.product?.name ?? S.of(context).no_name,
                 style: const TextStyle(fontSize: 15),
               ),
               const SizedBox(height: 4),
               Row(
                 children: [
-                  const Text('Статус: '),
+                  Text('${S.of(context).status_prefix} '),
                   OrderStatusWidget(status: item.status ?? ''),
                 ],
               ),
               const SizedBox(height: 4),
               Text(
-                'Цена: ${_formatPrice(((item.price?.amount ?? 0).toDouble() / 100))} ₸',
+                '${S.of(context).price_prefix} ${_formatPrice(((item.price?.amount ?? 0).toDouble() / 100))} ₸',
                 style:
                     const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
               ),
@@ -499,20 +476,22 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
                 OutlinedButton(
                   onPressed: () => _showStatusSelectionDialog(context, item),
                   style: OutlinedButton.styleFrom(
-                    side: BorderSide(color: Colors.blue),
+                    side: const BorderSide(color: Colors.blue),
                     shape: RoundedRectangleBorder(
-                      borderRadius:
-                          BorderRadius.circular(8), // Закругление углов
+                      borderRadius: BorderRadius.circular(8),
                     ),
-                    padding: EdgeInsets.symmetric(horizontal: 7, vertical: 0),
-                    visualDensity: VisualDensity(horizontal: 0, vertical: -2),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 7, vertical: 0),
+                    visualDensity:
+                        const VisualDensity(horizontal: 0, vertical: -2),
                   ),
                   child: Text(
-                    'Изменить статус товара',
-                    style: TextStyle(
-                        fontSize: 13,
-                        color: Colors.blue,
-                        fontWeight: FontWeight.bold),
+                    S.of(context).change_item_status,
+                    style: const TextStyle(
+                      fontSize: 13,
+                      color: Colors.blue,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               if (item.status == 'awaiting_confirmation' ||
@@ -520,17 +499,18 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
                 OutlinedButton(
                   onPressed: () => _cancelItem(item),
                   style: OutlinedButton.styleFrom(
-                    side: BorderSide(color: Colors.red),
+                    side: const BorderSide(color: Colors.red),
                     shape: RoundedRectangleBorder(
-                      borderRadius:
-                          BorderRadius.circular(8), // Закругление углов
+                      borderRadius: BorderRadius.circular(8),
                     ),
-                    padding: EdgeInsets.symmetric(horizontal: 7, vertical: 1),
-                    visualDensity: VisualDensity(horizontal: 0, vertical: -2),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 7, vertical: 1),
+                    visualDensity:
+                        const VisualDensity(horizontal: 0, vertical: -2),
                   ),
                   child: Text(
-                    'Отменить товар',
-                    style: TextStyle(
+                    S.of(context).cancel_item,
+                    style: const TextStyle(
                       fontSize: 13,
                       color: Colors.red,
                       fontWeight: FontWeight.bold,

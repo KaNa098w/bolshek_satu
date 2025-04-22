@@ -1,6 +1,7 @@
 import 'package:bolshek_pro/core/models/vehicle_generation_response.dart';
 import 'package:bolshek_pro/app/widgets/custom_silver_appbar.dart';
 import 'package:bolshek_pro/core/service/vehicle_generation_servcie.dart';
+import 'package:bolshek_pro/generated/l10n.dart';
 import 'package:flutter/material.dart';
 
 class VehicleGenerationPage extends StatefulWidget {
@@ -36,22 +37,23 @@ class _VehicleGenerationPageState extends State<VehicleGenerationPage> {
 
   @override
   Widget build(BuildContext context) {
+    final local = S.of(context);
     return Scaffold(
       backgroundColor: Colors.white,
       body: FutureBuilder<VehicleGenerationResponse>(
         future: _futureGenerations,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(
+            return Center(
                 child: CircularProgressIndicator(
               color: Colors.grey,
             ));
           } else if (snapshot.hasError) {
-            return Center(child: Text('Ошибка: ${snapshot.error}'));
+            return Center(child: Text('Error: ${snapshot.error}'));
           } else if (!snapshot.hasData ||
               snapshot.data?.items == null ||
               snapshot.data!.items!.isEmpty) {
-            return const Center(child: Text('Модели не найдены.'));
+            return Center(child: Text(local.order_data_not_found));
           } else {
             final items = snapshot.data!.items!;
             return CustomScrollView(
@@ -100,7 +102,7 @@ class _VehicleGenerationPageState extends State<VehicleGenerationPage> {
                                   .start, // Добавлено для выравнивания по левому краю
                               children: [
                                 Text(
-                                  vehicle.name ?? 'Без названия',
+                                  vehicle.name ?? local.no_name,
                                   style: const TextStyle(fontSize: 15),
                                 ),
                                 Row(

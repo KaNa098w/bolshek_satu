@@ -3,6 +3,7 @@ import 'package:bolshek_pro/app/pages/home/vehicle_generation_screen.dart';
 import 'package:bolshek_pro/core/models/model_response.dart';
 import 'package:bolshek_pro/core/service/model_service.dart';
 import 'package:bolshek_pro/app/widgets/custom_silver_appbar.dart';
+import 'package:bolshek_pro/generated/l10n.dart';
 import 'package:flutter/material.dart';
 
 class ModelPage extends StatefulWidget {
@@ -67,21 +68,22 @@ class _ModelPageState extends State<ModelPage> {
 
   @override
   Widget build(BuildContext context) {
+    final local = S.of(context);
     return Scaffold(
       backgroundColor: Colors.white,
       body: FutureBuilder<ModelResponse>(
         future: _futureModels,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(
+            return Center(
               child: CircularProgressIndicator(color: Colors.grey),
             );
           } else if (snapshot.hasError) {
-            return Center(child: Text('Ошибка: ${snapshot.error}'));
+            return Center(child: Text('Error: ${snapshot.error}'));
           } else if (!snapshot.hasData ||
               snapshot.data?.items == null ||
               snapshot.data!.items!.isEmpty) {
-            return const Center(child: Text('Модели не найдены.'));
+            return Center(child: Text(local.order_data_not_found));
           } else {
             final items = snapshot.data!.items!;
             final searchQueryLower = _searchQuery.toLowerCase();
@@ -106,13 +108,12 @@ class _ModelPageState extends State<ModelPage> {
                     height: 60,
                     child: Container(
                       color: Colors.grey[100],
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 8),
+                      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                       child: TextField(
                         controller: _searchController,
                         textInputAction: TextInputAction.search,
                         decoration: InputDecoration(
-                          hintText: 'Поиск по модели',
+                          hintText: S.of(context).searchByModel,
                           prefixIcon: const Icon(Icons.search),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
@@ -170,7 +171,7 @@ class _ModelPageState extends State<ModelPage> {
                             contentPadding: const EdgeInsets.symmetric(
                                 horizontal: 20, vertical: 1),
                             title: Text(
-                              model.name ?? 'Без названия',
+                              model.name ?? S.of(context).no_name,
                               style: const TextStyle(fontSize: 15),
                             ),
                             trailing: const Icon(

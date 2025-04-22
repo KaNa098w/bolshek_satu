@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:yandex_mapkit/yandex_mapkit.dart';
 import 'package:location/location.dart';
 import 'package:http/http.dart' as http;
+import 'package:bolshek_pro/generated/l10n.dart';
 
 class YandexMapPickerScreen extends StatefulWidget {
   const YandexMapPickerScreen({Key? key}) : super(key: key);
@@ -12,10 +13,11 @@ class YandexMapPickerScreen extends StatefulWidget {
 }
 
 class _YandexMapPickerScreenState extends State<YandexMapPickerScreen> {
-  Point selectedPoint =
-      const Point(latitude: 42.3154, longitude: 69.5901); // Шымкент
+  // Начальная точка на карте (Шымкент)
+  Point selectedPoint = const Point(latitude: 42.3154, longitude: 69.5901);
 
-  String selectedAddress = 'Адрес не выбран';
+  // Изначальное значение адреса будет установлено через локализацию
+  String selectedAddress = '';
   YandexMapController? mapController;
   List<MapObject> mapObjects = [];
 
@@ -23,10 +25,26 @@ class _YandexMapPickerScreenState extends State<YandexMapPickerScreen> {
   final String apiKey = 'fb1a4221-df9c-4784-9b42-0deeac4d0791';
 
   @override
+  void initState() {
+    super.initState();
+    // Пока что оставляем пустым — оно будет установлено в didChangeDependencies
+    selectedAddress = '';
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Устанавливаем значение по умолчанию при первом обращении к контексту
+    if (selectedAddress.isEmpty) {
+      selectedAddress = S.of(context).addressNotSelected;
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Выберите адрес'),
+        title: Text(S.of(context).chooseAddress),
       ),
       body: Stack(
         children: [
@@ -34,37 +52,34 @@ class _YandexMapPickerScreenState extends State<YandexMapPickerScreen> {
             mapObjects: mapObjects,
             onMapCreated: (controller) async {
               mapController = controller;
-
               // Перемещаем камеру на Шымкент при загрузке карты
               await mapController!.moveCamera(
                 CameraUpdate.newCameraPosition(
                   const CameraPosition(
-                    target:
-                        Point(latitude: 42.3154, longitude: 69.5901), // Шымкент
-                    zoom: 12, // Уровень приближения
+                    target: Point(latitude: 42.3154, longitude: 69.5901),
+                    zoom: 12,
                   ),
                 ),
                 animation: const MapAnimation(
-                    type: MapAnimationType.smooth, duration: 1),
+                  type: MapAnimationType.smooth,
+                  duration: 1,
+                ),
               );
-
-              // Убираем вызов _findMyLocation, чтобы местоположение не определялось автоматически
             },
             onCameraPositionChanged: (position, reason, finished) async {
               if (finished) {
                 final target = position.target;
                 setState(() {
-                  selectedPoint = target; // Обновляем только координаты
+                  selectedPoint = target;
                 });
               }
             },
             onMapTap: (Point point) async {
               setState(() {
-                selectedPoint = point; // Обновляем точку выбора
+                selectedPoint = point;
               });
-              await _updateAddressDetails(
-                  point.latitude, point.longitude); // Получаем адрес
-              _updatePointer(); // Обновляем плейсмарк на карте
+              await _updateAddressDetails(point.latitude, point.longitude);
+              _updatePointer();
             },
           ),
           Positioned(
@@ -88,7 +103,7 @@ class _YandexMapPickerScreenState extends State<YandexMapPickerScreen> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Text(
-                    'Текущий адрес:',
+                    S.of(context).currentAddress,
                     style: Theme.of(context).textTheme.bodyLarge,
                   ),
                   const SizedBox(height: 8),
@@ -115,19 +130,17 @@ class _YandexMapPickerScreenState extends State<YandexMapPickerScreen> {
               },
               style: ElevatedButton.styleFrom(
                 foregroundColor: Colors.white,
-                backgroundColor: Colors.blue, // Цвет текста кнопки
+                backgroundColor: Colors.blue,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12), // Закругляем края
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                padding: const EdgeInsets.symmetric(
-                    vertical: 14), // Увеличиваем высоту кнопки
-                // elevation: 5, // Добавляем тень
+                padding: const EdgeInsets.symmetric(vertical: 14),
               ),
-              child: const Text(
-                'Выбрать адрес',
-                style: TextStyle(
-                  fontSize: 15, // Размер текста
-                  fontWeight: FontWeight.bold, // Жирный текст
+              child: Text(
+                S.of(context).selectAddress,
+                style: const TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
             ),
@@ -138,22 +151,21 @@ class _YandexMapPickerScreenState extends State<YandexMapPickerScreen> {
         padding: const EdgeInsets.only(bottom: 180.0),
         child: FloatingActionButton(
           onPressed: _findMyLocation,
-          backgroundColor: Colors.blue, // Цвет фона
-          foregroundColor: Colors.white, // Цвет иконки
-          // elevation: 4, // Тень кнопки
+          backgroundColor: Colors.blue,
+          foregroundColor: Colors.white,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16), // Более округлая форма
+            borderRadius: BorderRadius.circular(16),
           ),
           child: const Icon(
             Icons.my_location,
-            size: 28, // Увеличиваем размер иконки
+            size: 28,
           ),
         ),
       ),
     );
   }
 
-  /// Запрашиваем у Яндекса адрес по координатам
+  /// Запрашиваем у Яндекса адрес по координатам.
   Future<void> _updateAddressDetails(double latitude, double longitude) async {
     final url =
         'https://geocode-maps.yandex.ru/1.x/?apikey=$apiKey&geocode=$longitude,$latitude&format=json';
@@ -175,33 +187,31 @@ class _YandexMapPickerScreenState extends State<YandexMapPickerScreen> {
           final geoObject = featureMember[0]['GeoObject'];
           final address = geoObject['metaDataProperty']['GeocoderMetaData']
               ['text'] as String?;
-
           setState(() {
-            selectedAddress = address ?? 'Не удалось получить адрес';
+            selectedAddress = address ?? S.of(context).failedToGetAddress;
           });
-
           print('[GEO] Полученный адрес => $selectedAddress');
         } else {
           setState(() {
-            selectedAddress = 'Не удалось получить адрес';
+            selectedAddress = S.of(context).failedToGetAddress;
           });
           print('[GEO] featureMember пустой => $selectedAddress');
         }
       } else {
         setState(() {
-          selectedAddress = 'Не удалось получить адрес (Ошибка сети)';
+          selectedAddress = S.of(context).failedToGetAddressNetwork;
         });
         print('[GEO] Не 200. Ошибка сети => $selectedAddress');
       }
     } catch (e) {
       setState(() {
-        selectedAddress = 'Не удалось получить адрес (Ошибка сети)';
+        selectedAddress = S.of(context).failedToGetAddressNetwork;
       });
       print('[GEO ERROR] => $e');
     }
   }
 
-  /// Пытаемся найти текущую геолокацию пользователя
+  /// Пытаемся найти текущую геолокацию пользователя.
   Future<void> _findMyLocation() async {
     final location = Location();
 
@@ -211,11 +221,11 @@ class _YandexMapPickerScreenState extends State<YandexMapPickerScreen> {
         serviceEnabled = await location.requestService();
         if (!serviceEnabled) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Сервис геолокации отключён'),
+            SnackBar(
+              content: Text(S.of(context).locationServiceDisabled),
             ),
           );
-          return; // Выходим, если сервис недоступен
+          return;
         }
       }
 
@@ -225,11 +235,11 @@ class _YandexMapPickerScreenState extends State<YandexMapPickerScreen> {
         permissionGranted = await location.requestPermission();
         if (permissionGranted != PermissionStatus.granted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Нет разрешений на использование геолокации'),
+            SnackBar(
+              content: Text(S.of(context).locationPermissionDenied),
             ),
           );
-          return; // Выходим, если разрешения не предоставлены
+          return;
         }
       }
 
@@ -237,9 +247,9 @@ class _YandexMapPickerScreenState extends State<YandexMapPickerScreen> {
       if (currentLocation.latitude == null ||
           currentLocation.longitude == null) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Не удалось получить координаты')),
+          SnackBar(content: Text(S.of(context).failedToGetCoordinates)),
         );
-        return; // Выходим, если координаты недоступны
+        return;
       }
 
       final currentPoint = Point(
@@ -251,7 +261,7 @@ class _YandexMapPickerScreenState extends State<YandexMapPickerScreen> {
         selectedPoint = currentPoint;
       });
 
-      // Обновляем адрес и перемещаем камеру
+      // Обновляем адрес и перемещаем камеру.
       await _updateAddressDetails(
           currentPoint.latitude, currentPoint.longitude);
 
@@ -271,12 +281,12 @@ class _YandexMapPickerScreenState extends State<YandexMapPickerScreen> {
     } catch (e) {
       print('[ERROR] Ошибка при получении местоположения: $e');
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Ошибка при получении местоположения')),
+        SnackBar(content: Text(S.of(context).locationError)),
       );
     }
   }
 
-  /// Обновляем плейсмарк на карте, чтобы указать выбранную точку
+  /// Обновляем плейсмарк на карте, чтобы указать выбранную точку.
   void _updatePointer() {
     setState(() {
       mapObjects = [
@@ -294,8 +304,7 @@ class _YandexMapPickerScreenState extends State<YandexMapPickerScreen> {
         ),
       ];
     });
-
-    print('[MAP] Плейсмарк установлен в => lat: ${selectedPoint.latitude}, '
-        'lng: ${selectedPoint.longitude}');
+    print(
+        '[MAP] Плейсмарк установлен в => lat: ${selectedPoint.latitude}, lng: ${selectedPoint.longitude}');
   }
 }

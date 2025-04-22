@@ -6,6 +6,7 @@ import 'package:bolshek_pro/app/widgets/textfield_widget.dart';
 import 'package:bolshek_pro/app/widgets/yandex_map_widget.dart';
 import 'package:bolshek_pro/core/service/auth_service.dart';
 import 'package:bolshek_pro/core/utils/theme.dart';
+import 'package:bolshek_pro/generated/l10n.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -15,12 +16,10 @@ import 'package:bolshek_pro/core/models/category_response.dart' as category;
 import 'package:bolshek_pro/core/models/brands_response.dart';
 
 class AuthRegisterScreen extends StatefulWidget {
-  // final String otpId;
   final String? phoneNumber;
 
   const AuthRegisterScreen({
     Key? key,
-    // required this.otpId,
     this.phoneNumber,
   }) : super(key: key);
 
@@ -45,6 +44,7 @@ class _AuthRegisterScreenState extends State<AuthRegisterScreen> {
 
   /// Выбранные бренды (ID).
   Set<String> _selectedBrandIds = {};
+
   final TextEditingController address = TextEditingController();
   final TextEditingController firstNameController = TextEditingController();
   final TextEditingController lastNameController = TextEditingController();
@@ -72,7 +72,7 @@ class _AuthRegisterScreenState extends State<AuthRegisterScreen> {
   }
 
   Future<void> _handleSendSms() async {
-    if (_isLoading) return; // Блокируем повторное нажатие во время загрузки
+    if (_isLoading) return;
 
     setState(() {
       _isLoading = true;
@@ -83,33 +83,33 @@ class _AuthRegisterScreenState extends State<AuthRegisterScreen> {
 
     try {
       final response = await _authService.fetchOtpId(context, phoneNumber);
-
       final isRegistered = response['isRegistered'] as bool;
       final otpId = response['otpId'] as String;
 
-      if (isRegistered == false) {
+      if (!isRegistered) {
         Navigator.push(
           context,
           MaterialPageRoute(
-              builder: (context) => CodeInputRegister(
-                    otpId: otpId,
-                    phoneNumber: phoneNumberController.text,
-                    firstName: firstNameController.text,
-                    lastName: lastNameController.text,
-                    longitude: longitude,
-                    latitude: latitude,
-                    address: address.text,
-                    shopName: shopNameController.text,
-                    selectedCategoryIds: _selectedCategoryIds.toList(),
-                    selectedBrandIds: _selectedBrandIds.toList(),
-                  )),
+            builder: (context) => CodeInputRegister(
+              otpId: otpId,
+              phoneNumber: phoneNumberController.text,
+              firstName: firstNameController.text,
+              lastName: lastNameController.text,
+              longitude: longitude,
+              latitude: latitude,
+              address: address.text,
+              shopName: shopNameController.text,
+              selectedCategoryIds: _selectedCategoryIds.toList(),
+              selectedBrandIds: _selectedBrandIds.toList(),
+            ),
+          ),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              'Такой номер уже был зарегистрирован ',
-              style: TextStyle(fontWeight: FontWeight.bold),
+              S.of(context).phoneAlreadyRegistered,
+              style: const TextStyle(fontWeight: FontWeight.bold),
             ),
             backgroundColor: Colors.grey[600],
           ),
@@ -119,8 +119,8 @@ class _AuthRegisterScreenState extends State<AuthRegisterScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            'Такой номер уже был зарегистрирован $e',
-            style: TextStyle(fontWeight: FontWeight.bold),
+            '${S.of(context).phoneAlreadyRegistered} $e',
+            style: const TextStyle(fontWeight: FontWeight.bold),
           ),
           backgroundColor: Colors.grey[600],
         ),
@@ -160,11 +160,10 @@ class _AuthRegisterScreenState extends State<AuthRegisterScreen> {
       });
     } catch (e) {
       setState(() => isLoadingCategories = false);
-      _showError('Ошибка загрузки категорий: $e');
+      _showError(S.of(context).errorLoadingCategories(e.toString()));
     }
   }
 
-  // ------------------- ЗАГРУЗКА БРЕНДОВ -------------------
   Future<void> _loadBrands() async {
     try {
       setState(() => isLoadingBrands = true);
@@ -178,7 +177,7 @@ class _AuthRegisterScreenState extends State<AuthRegisterScreen> {
       });
     } catch (e) {
       setState(() => isLoadingBrands = false);
-      _showError('Ошибка загрузки брендов: $e');
+      _showError(S.of(context).errorLoadingBrands(e.toString()));
     }
   }
 
@@ -187,12 +186,13 @@ class _AuthRegisterScreenState extends State<AuthRegisterScreen> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Ошибка'),
+          // Если у вас есть ключ для ошибки в ARB, можно использовать его, например S.of(context).error
+          title: Text('Ошибка'),
           content: Text(message),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('ОК'),
+              child: Text(S.of(context).ok),
             ),
           ],
         );
@@ -217,7 +217,6 @@ class _AuthRegisterScreenState extends State<AuthRegisterScreen> {
 
         return StatefulBuilder(
           builder: (context, setStateModal) {
-            // Если ещё грузим категории
             if (isLoadingCategories) {
               return SizedBox(
                 height: MediaQuery.of(context).size.height * 0.4,
@@ -229,20 +228,17 @@ class _AuthRegisterScreenState extends State<AuthRegisterScreen> {
               );
             }
 
-            // Если категорий нет
             if (categories.isEmpty) {
               return SizedBox(
                 height: MediaQuery.of(context).size.height * 0.4,
-                child: const Center(
-                  child: Text('Список категорий пуст'),
+                child: Center(
+                  child: Text(S.of(context).emptyCategoryList),
                 ),
               );
             }
 
-            // Проверка, выбрана ли категория
             bool isCategorySelected(String id) => localSelectedIds.contains(id);
 
-            // Переключаем чекбокс
             void toggleCategory(String id) {
               setStateModal(() {
                 final parentCategory =
@@ -275,7 +271,6 @@ class _AuthRegisterScreenState extends State<AuthRegisterScreen> {
                     final children = category.children ?? [];
                     final allChildrenSelected = children
                         .every((child) => localSelectedIds.contains(child.id));
-
                     if (allChildrenSelected) {
                       localSelectedIds.add(category.id ?? '');
                     } else {
@@ -286,7 +281,6 @@ class _AuthRegisterScreenState extends State<AuthRegisterScreen> {
               });
             }
 
-            // Фильтрация
             void filterCategories(String query) {
               setStateModal(() {
                 searchQuery = query.trim().toLowerCase();
@@ -309,7 +303,7 @@ class _AuthRegisterScreenState extends State<AuthRegisterScreen> {
                         Expanded(
                           child: TextField(
                             decoration: InputDecoration(
-                              hintText: 'Поиск категории',
+                              hintText: S.of(context).searchCategory,
                               prefixIcon: const Icon(Icons.search),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(10),
@@ -330,7 +324,6 @@ class _AuthRegisterScreenState extends State<AuthRegisterScreen> {
                       ],
                     ),
                   ),
-
                   // Список родительских + детей
                   Expanded(
                     child: ListView.builder(
@@ -338,7 +331,6 @@ class _AuthRegisterScreenState extends State<AuthRegisterScreen> {
                       itemBuilder: (context, index) {
                         final parentCategory = filteredCategories[index];
                         final subcategories = parentCategory.children ?? [];
-
                         final selectedSubcategoriesCount = subcategories
                             .where((subcategory) =>
                                 isCategorySelected(subcategory.id ?? ''))
@@ -346,8 +338,7 @@ class _AuthRegisterScreenState extends State<AuthRegisterScreen> {
 
                         return Theme(
                           data: Theme.of(context).copyWith(
-                            dividerColor: Colors
-                                .white, // Устанавливаем цвет разделителя (по умолчанию черный)
+                            dividerColor: Colors.white,
                           ),
                           child: ExpansionTile(
                             leading: Checkbox(
@@ -376,7 +367,8 @@ class _AuthRegisterScreenState extends State<AuthRegisterScreen> {
                               children: [
                                 Expanded(
                                   child: Text(
-                                    parentCategory.name ?? 'Без названия',
+                                    parentCategory.name ??
+                                        S.of(context).emptyCategoryList,
                                     style: const TextStyle(
                                         fontWeight: FontWeight.w500),
                                   ),
@@ -421,8 +413,11 @@ class _AuthRegisterScreenState extends State<AuthRegisterScreen> {
                                       return Colors.grey.shade100;
                                     }),
                                   ),
-                                  title:
-                                      Text(subcategory.name ?? 'Без названия'),
+                                  title: Text(
+                                    subcategory.name ??
+                                        S.of(context).emptyCategoryList ??
+                                        '',
+                                  ),
                                 ),
                               );
                             }).toList(),
@@ -431,9 +426,6 @@ class _AuthRegisterScreenState extends State<AuthRegisterScreen> {
                       },
                     ),
                   ),
-
-                  // const Divider(),
-
                   // Блок выбранных
                   Stack(
                     children: [
@@ -447,6 +439,7 @@ class _AuthRegisterScreenState extends State<AuthRegisterScreen> {
                             child: ElevatedButton(
                               onPressed: () {
                                 Navigator.pop(context, localSelectedIds);
+                                FocusScope.of(context).unfocus();
                               },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: ThemeColors.orange,
@@ -454,9 +447,9 @@ class _AuthRegisterScreenState extends State<AuthRegisterScreen> {
                                   borderRadius: BorderRadius.circular(10),
                                 ),
                               ),
-                              child: const Text(
-                                'Подтвердить',
-                                style: TextStyle(
+                              child: Text(
+                                S.of(context).confirm ?? '',
+                                style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
@@ -502,8 +495,8 @@ class _AuthRegisterScreenState extends State<AuthRegisterScreen> {
         if (brands.isEmpty) {
           return SizedBox(
             height: MediaQuery.of(context).size.height * 0.4,
-            child: const Center(
-              child: Text('Список брендов пуст'),
+            child: Center(
+              child: Text(S.of(context).emptyBrandList ?? ''),
             ),
           );
         }
@@ -549,7 +542,7 @@ class _AuthRegisterScreenState extends State<AuthRegisterScreen> {
                         Expanded(
                           child: TextField(
                             decoration: InputDecoration(
-                              hintText: 'Поиск бренда',
+                              hintText: S.of(context).searchBrand,
                               prefixIcon: const Icon(Icons.search),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(10),
@@ -570,8 +563,7 @@ class _AuthRegisterScreenState extends State<AuthRegisterScreen> {
                       ],
                     ),
                   ),
-
-                  // Список брендов + чекбоксы (слева)
+                  // Список брендов + чекбоксы
                   Expanded(
                     child: ListView.builder(
                       itemCount: filteredBrands.length,
@@ -584,32 +576,27 @@ class _AuthRegisterScreenState extends State<AuthRegisterScreen> {
                             value: isBrandSelected(brandId),
                             onChanged: (val) => toggleBrand(brandId),
                             shape: RoundedRectangleBorder(
-                              borderRadius:
-                                  BorderRadius.circular(5), // Закругляем углы
+                              borderRadius: BorderRadius.circular(5),
                             ),
                             side: BorderSide(
-                              color:
-                                  Colors.grey.shade400, // Тонкий серый бордер
-                              width: 1, // Толщина бордера
+                              color: Colors.grey.shade400,
+                              width: 1,
                             ),
-                            checkColor: ThemeColors.white, // Цвет галочки
+                            checkColor: ThemeColors.white,
                             fillColor:
                                 MaterialStateProperty.resolveWith((states) {
                               if (states.contains(MaterialState.selected)) {
-                                return Colors
-                                    .green; // Цвет при активном состоянии
+                                return Colors.green;
                               }
-                              return Colors.grey
-                                  .shade100; // Цвет при неактивном состоянии
+                              return Colors.grey.shade100;
                             }),
                           ),
-                          title: Text(brand.name ?? 'Без названия'),
+                          title: Text(brand.name ?? ''),
                           onTap: () => toggleBrand(brandId),
                         );
                       },
                     ),
                   ),
-
                   const SizedBox(height: 16),
                   Stack(
                     children: [
@@ -623,6 +610,7 @@ class _AuthRegisterScreenState extends State<AuthRegisterScreen> {
                             child: ElevatedButton(
                               onPressed: () {
                                 Navigator.pop(context, localSelectedBrandIds);
+                                FocusScope.of(context).unfocus(); // Снять фокус
                               },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: ThemeColors.orange,
@@ -630,9 +618,9 @@ class _AuthRegisterScreenState extends State<AuthRegisterScreen> {
                                   borderRadius: BorderRadius.circular(10),
                                 ),
                               ),
-                              child: const Text(
-                                'Подтвердить',
-                                style: TextStyle(
+                              child: Text(
+                                S.of(context).confirm ?? '',
+                                style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
@@ -658,12 +646,11 @@ class _AuthRegisterScreenState extends State<AuthRegisterScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text('Регистрация'),
+        title: Text(S.of(context).registration ?? ''),
         backgroundColor: Colors.white,
         elevation: 0,
       ),
       body: GestureDetector(
-        // Убираем фокус при нажатии вне текстовых полей
         onTap: () {
           FocusScope.of(context).unfocus();
         },
@@ -678,7 +665,7 @@ class _AuthRegisterScreenState extends State<AuthRegisterScreen> {
                   child: ListView(
                     children: [
                       CustomEditableField(
-                        title: "Имя",
+                        title: S.of(context).firstName,
                         value: "",
                         onChanged: (value) {
                           firstNameController.text = value;
@@ -686,7 +673,7 @@ class _AuthRegisterScreenState extends State<AuthRegisterScreen> {
                       ),
                       const SizedBox(height: 16),
                       CustomEditableField(
-                        title: 'Фамилия',
+                        title: S.of(context).lastName,
                         value: '',
                         onChanged: (value) {
                           lastNameController.text = value;
@@ -694,22 +681,21 @@ class _AuthRegisterScreenState extends State<AuthRegisterScreen> {
                       ),
                       const SizedBox(height: 16),
                       CustomEditableField(
-                        title: "Название магазина",
+                        title: S.of(context).shopName,
                         value: "",
                         onChanged: (value) {
                           shopNameController.text = value;
                         },
                       ),
                       const SizedBox(height: 16),
-
                       // Выбор категорий (множественный выбор)
                       CustomDropdownField(
-                        title: 'Категории',
+                        title: S.of(context).categories,
                         value: _selectedCategoryIds.isEmpty
-                            ? 'Выберите категорию'
-                            : 'Выбрано: ${_selectedCategoryIds.length}',
+                            ? S.of(context).chooseCategory
+                            : '${S.of(context).selectedCategories}: ${_selectedCategoryIds.length}',
                         onTap: () async {
-                          FocusScope.of(context).unfocus(); // Снять фокус
+                          FocusScope.of(context).unfocus();
                           final result = await _showCategoryDialog();
                           if (result != null) {
                             setState(() {
@@ -718,17 +704,14 @@ class _AuthRegisterScreenState extends State<AuthRegisterScreen> {
                           }
                         },
                       ),
-
                       const SizedBox(height: 16),
-
                       // Выбор брендов (множественный выбор)
                       CustomDropdownField(
-                        title: 'Бренды',
+                        title: S.of(context).brands,
                         value: _selectedBrandIds.isEmpty
-                            ? 'Выберите бренд'
-                            : 'Выбрано: ${_selectedBrandIds.length}',
+                            ? S.of(context).chooseBrand
+                            : '${S.of(context).selectedBrands}: ${_selectedBrandIds.length}',
                         onTap: () async {
-                          FocusScope.of(context).unfocus(); // Снять фокус
                           final result = await _showBrandDialog();
                           if (result != null) {
                             setState(() {
@@ -737,32 +720,29 @@ class _AuthRegisterScreenState extends State<AuthRegisterScreen> {
                           }
                         },
                       ),
-
                       const SizedBox(height: 16),
-
-                      // Поле для кода из СМС
+                      // Поле для номера телефона (SMS-код)
                       OTPInputField(
-                        title: 'Введите свой номер',
+                        title: S.of(context).phoneNumber,
                         onChanged: (value) {
                           phoneNumberController.text = value;
                         },
                       ),
                       const SizedBox(height: 16),
-
                       Row(
                         children: [
                           Expanded(
                             child: CustomEditableField(
-                              title: 'Адрес',
+                              title: S.of(context).address,
                               value: address.text,
                               onChanged: (value) {
-                                // Логика обработки адреса
+                                FocusScope.of(context).unfocus();
                               },
                             ),
                           ),
                           IconButton(
                             onPressed: () async {
-                              FocusScope.of(context).unfocus(); // Снять фокус
+                              FocusScope.of(context).unfocus();
                               final result = await Navigator.push(
                                 context,
                                 MaterialPageRoute(
@@ -770,16 +750,11 @@ class _AuthRegisterScreenState extends State<AuthRegisterScreen> {
                                       const YandexMapPickerScreen(),
                                 ),
                               );
-
                               if (result != null) {
                                 setState(() {
                                   address.text = result['address'];
                                   latitude = result['latitude'];
                                   longitude = result['longitude'];
-                                  print(
-                                      'Полученный адрес: ${result['address']}');
-                                  print(
-                                      'Координаты: lat=$latitude, lng=$longitude');
                                 });
                               }
                             },
@@ -788,7 +763,7 @@ class _AuthRegisterScreenState extends State<AuthRegisterScreen> {
                               size: 30,
                               color: Colors.grey,
                             ),
-                            tooltip: 'Открыть карту',
+                            tooltip: S.of(context).openMap,
                           ),
                         ],
                       ),
@@ -797,19 +772,19 @@ class _AuthRegisterScreenState extends State<AuthRegisterScreen> {
                 ),
               ),
             ),
-
             // Кнопка "Зарегистрироваться"
             Padding(
               padding: const EdgeInsets.only(bottom: 45, left: 12, right: 12),
               child: ElevatedButton(
                 onPressed: _isLoading ? null : _handleSendSms,
                 style: ElevatedButton.styleFrom(
-                    backgroundColor: ThemeColors.orange,
-                    minimumSize: const Size(double.infinity, 50),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    elevation: 0),
+                  backgroundColor: ThemeColors.orange,
+                  minimumSize: const Size(double.infinity, 50),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  elevation: 0,
+                ),
                 child: _isLoading
                     ? const SizedBox(
                         height: 24,
@@ -819,9 +794,9 @@ class _AuthRegisterScreenState extends State<AuthRegisterScreen> {
                           strokeWidth: 2,
                         ),
                       )
-                    : const Text(
-                        'Зарегистрироваться',
-                        style: TextStyle(
+                    : Text(
+                        S.of(context).register ?? '',
+                        style: const TextStyle(
                           fontSize: 16,
                           color: Colors.white,
                           fontWeight: FontWeight.bold,

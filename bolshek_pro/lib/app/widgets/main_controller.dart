@@ -7,6 +7,7 @@ import 'package:bolshek_pro/core/models/notifications_response.dart';
 import 'package:bolshek_pro/core/service/auth_service.dart';
 import 'package:bolshek_pro/core/service/notification_service.dart';
 import 'package:bolshek_pro/core/utils/theme.dart';
+import 'package:bolshek_pro/generated/l10n.dart';
 import 'package:bolshek_pro/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -135,6 +136,8 @@ class _MainControllerNavigatorState extends State<MainControllerNavigator>
 
   @override
   Widget build(BuildContext context) {
+    final localizations = S.of(context);
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -231,7 +234,7 @@ class _MainControllerNavigatorState extends State<MainControllerNavigator>
                 height: 24,
                 color: _currentIndex == 0 ? ThemeColors.orange : Colors.grey,
               ),
-              label: 'Главная',
+              label: localizations.home,
             ),
             BottomNavigationBarItem(
               icon: SvgPicture.asset(
@@ -242,7 +245,7 @@ class _MainControllerNavigatorState extends State<MainControllerNavigator>
                 height: 24,
                 color: _currentIndex == 1 ? ThemeColors.orange : Colors.grey,
               ),
-              label: 'Заказы',
+              label: localizations.orders,
             ),
             BottomNavigationBarItem(
               icon: SvgPicture.asset(
@@ -253,7 +256,7 @@ class _MainControllerNavigatorState extends State<MainControllerNavigator>
                 height: 24,
                 color: _currentIndex == 2 ? ThemeColors.orange : Colors.grey,
               ),
-              label: 'Товары',
+              label: localizations.goods,
             ),
             BottomNavigationBarItem(
               icon: SvgPicture.asset(
@@ -264,7 +267,7 @@ class _MainControllerNavigatorState extends State<MainControllerNavigator>
                 height: 24,
                 color: _currentIndex == 3 ? ThemeColors.orange : Colors.grey,
               ),
-              label: 'Настройки',
+              label: localizations.settings,
             ),
           ],
         ),

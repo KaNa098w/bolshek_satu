@@ -10,14 +10,17 @@ import 'package:bolshek_pro/app/widgets/editable_dropdown_field.dart';
 import 'package:bolshek_pro/app/widgets/custom_dropdown_field.dart';
 import 'package:bolshek_pro/core/utils/provider.dart';
 import 'package:provider/provider.dart';
+import 'package:bolshek_pro/generated/l10n.dart'; // Импорт файла локализации
 
 class CarBrandOEM {
   String brand;
   String oem;
   String vehicleId;
   List<Map<String, String>> alternatives;
+
+  // Так как доступ к context в конструкторе отсутствует, здесь используем пустую строку.
   CarBrandOEM({
-    this.brand = 'Выберите подходящие марки',
+    this.brand = '',
     this.oem = '',
     this.vehicleId = '',
     this.alternatives = const [],
@@ -41,7 +44,7 @@ class CrossNumberInput extends StatefulWidget {
 class _CrossNumberInputState extends State<CrossNumberInput> {
   Timer? _debounce;
   List<Items> _suggestedItems = [];
-  AlternativeCrossResponse? _alternativeResponse; // для хранения альтернатив
+  AlternativeCrossResponse? _alternativeResponse; // Для хранения альтернатив
   final LayerLink _layerLink = LayerLink();
   OverlayEntry? _overlayEntry;
 
@@ -59,7 +62,7 @@ class _CrossNumberInputState extends State<CrossNumberInput> {
           });
           _updateOverlay();
         } catch (e) {
-          print('Ошибка при получении данных: $e');
+          print('${S.of(context).errorFetchingData}: $e');
         }
       } else {
         setState(() {
@@ -105,17 +108,16 @@ class _CrossNumberInputState extends State<CrossNumberInput> {
                 return ListTile(
                   title: Text(item.crossNumber ?? ''),
                   onTap: () {
-                    // Обновляем данные основного кроссномера
                     setState(() {
                       widget.carData.oem = item.crossNumber ?? '';
                       widget.carData.vehicleId = item.vehicleGenerationId ?? '';
                       widget.carData.brand =
-                          item.vehicleGeneration?.model?.brand?.name ??
-                              'Выберите подходящие марки';
+                          '${item.vehicleGeneration?.model?.brand?.name ?? S.of(context).chooseAppropriateBrands} '
+                          '(${item.vehicleGeneration?.model?.name ?? ''}) '
+                          '${item.vehicleGeneration?.startYear ?? ''}-${item.vehicleGeneration?.endYear ?? ''}';
                       _suggestedItems = [];
                     });
                     widget.onOEMChanged(item.crossNumber ?? '');
-                    // Вызываем сервис альтернативных номеров, отправляя item.id
                     CrossNumberGenerateService()
                         .getAlternativesCrossNumber(
                       context: context,
@@ -124,7 +126,6 @@ class _CrossNumberInputState extends State<CrossNumberInput> {
                         .then((altResponse) {
                       setState(() {
                         _alternativeResponse = altResponse;
-                        // Сохраняем альтернативные номера (id и crossNumber) в объекте carData
                         widget.carData.alternatives =
                             altResponse.items?.map((altItem) {
                                   return {
@@ -135,7 +136,7 @@ class _CrossNumberInputState extends State<CrossNumberInput> {
                                 [];
                       });
                     }).catchError((e) {
-                      print('Ошибка получения альтернативных номеров: $e');
+                      print('${S.of(context).errorFetchingAlternatives}: $e');
                     });
                     _removeOverlay();
                   },
@@ -168,7 +169,7 @@ class _CrossNumberInputState extends State<CrossNumberInput> {
         CompositedTransformTarget(
           link: _layerLink,
           child: CustomEditableDropdownField(
-            title: 'Введите OEM номер',
+            title: S.of(context).enterOEMNumber,
             value: widget.carData.oem,
             onChanged: _onChanged,
           ),
@@ -176,13 +177,13 @@ class _CrossNumberInputState extends State<CrossNumberInput> {
         if (_alternativeResponse != null &&
             _alternativeResponse!.items?.isNotEmpty == true)
           Padding(
-            padding: const EdgeInsets.only(top: 8.0),
+            padding: const EdgeInsets.only(top: 10.0, left: 8),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  "Альтернативные OEM номера:",
-                  style: TextStyle(fontWeight: FontWeight.w500),
+                Text(
+                  S.of(context).alternativeOEMNumbers,
+                  style: const TextStyle(fontWeight: FontWeight.w500),
                 ),
                 Text(
                   _alternativeResponse!.items!
@@ -203,9 +204,12 @@ class CrossNumberScreen extends StatefulWidget {
   final String? brandName;
   final String? carName;
 
-  const CrossNumberScreen(
-      {Key? key, this.modelName, this.brandName, this.carName})
-      : super(key: key);
+  const CrossNumberScreen({
+    Key? key,
+    this.modelName,
+    this.brandName,
+    this.carName,
+  }) : super(key: key);
 
   @override
   State<CrossNumberScreen> createState() => _CrossNumberScreenState();
@@ -213,40 +217,54 @@ class CrossNumberScreen extends StatefulWidget {
 
 class _CrossNumberScreenState extends State<CrossNumberScreen> {
   final List<CarBrandOEM> _cars = [];
+  bool _isInitialized = false;
 
+  // Перенос инициализации, зависящей от локализации, в didChangeDependencies
   @override
-  void initState() {
-    super.initState();
-    final globalProvider = Provider.of<GlobalProvider>(context, listen: false);
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_isInitialized) {
+      final globalProvider =
+          Provider.of<GlobalProvider>(context, listen: false);
 
-    if (globalProvider.carMappings.isNotEmpty) {
-      _cars.addAll(globalProvider.carMappings.map((mapping) => CarBrandOEM(
-            brand: mapping['brandName'] ?? 'Выберите подходящие марки',
-            oem: mapping['oem'] ?? '',
-            vehicleId: mapping['vehicleId'] ?? '',
-            alternatives: mapping['alternatives'] ?? [],
-          )));
-    } else {
-      final initialValue =
-          '${widget.carName ?? ''} ${widget.brandName ?? ''} ${widget.modelName ?? ''}'
-              .trim();
-      if (initialValue.isNotEmpty) {
-        _cars.add(CarBrandOEM(brand: initialValue));
+      if (globalProvider.carMappings.isNotEmpty) {
+        _cars.addAll(globalProvider.carMappings.map((mapping) => CarBrandOEM(
+              brand:
+                  mapping['brandName'] ?? S.of(context).chooseAppropriateBrands,
+              oem: mapping['oem'] ?? '',
+              vehicleId: mapping['vehicleId'] ?? '',
+              alternatives: mapping['alternatives'] ?? [],
+            )));
       } else {
-        _cars.add(CarBrandOEM());
+        final initialValue =
+            '${widget.carName ?? ''} ${widget.brandName ?? ''} ${widget.modelName ?? ''}'
+                .trim();
+        if (initialValue.isNotEmpty) {
+          _cars.add(CarBrandOEM(brand: initialValue));
+        } else {
+          _cars.add(CarBrandOEM(brand: S.of(context).chooseAppropriateBrands));
+        }
       }
+      _isInitialized = true;
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    // Если бренд ещё не установлен, задаём локализованное значение по умолчанию.
+    for (var car in _cars) {
+      if (car.brand.isEmpty) {
+        car.brand = S.of(context).chooseAppropriateBrands;
+      }
+    }
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
-        title: const Text(
-          'Соответствие с автомобилем',
-          style: TextStyle(fontSize: 18),
+        title: Text(
+          S.of(context).vehicleMapping,
+          style: const TextStyle(fontSize: 18),
         ),
       ),
       body: Padding(
@@ -265,9 +283,9 @@ class _CrossNumberScreenState extends State<CrossNumberScreen> {
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text(
-                              "Основной OEM номер",
-                              style: TextStyle(
+                            Text(
+                              S.of(context).primaryOEMNumber,
+                              style: const TextStyle(
                                   fontWeight: FontWeight.bold, fontSize: 18),
                             ),
                             const SizedBox(height: 15),
@@ -282,7 +300,7 @@ class _CrossNumberScreenState extends State<CrossNumberScreen> {
                           ],
                         )
                       else
-                        // Для остальных элементов кнопка закрытия сверху, а поле ввода ниже
+                        // Для остальных элементов кнопка закрытия и поле ввода
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
@@ -304,7 +322,7 @@ class _CrossNumberScreenState extends State<CrossNumberScreen> {
                               ],
                             ),
                             CustomEditableDropdownField(
-                              title: 'OEM номер',
+                              title: S.of(context).oemNumber,
                               value: carData.oem,
                               onChanged: (value) {
                                 setState(() {
@@ -317,8 +335,13 @@ class _CrossNumberScreenState extends State<CrossNumberScreen> {
                       const SizedBox(height: 15),
                       CustomDropdownField(
                         rightIcon: true,
-                        title: 'Соответствие с автомобилем',
-                        value: carData.brand,
+                        title: S.of(context).vehicleMapping,
+                        value: () {
+                          final parts = carData.brand.split(',');
+                          return parts.length >= 4
+                              ? parts.sublist(0, 3).join(', ')
+                              : carData.brand;
+                        }(),
                         onTap: () {
                           Navigator.push<String>(
                             context,
@@ -341,49 +364,45 @@ class _CrossNumberScreenState extends State<CrossNumberScreen> {
               ),
               // Кнопка для добавления нового соответствия
               TextButton(
-                  onPressed: () {
-                    setState(() {
-                      _cars.add(CarBrandOEM());
-                    });
-                  },
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Container(
-                        decoration: const BoxDecoration(
-                          border: Border(
-                            bottom: BorderSide(
-                              color: Colors.grey,
-                              width: 1.0,
-                            ),
-                          ),
-                        ),
-                        child: const Text(
-                          'Добавить еще соответствие +',
-                          style: TextStyle(
+                onPressed: () {
+                  setState(() {
+                    _cars.add(CarBrandOEM(
+                        brand: S.of(context).chooseAppropriateBrands));
+                  });
+                },
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      decoration: const BoxDecoration(
+                        border: Border(
+                          bottom: BorderSide(
                             color: Colors.grey,
-                            fontSize: 15,
-                            fontWeight: FontWeight.w500,
+                            width: 1.0,
                           ),
                         ),
                       ),
-                      const SizedBox(width: 5),
-                      // const Icon(
-                      //   Icons.add,
-                      //   color: Colors.grey,
-                      // ),
-                    ],
-                  )),
+                      child: Text(
+                        S.of(context).addAnotherMapping,
+                        style: const TextStyle(
+                          color: Colors.grey,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 5),
+                  ],
+                ),
+              ),
               const SizedBox(height: 15),
               Padding(
                 padding: const EdgeInsets.only(bottom: 12.0),
                 child: CustomButton(
-                  text: 'Подтвердить',
+                  text: S.of(context).confirm,
                   onPressed: () {
                     final brandMappings = _cars.map((car) {
-                      // Разбиваем строку brand на части по запятой
                       final brandParts = car.brand.split(',');
-                      // Если частей не меньше 4, берем четвертый элемент, иначе оставляем текущее значение vehicleId
                       final vehicleIdExtracted = brandParts.length >= 4
                           ? brandParts[3].trim()
                           : car.vehicleId;

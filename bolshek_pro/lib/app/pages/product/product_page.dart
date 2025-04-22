@@ -1,4 +1,5 @@
 import 'package:bolshek_pro/core/utils/constants.dart';
+import 'package:bolshek_pro/generated/l10n.dart';
 import 'package:flutter/material.dart';
 import 'package:bolshek_pro/core/utils/theme.dart';
 import 'package:bolshek_pro/app/pages/product/product_list_page.dart';
@@ -20,7 +21,10 @@ class _GoodsPageState extends State<GoodsPage>
   void initState() {
     super.initState();
     _tabController = TabController(
-        length: 3, vsync: this, initialIndex: widget.initialTabIndex);
+      length: 3,
+      vsync: this,
+      initialIndex: widget.initialTabIndex,
+    );
   }
 
   @override
@@ -31,6 +35,7 @@ class _GoodsPageState extends State<GoodsPage>
 
   @override
   Widget build(BuildContext context) {
+    final localizations = S.of(context);
     return Scaffold(
       body: Column(
         children: [
@@ -41,15 +46,14 @@ class _GoodsPageState extends State<GoodsPage>
               child: TabBar(
                 labelColor: ThemeColors.orange,
                 unselectedLabelColor: Colors.black,
-                indicatorColor:
-                    ThemeColors.orange, // Линия индикатора белого цвета
+                indicatorColor: ThemeColors.orange,
                 controller: _tabController,
                 indicatorWeight: 4.0,
                 indicatorSize: TabBarIndicatorSize.tab,
-                tabs: const [
-                  Tab(text: 'В продаже'),
-                  Tab(text: 'Ожидает'),
-                  Tab(text: 'Неактивные'),
+                tabs: [
+                  Tab(text: localizations.goods_tab_active),
+                  Tab(text: localizations.goods_tab_awaiting),
+                  Tab(text: localizations.goods_tab_inactive),
                 ],
               ),
             ),

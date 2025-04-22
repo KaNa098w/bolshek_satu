@@ -9,20 +9,22 @@ import 'package:bolshek_pro/core/utils/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:bolshek_pro/generated/l10n.dart';
+import 'package:url_launcher/url_launcher.dart';
 
-/// Функция преобразования типа уведомления в читаемый формат
-String transformNotificationType(String type) {
+/// Функция преобразования типа уведомления в читаемый локализованный формат.
+String transformNotificationType(BuildContext context, String type) {
   switch (type) {
     case 'product_out_of_stock':
-      return 'Товар не в наличии';
+      return S.of(context).productOutOfStock;
     case 'order_created':
-      return 'Поступил новый заказ';
+      return S.of(context).orderCreated;
     case 'order_delivered':
-      return 'Заказ доставлен';
+      return S.of(context).orderDelivered;
     case 'order_canceled':
-      return 'Заказ отменён';
+      return S.of(context).orderCanceled;
     case 'order_refunded':
-      return 'Заказ возвращён';
+      return S.of(context).orderRefunded;
     default:
       return type;
   }
@@ -70,15 +72,15 @@ class _NotificationScreenState extends State<NotificationScreen> {
           ),
         ),
         title: Text(
-          transformNotificationType(item.data.type),
+          transformNotificationType(context, item.data.type),
           style: const TextStyle(fontWeight: FontWeight.bold),
         ),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Дата поступления заказа:',
-              style: TextStyle(color: Colors.black),
+            Text(
+              S.of(context).orderReceivedDate,
+              style: const TextStyle(color: Colors.black),
             ),
             const SizedBox(height: 4),
             Text(
@@ -88,21 +90,22 @@ class _NotificationScreenState extends State<NotificationScreen> {
             ),
             const SizedBox(height: 4),
             if (item.readedAt == null)
-              const Text(
-                'Уведомление не было открыто',
-                style: TextStyle(fontSize: 12, color: Colors.red),
+              Text(
+                S.of(context).notificationNotOpened,
+                style: const TextStyle(fontSize: 12, color: Colors.red),
               ),
           ],
         ),
         isThreeLine: true,
         // Ограничиваем размер trailing виджета аналогичным способом
-        trailing: SizedBox(
+        trailing: const SizedBox(
           width: 35,
-          child: const Center(
-              child: Icon(
-            Icons.chevron_right,
-            size: 30,
-          )),
+          child: Center(
+            child: Icon(
+              Icons.chevron_right,
+              size: 30,
+            ),
+          ),
         ),
         onTap: () async {
           // Если уведомление не было открыто, сначала отмечаем его как прочитанное
@@ -151,8 +154,9 @@ class _NotificationScreenState extends State<NotificationScreen> {
             return CustomScrollView(
               physics: const AlwaysScrollableScrollPhysics(),
               slivers: [
-                const CustomStyledSliverAppBar(
-                  title: 'Уведомления',
+                // Убираем const, т.к. здесь используется локализация через S.of(context)
+                CustomStyledSliverAppBar(
+                  title: S.of(context).notifications,
                   automaticallyImplyLeading: true,
                 ),
                 if (snapshot.connectionState == ConnectionState.waiting)
@@ -165,11 +169,15 @@ class _NotificationScreenState extends State<NotificationScreen> {
                   )
                 else if (snapshot.hasError)
                   SliverFillRemaining(
-                    child: Center(child: Text('Ошибка: ${snapshot.error}')),
+                    child: Center(
+                      child: Text(
+                        '${S.of(context).error} ${snapshot.error}',
+                      ),
+                    ),
                   )
                 else if (!snapshot.hasData || snapshot.data!.items.isEmpty)
-                  const SliverFillRemaining(
-                    child: Center(child: Text('Нет уведомлений')),
+                  SliverFillRemaining(
+                    child: Center(child: Text(S.of(context).noNotifications)),
                   )
                 else
                   SliverList(

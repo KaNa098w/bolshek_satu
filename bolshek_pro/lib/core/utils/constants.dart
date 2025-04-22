@@ -1,10 +1,11 @@
 abstract class Constants {
   static const logoText = "saiman satu";
-  // static const baseUrl = "https://api-stage.bolshek.com";
-  static const baseUrl = "https://api.bolshek.kz";
+  static const baseUrl = "https://api-stage.bolshek.com";
+  // static const baseUrl = "https://api.bolshek.kz";
   static const addCart = "Добавить в корзину";
   static const changeProduct = 'Редактировать';
   static const fromSale = 'Снять с продажи';
+  static const newUser = 'Я новый пользователь';
   static const activeStatus = 'status=active';
   static const inactiveStatus = 'status=inactive';
   static const newOrders =
@@ -14,6 +15,7 @@ abstract class Constants {
   static const awaitingConfirmation = 'awaiting_confirmation';
   static const awaitingPickReturn = 'awaiting_pick_up';
   static const rejectedReturn = 'rejected';
+
   static const completedReturn = 'completed';
   static const apiProduct = 'https://bolshek.kz/products/';
   static const awaitingRefund = 'awaiting_refund';

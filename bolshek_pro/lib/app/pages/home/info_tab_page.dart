@@ -1,22 +1,32 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'package:bolshek_pro/app/pages/home/add_product_page.dart';
+import 'package:bolshek_pro/app/pages/home/with_search_name/add_product_with_name.dart';
 import 'package:bolshek_pro/app/widgets/custom_alert_dialog_widget.dart';
-import 'package:bolshek_pro/core/utils/theme.dart';
-import 'package:flutter_image_compress/flutter_image_compress.dart';
-import 'package:path/path.dart' as path;
-
-import 'package:bolshek_pro/core/models/category_response.dart' as category;
+import 'package:bolshek_pro/app/widgets/custom_button_for_name.dart';
+import 'package:bolshek_pro/app/widgets/custom_button.dart';
+import 'package:bolshek_pro/app/widgets/custom_dropdown_field.dart';
+import 'package:bolshek_pro/app/widgets/custom_editle_drop_down_two.dart';
+import 'package:bolshek_pro/app/widgets/custom_editle_drop_down.dart';
+import 'package:bolshek_pro/app/widgets/textfield_widget.dart';
 import 'package:bolshek_pro/core/models/brands_response.dart';
+import 'package:bolshek_pro/core/models/category_response.dart';
+import 'package:bolshek_pro/core/models/product_responses.dart';
+import 'package:bolshek_pro/core/models/product_response.dart';
 import 'package:bolshek_pro/core/models/properties_response.dart';
 import 'package:bolshek_pro/core/service/brands_service.dart';
 import 'package:bolshek_pro/core/service/category_service.dart';
-
+import 'package:bolshek_pro/core/service/product_service.dart';
 import 'package:bolshek_pro/core/utils/provider.dart';
+import 'package:bolshek_pro/core/utils/theme.dart';
 import 'package:flutter/material.dart';
-import 'package:bolshek_pro/app/widgets/custom_button.dart';
-import 'package:bolshek_pro/app/widgets/custom_dropdown_field.dart';
+import 'package:bolshek_pro/generated/l10n.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:path/path.dart' as path;
 
 class InfoTab extends StatefulWidget {
   final String productName;
@@ -41,17 +51,20 @@ class InfoTab extends StatefulWidget {
 class _InfoTabState extends State<InfoTab> with AutomaticKeepAliveClientMixin {
   Map<String, List<PropertyItems>> categoryPropertiesCache = {};
   Map<String, Map<String, String>> propertyValuesCache = {};
-  String selectedBrand = 'Выберите бренд';
-  final BrandsService _brandsService = BrandsService();
+  String selectedBrand = S.current.choose_brand; // ключ: choose_brand
+  final ProductService _productService = ProductService();
+  List<ProductItems> _suggestedItems =
+      []; // если используются товары для автодополнения
   List<BrandItems> brands = [];
-
   List<BrandItems> filteredBrands = [];
   bool isLoading = true;
-  String selectedCategory = 'Выберите категорию';
+  String selectedCategory = S.current.choose_category; // ключ: choose_category
   final CategoriesService _categoriesService = CategoriesService();
-  List<category.CategoryItems> categories = [];
+  List<CategoryItems> categories = [];
   final ImagePicker _picker = ImagePicker();
   List<File> _images = [];
+  final TextEditingController _priceController = TextEditingController();
+  BrandsService _brandsService = BrandsService();
 
   bool isLoadingCategories = true;
 
@@ -65,6 +78,12 @@ class _InfoTabState extends State<InfoTab> with AutomaticKeepAliveClientMixin {
     _loadCategories();
   }
 
+  @override
+  void dispose() {
+    _priceController.dispose();
+    super.dispose();
+  }
+
   Future<void> _pickImage(ImageSource source) async {
     try {
       final pickedFile = await _picker.pickImage(source: source);
@@ -74,39 +93,31 @@ class _InfoTabState extends State<InfoTab> with AutomaticKeepAliveClientMixin {
         // Сжимаем изображение
         final compressedFile = await _compressImage(file);
         if (compressedFile == null) {
-          _showError('Не удалось сжать изображение');
+          _showError(
+              S.of(context).image_compress_error); // ключ: image_compress_error
           return;
         }
-
-        // Обновляем ссылку на файл на сжатую версию
         file = compressedFile;
-
-        final fileSize = await file.length(); // Размер файла после компрессии
-
+        final fileSize = await file.length();
         if (fileSize > 15 * 1024 * 1024) {
-          _showError('Размер файла после сжатия всё ещё превышает 15 МБ');
+          _showError(S.of(context).file_size_exceed); // ключ: file_size_exceed
           return;
         }
-
         if (_images.length < 5) {
-          // Подготовка данных изображения
           final imageData = await prepareImageData(file);
-
-          // Добавление данных в AuthProvider
           context.read<GlobalProvider>().addImageData(imageData);
-
-          // Вывод в консоль
           print('Добавленное изображение: $imageData');
-
           setState(() {
             _images.add(file);
           });
         } else {
-          _showError('Можно загрузить максимум 5 фото');
+          _showError(
+              S.of(context).max_images_exceeded); // ключ: max_images_exceeded
         }
       }
     } catch (e) {
-      _showError('Ошибка при выборе фото: $e');
+      _showError(
+          '${S.of(context).error_selecting_image}: $e'); // ключ: error_selecting_image
     }
   }
 
@@ -114,17 +125,13 @@ class _InfoTabState extends State<InfoTab> with AutomaticKeepAliveClientMixin {
     try {
       final targetPath =
           "${file.parent.path}/compressed_${path.basename(file.path)}";
-
       final compressedXFile = await FlutterImageCompress.compressAndGetFile(
-        file.absolute.path, // Путь к оригинальному файлу
-        targetPath, // Новый путь для сжатого файла
-        quality:
-            60, // Уровень качества (0-100), 70 — хорошее качество с уменьшенным размером
-        minWidth: 1080, // Минимальная ширина изображения
-        minHeight: 1080, // Минимальная высота изображения
+        file.absolute.path,
+        targetPath,
+        quality: 60,
+        minWidth: 1080,
+        minHeight: 1080,
       );
-
-      // Преобразуем XFile? в File?
       return compressedXFile != null ? File(compressedXFile.path) : null;
     } catch (e) {
       print('Ошибка компрессии изображения: $e');
@@ -134,16 +141,15 @@ class _InfoTabState extends State<InfoTab> with AutomaticKeepAliveClientMixin {
 
   Future<Map<String, dynamic>> prepareImageData(File file) async {
     try {
-      final name = path.basename(file.path); // Имя файла
-      final size = await file.length(); // Размер в байтах
+      final name = path.basename(file.path);
+      final size = await file.length();
       final type = file.path.endsWith('.png')
           ? 'image/png'
           : file.path.endsWith('.jpg') || file.path.endsWith('.jpeg')
               ? 'image/jpeg'
-              : 'application/octet-stream'; // MIME-тип
-      final bytes = await file.readAsBytes(); // Байты файла
-      final data = base64Encode(bytes); // Данные в формате Base64
-
+              : 'application/octet-stream';
+      final bytes = await file.readAsBytes();
+      final data = base64Encode(bytes);
       return {
         "name": name,
         "size": size,
@@ -151,7 +157,8 @@ class _InfoTabState extends State<InfoTab> with AutomaticKeepAliveClientMixin {
         "data": data,
       };
     } catch (e) {
-      throw Exception('Ошибка обработки файла: $e');
+      throw Exception(
+          '${S.of(context).error_processing_file}: $e'); // ключ: error_processing_file
     }
   }
 
@@ -167,7 +174,7 @@ class _InfoTabState extends State<InfoTab> with AutomaticKeepAliveClientMixin {
             children: [
               ListTile(
                 leading: const Icon(Icons.camera_alt),
-                title: const Text('Камера'),
+                title: Text(S.of(context).camera), // ключ: camera
                 onTap: () {
                   Navigator.pop(context);
                   _pickImage(ImageSource.camera);
@@ -175,7 +182,7 @@ class _InfoTabState extends State<InfoTab> with AutomaticKeepAliveClientMixin {
               ),
               ListTile(
                 leading: const Icon(Icons.photo),
-                title: const Text('Галерея'),
+                title: Text(S.of(context).gallery), // ключ: gallery
                 onTap: () {
                   Navigator.pop(context);
                   _pickImage(ImageSource.gallery);
@@ -183,7 +190,7 @@ class _InfoTabState extends State<InfoTab> with AutomaticKeepAliveClientMixin {
               ),
               ListTile(
                 leading: const Icon(Icons.close),
-                title: const Text('Отмена'),
+                title: Text(S.of(context).cancel), // ключ: cancel
                 onTap: () {
                   Navigator.pop(context);
                 },
@@ -206,34 +213,28 @@ class _InfoTabState extends State<InfoTab> with AutomaticKeepAliveClientMixin {
       setState(() {
         isLoadingCategories = true;
       });
-
       final parentResponse =
           await _categoriesService.fetchCategoriesParent(context);
       final allCategoriesResponse =
           await _categoriesService.fetchCategories(context);
-
-      if (!mounted) return; // Проверка перед вызовом setState
-
+      if (!mounted) return;
       setState(() {
         final parentCategories = parentResponse.items ?? [];
         final allCategories = allCategoriesResponse.items ?? [];
-
         categories = parentCategories.map((parent) {
-          parent.children = allCategories
-              .where((category) => category.parentId == parent.id)
-              .toList();
+          parent.children =
+              allCategories.where((cat) => cat.parentId == parent.id).toList();
           return parent;
         }).toList();
-
         isLoadingCategories = false;
       });
     } catch (e) {
-      if (!mounted) return; // Проверка перед вызовом setState
-
+      if (!mounted) return;
       setState(() {
         isLoadingCategories = false;
       });
-      _showError('Ошибка загрузки категорий: $e');
+      _showError(
+          '${S.of(context).error_loading_categories}: $e'); // ключ: error_loading_categories
     }
   }
 
@@ -242,13 +243,11 @@ class _InfoTabState extends State<InfoTab> with AutomaticKeepAliveClientMixin {
       setState(() {
         isLoading = true;
       });
-
       final response = await _brandsService.fetchBrands(context);
-
       if (mounted) {
         setState(() {
           brands = response.items ?? [];
-          filteredBrands = List.from(brands); // Обновляем список для поиска
+          filteredBrands = List.from(brands);
           isLoading = false;
         });
       }
@@ -258,12 +257,12 @@ class _InfoTabState extends State<InfoTab> with AutomaticKeepAliveClientMixin {
           isLoading = false;
         });
       }
-      _showError('Ошибка загрузки брендов: $e');
+      _showError(
+          '${S.of(context).error_loading_brands}: $e'); // ключ: error_loading_brands
     }
   }
 
   void _showCategories() {
-    // Показываем модальное окно
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -272,13 +271,11 @@ class _InfoTabState extends State<InfoTab> with AutomaticKeepAliveClientMixin {
       ),
       backgroundColor: Colors.white,
       builder: (context) {
-        // Переменные для поиска и фильтрации
         String searchQuery = '';
-        List<category.CategoryItems> filteredCategories = categories.toList();
+        List<CategoryItems> filteredCategories = categories.toList();
 
         return StatefulBuilder(
           builder: (context, setStateModal) {
-            // 1. Если категории всё ещё грузятся, показываем индикатор
             if (isLoadingCategories) {
               return SizedBox(
                 height: MediaQuery.of(context).size.height * 0.4,
@@ -289,18 +286,15 @@ class _InfoTabState extends State<InfoTab> with AutomaticKeepAliveClientMixin {
                 ),
               );
             }
-
-            // 2. Если загрузка завершилась, но список категорий пуст, пишем об этом
             if (categories.isEmpty) {
               return SizedBox(
                 height: MediaQuery.of(context).size.height * 0.4,
-                child: const Center(
-                  child: Text('Список категорий пуст'),
+                child: Center(
+                  child: Text(
+                      S.of(context).categories_empty), // ключ: categories_empty
                 ),
               );
             }
-
-            // 3. Иначе — рендерим список категорий
             return SizedBox(
               height: MediaQuery.of(context).size.height * 0.9,
               child: Padding(
@@ -312,20 +306,19 @@ class _InfoTabState extends State<InfoTab> with AutomaticKeepAliveClientMixin {
                         Expanded(
                           child: TextField(
                             decoration: InputDecoration(
-                              hintText: 'Поиск категории',
+                              hintText: S
+                                  .of(context)
+                                  .category_search, // ключ: category_search
                               prefixIcon: const Icon(Icons.search),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(10),
                               ),
                               contentPadding: const EdgeInsets.symmetric(
-                                vertical: 10,
-                                horizontal: 12,
-                              ),
+                                  vertical: 10, horizontal: 12),
                             ),
                             onChanged: (value) {
                               setStateModal(() {
                                 searchQuery = value.trim().toLowerCase();
-                                // Фильтруем заново при каждом вводе
                                 filteredCategories = categories.where((cat) {
                                   final catName = cat.name?.toLowerCase() ?? '';
                                   return catName.contains(searchQuery);
@@ -342,7 +335,6 @@ class _InfoTabState extends State<InfoTab> with AutomaticKeepAliveClientMixin {
                       ],
                     ),
                     const SizedBox(height: 10),
-                    // Список родительских категорий с ExpansionTile
                     Expanded(
                       child: ListView.builder(
                         itemCount: filteredCategories.length,
@@ -350,24 +342,22 @@ class _InfoTabState extends State<InfoTab> with AutomaticKeepAliveClientMixin {
                           final parentCategory = filteredCategories[index];
                           final subcategories = parentCategory.children ?? [];
                           return ExpansionTile(
-                            title: Text(parentCategory.name ?? 'Без названия'),
+                            title: Text(parentCategory.name ??
+                                S.of(context).no_name), // ключ: no_name
                             children: subcategories.map((subcategory) {
                               return Padding(
                                 padding: const EdgeInsets.only(left: 16.0),
                                 child: ListTile(
-                                  title: Text(
-                                    subcategory.name ?? 'Без названия',
-                                  ),
+                                  title: Text(subcategory.name ??
+                                      S.of(context).no_name),
                                   onTap: () {
-                                    // Выбираем подкатегорию
                                     Navigator.pop(context);
-
                                     setState(() {
-                                      selectedCategory =
-                                          subcategory.name ?? 'Без названия';
+                                      selectedCategory = subcategory.name ??
+                                          S.of(context).no_name;
                                     });
-
                                     _selectCategory(subcategory.id ?? '');
+                                    FocusScope.of(context).unfocus();
                                   },
                                 ),
                               );
@@ -391,12 +381,12 @@ class _InfoTabState extends State<InfoTab> with AutomaticKeepAliveClientMixin {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Ошибка'),
+          title: Text(S.of(context).error), // ключ: error
           content: Text(message),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('ОК'),
+              child: Text(S.of(context).ok), // ключ: ok
             ),
           ],
         );
@@ -405,11 +395,7 @@ class _InfoTabState extends State<InfoTab> with AutomaticKeepAliveClientMixin {
   }
 
   void _showBrands() async {
-    // Загружаем бренды перед открытием модального окна
-    // await _loadBrands();
     filteredBrands = List.from(brands);
-
-    // Создаем контроллер и ноду фокуса для текстового поля поиска
     final TextEditingController searchController = TextEditingController();
     final FocusNode searchFocusNode = FocusNode();
 
@@ -437,15 +423,15 @@ class _InfoTabState extends State<InfoTab> with AutomaticKeepAliveClientMixin {
                             controller: searchController,
                             focusNode: searchFocusNode,
                             decoration: InputDecoration(
-                              hintText: 'Поиск бренда',
+                              hintText: S
+                                  .of(context)
+                                  .brand_search, // ключ: brand_search
                               prefixIcon: const Icon(Icons.search),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(10),
                               ),
                               contentPadding: const EdgeInsets.symmetric(
-                                vertical: 10,
-                                horizontal: 12,
-                              ),
+                                  vertical: 10, horizontal: 12),
                             ),
                             onChanged: (value) {
                               setStateModal(() {
@@ -469,23 +455,27 @@ class _InfoTabState extends State<InfoTab> with AutomaticKeepAliveClientMixin {
                     ),
                     const SizedBox(height: 10),
                     filteredBrands.isEmpty
-                        ? const Center(child: Text('Нет брендов'))
+                        ? Center(
+                            child: Text(
+                                S.of(context).no_brands)) // ключ: no_brands
                         : Expanded(
                             child: ListView.builder(
                               itemCount: filteredBrands.length,
                               itemBuilder: (context, index) {
                                 final brand = filteredBrands[index];
                                 return ListTile(
-                                  title: Text(brand.name ?? 'Без названия'),
+                                  title:
+                                      Text(brand.name ?? S.of(context).no_name),
                                   onTap: () {
                                     Navigator.pop(context);
                                     setState(() {
                                       selectedBrand =
-                                          brand.name ?? 'Без названия';
+                                          brand.name ?? S.of(context).no_name;
                                       context
                                           .read<GlobalProvider>()
                                           .setBrandId(brand.id ?? '');
                                     });
+                                    FocusScope.of(context).unfocus();
                                   },
                                 );
                               },
@@ -495,7 +485,9 @@ class _InfoTabState extends State<InfoTab> with AutomaticKeepAliveClientMixin {
                     Padding(
                       padding: const EdgeInsets.only(bottom: 25.0),
                       child: CustomButton(
-                        text: 'Создать свой бренд',
+                        text: S
+                            .of(context)
+                            .create_your_brand, // ключ: create_your_brand
                         onPressed: () {
                           _showAddBrandDialog(setStateModal);
                         },
@@ -512,25 +504,23 @@ class _InfoTabState extends State<InfoTab> with AutomaticKeepAliveClientMixin {
   }
 
   void _selectCategory(String categoryId) {
-    context
-        .read<GlobalProvider>()
-        .setCategoryId(categoryId); // Передача через AuthProvider
-    widget.onCategorySelected(categoryId); // Ваш текущий callback
+    context.read<GlobalProvider>().setCategoryId(categoryId);
+    widget.onCategorySelected(categoryId);
   }
 
   void _showAddBrandDialog(Function setStateModal) {
     String newBrandName = '';
     String selectedType = 'product';
-
     showCustomAlertDialog(
       context: context,
-      title: 'Добавить бренд',
+      title: S.of(context).add_brand, // ключ: add_brand
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           TextField(
-            decoration: const InputDecoration(
-              hintText: 'Введите название бренда',
+            decoration: InputDecoration(
+              hintText:
+                  S.of(context).enter_brand_name, // ключ: enter_brand_name
             ),
             onChanged: (value) {
               newBrandName = value;
@@ -544,6 +534,14 @@ class _InfoTabState extends State<InfoTab> with AutomaticKeepAliveClientMixin {
       },
       onConfirm: () async {
         if (newBrandName.isNotEmpty) {
+          showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (context) => const Center(
+                child: CircularProgressIndicator(
+              color: Colors.grey,
+            )),
+          );
           try {
             await _brandsService.createBrand(
               context,
@@ -551,222 +549,223 @@ class _InfoTabState extends State<InfoTab> with AutomaticKeepAliveClientMixin {
               newBrandName,
               newBrandName,
             );
-
-            await _loadBrands(); // Загружаем обновленный список брендов
-
+            await _loadBrands();
             if (mounted) {
-              setStateModal(() {}); // Обновляем UI в модальном окне
+              setStateModal(() {});
             }
-
+            Navigator.pop(context);
             Navigator.pop(context);
           } catch (e) {
-            _showError('Ошибка при добавлении бренда: $e');
+            Navigator.pop(context);
+            _showError(
+                '${S.of(context).error}: $e'); // ключ: error_adding_brand
           }
         } else {
-          _showError('Название бренда не может быть пустым');
+          _showError(S.of(context).error); // ключ: brand_name_empty
         }
       },
     );
   }
 
+  Widget _buildImagesRow() {
+    final List<Widget> children = [];
+    if (_images.length < 5) {
+      children.add(
+        GestureDetector(
+          onTap: _showImageSourceDialog,
+          child: Container(
+            margin: const EdgeInsets.only(right: 10),
+            width: 80,
+            height: 80,
+            decoration: BoxDecoration(
+              border: Border.all(color: Colors.grey),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: const Icon(
+              Icons.add_a_photo,
+              size: 40,
+              color: Colors.grey,
+            ),
+          ),
+        ),
+      );
+    }
+    children.addAll(
+      _images.map((image) {
+        int index = _images.indexOf(image);
+        return Stack(
+          children: [
+            Container(
+              margin: const EdgeInsets.only(right: 10),
+              width: 80,
+              height: 80,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(8),
+                image: DecorationImage(
+                  image: FileImage(image),
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ),
+            Positioned(
+              right: 5,
+              top: 0,
+              child: GestureDetector(
+                onTap: () => _removeImage(index),
+                child: Container(
+                  decoration: const BoxDecoration(
+                    color: Colors.red,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.close,
+                    color: Colors.white,
+                    size: 16,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        );
+      }).toList(),
+    );
+    final rowContent = Row(children: children);
+    return children.length > 3
+        ? SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: rowContent,
+          )
+        : rowContent;
+  }
+
   @override
   Widget build(BuildContext context) {
     super.build(context);
+    final localizations = S.of(context);
     return isLoading
         ? const Center(
             child: CircularProgressIndicator(color: ThemeColors.orange))
-        : Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Загрузите от 1 до 5 фото',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-                  ),
-                  const SizedBox(height: 10),
-                  Row(
-                    children: [
-                      ..._images.map((image) {
-                        int index = _images.indexOf(image);
-                        return Stack(
-                          children: [
-                            Container(
-                              margin: const EdgeInsets.only(right: 10),
-                              width: 80,
-                              height: 80,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(8),
-                                image: DecorationImage(
-                                  image: FileImage(image),
-                                  fit: BoxFit.cover,
-                                ),
-                              ),
-                            ),
-                            Positioned(
-                              right: 5,
-                              top: 0,
-                              child: GestureDetector(
-                                onTap: () => _removeImage(index),
-                                child: Container(
-                                  decoration: const BoxDecoration(
-                                    color: Colors.red,
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: const Icon(
-                                    Icons.close,
-                                    color: Colors.white,
-                                    size: 16,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        );
-                      }).toList(),
-                      if (_images.length < 5)
-                        GestureDetector(
-                          onTap: _showImageSourceDialog,
-                          child: Container(
-                            width: 80,
-                            height: 80,
-                            decoration: BoxDecoration(
-                              border: Border.all(color: Colors.grey),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: const Icon(
-                              Icons.add_a_photo,
-                              size: 40,
-                              color: Colors.grey,
-                            ),
-                          ),
-                        ),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-                  CustomDropdownField(
-                    title: 'Наименование товара',
-                    value: widget.productName.isNotEmpty
-                        ? widget.productName
-                        : 'Не указано',
-                    onTap: () {
-                      context
-                          .read<GlobalProvider>()
-                          .setName(widget.productName);
-                    },
-                    showIcon: false,
-                  ),
-                  const SizedBox(height: 20),
-                  CustomDropdownField(
-                      title: 'Бренд', value: selectedBrand, onTap: _showBrands),
-                  const SizedBox(height: 20),
-
-                  CustomDropdownField(
-                    title: 'Категория',
-                    value: selectedCategory,
-                    onTap: _showCategories,
-                  ),
-
-                  const SizedBox(height: 20),
-                  // ..._properties.map((property) {
-                  //   return Column(
-                  //     children: [
-                  //       CustomInputField(
-                  //         title: property.name ?? 'Свойство',
-                  //         value: _propertyValues[property.id ?? ''] ?? '',
-                  //         hint: 'Введите значение',
-                  //         onChanged: (value) {
-                  //           setState(() {
-                  //             _propertyValues[property.id ?? ''] = value;
-                  //           });
-                  //         },
-                  //       ),
-                  //       const SizedBox(height: 20),
-                  //     ],
-                  //   );
-                  // }).toList(),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: Colors
-                                .grey.shade100, // Задний фон grade shade 100
-                            borderRadius:
-                                BorderRadius.circular(10), // Закругленные углы
-                          ),
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 18,
-                              vertical: 4), // Отступы внутри контейнера
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: TextField(
-                                  keyboardType: TextInputType.number,
-                                  decoration: const InputDecoration(
-                                    labelText: 'Цена',
-                                    labelStyle: TextStyle(
-                                        color: Colors.grey,
-                                        fontWeight: FontWeight.w500),
-                                    hintText: 'Введите цену',
-                                    hintStyle: TextStyle(
-                                        color: ThemeColors.grey5,
-                                        fontWeight: FontWeight.w500),
-                                    border: InputBorder
-                                        .none, // Убираем стандартную границу
-                                  ),
-                                  onChanged: (value) {
-                                    final price =
-                                        (double.tryParse(value) ?? 0.0) * 100;
-                                    context
-                                        .read<GlobalProvider>()
-                                        .setPrice(price);
-                                  },
-                                ),
-                              ),
-                              const SizedBox(
-                                  width:
-                                      8), // Расстояние между TextField и текстом "KZT"
-                              const Text(
-                                'KZT',
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold, // Жирный шрифт
-                                    fontSize: 16, // Размер текста
-                                    color: Colors.grey),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  const SizedBox(height: 12.0),
-                  const SizedBox(height: 20),
-                  Center(
-                    child: CustomButton(
-                      text: 'Продолжить',
-                      onPressed: () {
-                        FocusScope.of(context).unfocus();
-
-                        final price = context.read<GlobalProvider>().price;
-                        if (price <= 0) {
-                          widget.showError(
-                              'Пожалуйста, введите корректную цену.');
-                          return;
-                        }
-
-                        if (widget.validateInfoTab()) {
-                          widget.tabController.index = 1;
-                        } else {
-                          widget.showError(
-                              'Пожалуйста, заполните все обязательные поля перед продолжением.');
-                        }
-                      },
+        : GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: () {
+              FocusScope.of(context).unfocus();
+            },
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      localizations.upload_photos, // ключ: upload_photos
+                      style: const TextStyle(
+                          fontWeight: FontWeight.bold, fontSize: 18),
                     ),
-                  )
-                ],
+                    const SizedBox(height: 10),
+                    _buildImagesRow(),
+                    const SizedBox(height: 20),
+                    CustomDropdownField(
+                      title: localizations.product_name, // ключ: product_name
+                      value: widget.productName.isNotEmpty
+                          ? widget.productName
+                          : localizations.not_specified, // ключ: not_specified
+                      onTap: () {
+                        context
+                            .read<GlobalProvider>()
+                            .setName(widget.productName);
+                      },
+                      showIcon: false,
+                    ),
+                    const SizedBox(height: 20),
+                    CustomDropdownField(
+                      title: localizations.brand, // ключ: brand
+                      value: selectedBrand,
+                      onTap: _showBrands,
+                    ),
+                    const SizedBox(height: 20),
+                    CustomDropdownField(
+                      title: localizations.category, // ключ: category
+                      value: selectedCategory,
+                      onTap: _showCategories,
+                    ),
+                    const SizedBox(height: 20),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Colors.grey.shade100,
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 18, vertical: 4),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: TextField(
+                                    keyboardType: TextInputType.number,
+                                    decoration: InputDecoration(
+                                      labelText:
+                                          localizations.price, // ключ: price
+                                      labelStyle: const TextStyle(
+                                          color: Colors.grey,
+                                          fontWeight: FontWeight.w500),
+                                      hintText: localizations
+                                          .enter_price, // ключ: enter_price
+                                      hintStyle: const TextStyle(
+                                          color: ThemeColors.grey5,
+                                          fontWeight: FontWeight.w500),
+                                      border: InputBorder.none,
+                                    ),
+                                    onChanged: (value) {
+                                      final price =
+                                          (double.tryParse(value) ?? 0.0) * 100;
+                                      context
+                                          .read<GlobalProvider>()
+                                          .setPrice(price);
+                                    },
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  localizations
+                                      .currency, // ключ: currency (например, KZT)
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16,
+                                      color: Colors.grey),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12.0),
+                    const SizedBox(height: 20),
+                    Center(
+                      child: CustomButton(
+                        text:
+                            localizations.continue_text, // ключ: continue_text
+                        onPressed: () {
+                          FocusScope.of(context).unfocus();
+                          final price = context.read<GlobalProvider>().price;
+                          if (price <= 0) {
+                            widget.showError(localizations
+                                .enter_valid_price); // ключ: enter_valid_price
+                            return;
+                          }
+                          if (widget.validateInfoTab()) {
+                            widget.tabController.index = 1;
+                          } else {
+                            widget.showError(localizations
+                                .fill_required_fields); // ключ: fill_required_fields
+                          }
+                        },
+                      ),
+                    )
+                  ],
+                ),
               ),
             ),
           );

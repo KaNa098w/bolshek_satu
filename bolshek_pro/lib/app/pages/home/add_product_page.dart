@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:bolshek_pro/app/widgets/custom_button.dart';
 import 'package:bolshek_pro/core/utils/theme.dart';
 import 'package:provider/provider.dart';
+import 'package:bolshek_pro/generated/l10n.dart';
 
 class AddProductPage extends StatefulWidget {
   final String productName;
@@ -24,13 +25,13 @@ class _AddProductPageState extends State<AddProductPage>
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
 
-    // Слушатель для блокировки свайпа
+    // Слушатель для блокировки свайпа между вкладками
     _tabController.addListener(() {
       if (_tabController.index == 1 && _tabController.previousIndex == 0) {
         if (!_validateInfoTab()) {
           _tabController.index = 0; // Возврат на вкладку "Инфо"
           _showError(
-              'Пожалуйста, заполните обязательные поля на вкладке "Инфо"');
+              S.of(context).fill_required_info); // ключ: fill_required_info
         }
       }
     });
@@ -67,19 +68,20 @@ class _AddProductPageState extends State<AddProductPage>
 
   @override
   Widget build(BuildContext context) {
+    final localizations = S.of(context);
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text('Добавить товар'),
+        title: Text(localizations.add_product), // ключ: add_product
         bottom: TabBar(
           labelColor: ThemeColors.orange,
           indicatorColor: ThemeColors.orange,
           controller: _tabController,
-          indicatorWeight: 4.0, // Устанавливаем толщину индикатора
-          indicatorSize: TabBarIndicatorSize.tab, // Индикатор на всю ширину
-          tabs: const [
-            Tab(text: 'Инфо'),
-            Tab(text: 'Характеристики'),
+          indicatorWeight: 4.0,
+          indicatorSize: TabBarIndicatorSize.tab,
+          tabs: [
+            Tab(text: localizations.info_tab), // ключ: info_tab
+            Tab(text: localizations.characteristics), // ключ: characteristics
           ],
         ),
       ),
@@ -95,7 +97,7 @@ class _AddProductPageState extends State<AddProductPage>
             validateInfoTab: _validateInfoTab,
             showError: _showError,
           ),
-          const CharacteristicsTab(), // Используется без параметров
+          const CharacteristicsTab(),
         ],
       ),
     );

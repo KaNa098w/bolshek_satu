@@ -46,17 +46,14 @@ class AddressService {
     }
   }
 
-  Future<void> addAddress(BuildContext context, String organizationId,
-      Map<String, dynamic> addressData) async {
+  Future<({String id})> addAddress(
+    BuildContext context,
+    String organizationId,
+    Map<String, dynamic> addressData,
+  ) async {
     try {
-      final token = _getToken(context); // Получение токена
-      final url =
-          '$_baseUrl/organizations/$organizationId/addresses'; // URL для POST-запроса
-
-      print('POST URL: $url');
-      print(
-          'POST Headers: {Authorization: Bearer $token, Content-Type: application/json}');
-      print('POST Body: ${jsonEncode(addressData)}');
+      final token = _getToken(context);
+      final url = '$_baseUrl/organizations/$organizationId/addresses';
 
       final response = await httpClient.post(
         Uri.parse(url),
@@ -67,17 +64,20 @@ class AddressService {
         body: jsonEncode(addressData),
       );
 
-      print('Response Status Code: ${response.statusCode}');
-      print('Response Body: ${response.body}');
-
-      if (response.statusCode == 201 || response.statusCode == 200) {
-        print('Address successfully added.');
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final json = jsonDecode(response.body);
+        final dynamic rawId = json['id'] ?? json['data']?['id'];
+        if (rawId != null) {
+          return (id: rawId.toString()); // 👈 явное приведение к String
+        } else {
+          throw Exception('Address added, but no ID returned');
+        }
       } else {
         throw Exception(
-            'Failed to add address: ${response.statusCode} - ${response.body}');
+          'Failed to add address: ${response.statusCode} - ${response.body}',
+        );
       }
     } catch (e) {
-      print('Error: $e');
       throw Exception('Error adding address: $e');
     }
   }

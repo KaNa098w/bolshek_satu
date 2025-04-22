@@ -4,6 +4,7 @@ import 'package:bolshek_pro/app/widgets/custom_silver_appbar.dart';
 import 'package:bolshek_pro/app/widgets/loading_widget.dart';
 import 'package:bolshek_pro/core/service/vehicle_brands_service.dart';
 import 'package:bolshek_pro/core/models/vehicle_brands_response.dart';
+import 'package:bolshek_pro/generated/l10n.dart';
 import 'package:flutter/material.dart';
 
 /// Делегат для закреплённой поисковой строки.
@@ -101,7 +102,7 @@ class _VehicleBrandsPageState extends State<VehicleBrandsPage> {
       });
     } catch (e) {
       ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text("Ошибка: $e")));
+          .showSnackBar(SnackBar(content: Text("Error: $e")));
     } finally {
       setState(() {
         _isLoading = false;
@@ -117,6 +118,8 @@ class _VehicleBrandsPageState extends State<VehicleBrandsPage> {
 
   @override
   Widget build(BuildContext context) {
+    final local = S.of(context);
+
     final bool isSearching = _searchQuery.isNotEmpty;
     final searchQueryLower = _searchQuery.toLowerCase();
 
@@ -163,8 +166,8 @@ class _VehicleBrandsPageState extends State<VehicleBrandsPage> {
           controller: _scrollController,
           slivers: [
             // Кастомный SliverAppBar
-            const CustomStyledSliverAppBar(
-              title: 'Марка автомобилей',
+            CustomStyledSliverAppBar(
+              title: local.searchByBrand,
               automaticallyImplyLeading: true,
             ),
             // Закреплённая поисковая строка
@@ -180,7 +183,7 @@ class _VehicleBrandsPageState extends State<VehicleBrandsPage> {
                     controller: _searchController,
                     textInputAction: TextInputAction.search,
                     decoration: InputDecoration(
-                      hintText: 'Поиск по марке',
+                      hintText: S.of(context).searchByBrand,
                       prefixIcon: const Icon(Icons.search),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
@@ -234,7 +237,7 @@ class _VehicleBrandsPageState extends State<VehicleBrandsPage> {
                         contentPadding:
                             const EdgeInsets.symmetric(horizontal: 20),
                         title: Text(
-                          brand.name ?? 'Без названия',
+                          brand.name ?? S.of(context).no_brands,
                           style: const TextStyle(fontSize: 15),
                         ),
                         trailing: const Icon(

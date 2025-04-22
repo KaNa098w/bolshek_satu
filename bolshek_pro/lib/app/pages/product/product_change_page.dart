@@ -4,23 +4,30 @@ import 'package:bolshek_pro/app/pages/home/cross_number_screen.dart';
 import 'package:bolshek_pro/app/widgets/animation_rotation_widget.dart';
 import 'package:bolshek_pro/app/widgets/custom_alert_dialog_widget.dart';
 import 'package:bolshek_pro/app/widgets/editable_dropdown_field.dart';
+import 'package:bolshek_pro/app/widgets/home_widgets/color_picker_widget.dart';
+import 'package:bolshek_pro/app/widgets/home_widgets/hex_colors_widget.dart';
+import 'package:bolshek_pro/app/widgets/textfield_widget.dart';
 import 'package:bolshek_pro/core/models/category_response.dart' as category;
 import 'package:bolshek_pro/app/widgets/custom_button.dart';
 import 'package:bolshek_pro/core/models/brands_response.dart';
 import 'package:bolshek_pro/core/models/manufacturers_response.dart';
 import 'package:bolshek_pro/core/models/properties_response.dart';
+import 'package:bolshek_pro/core/models/tags_response.dart';
 import 'package:bolshek_pro/core/service/brands_service.dart';
 import 'package:bolshek_pro/core/service/category_service.dart';
 import 'package:bolshek_pro/core/service/images_service.dart';
 import 'package:bolshek_pro/core/service/maufacturers_service.dart';
 import 'package:bolshek_pro/core/service/properties_service.dart';
+import 'package:bolshek_pro/core/service/tags_service.dart';
 import 'package:bolshek_pro/core/service/variants_service.dart';
 import 'package:bolshek_pro/core/utils/provider.dart';
+import 'package:bolshek_pro/generated/l10n.dart';
 import 'package:flutter/material.dart';
 import 'package:bolshek_pro/core/service/product_service.dart';
 import 'package:bolshek_pro/core/utils/theme.dart';
 import 'package:bolshek_pro/app/widgets/custom_dropdown_field.dart';
-import 'package:bolshek_pro/core/models/fetch_product_response.dart';
+import 'package:bolshek_pro/core/models/product_responses.dart';
+import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:collection/collection.dart';
@@ -40,7 +47,7 @@ class ProductChangePage extends StatefulWidget {
 }
 
 class _ProductChangePageState extends State<ProductChangePage> {
-  FetchProductResponse? _product;
+  ProductItems? _product;
   bool _isLoading = true;
   String? _errorMessage;
   final ImagePicker _imagePicker = ImagePicker();
@@ -52,80 +59,106 @@ class _ProductChangePageState extends State<ProductChangePage> {
   final BrandsService _brandsService = BrandsService();
   bool isLoading = true;
   List<BrandItems> brands = [];
-  String selectedBrand = 'Загружается бренд...';
-  String selectedCategory = 'Загружается категория...';
+  String selectedBrand = '';
+  String selectedCategory = '';
   String _productName = ''; // Хранит текущее значение имени товара
   Map<String, dynamic> _updatedFields = {}; // Хранит все изменённые данные
-  FetchProductResponse? _originalProduct;
+  ProductItems? _originalProduct;
   String? _selectedBrandId;
   List<Images>? _originalImages;
   final ImagesService _imagesService = ImagesService();
-  String selectedType = 'Оригинал';
+  String selectedType = '';
   Map<String, String> _propertyValues = {};
   ValueNotifier<List<PropertyItems>> propertiesNotifier = ValueNotifier([]);
   List<XFile> _newImages = []; // Новые изображения, добавленные пользователем
   List<String> _deletedImages = []; // URL удалённых изображений
+  List<ItemsTags> _selectedTags = [];
+  List<ItemsTags>? list_tags;
+  Map<String, bool> _propertyErrors = {};
 
-  final CategoriesService _categoriesService = CategoriesService();
+  final TagsService _tagsService = TagsService();
+  List<ItemsTags> _tags = [];
+
   bool isLoadingCategories = true;
+  bool _didInitialize = false;
+
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   _fetchProduct();
+  //   _loadTags();
+  //   _loadManufacturers();
+  //   _loadBrands();
+  //   _selectedBrandId = _product?.brandId;
+  // }
 
   @override
-  void initState() {
-    super.initState();
-    _fetchProduct();
-    _loadManufacturers();
-    _loadBrands();
-    _selectedBrandId = _product?.brandId;
-    if (_product?.variants?.isNotEmpty ?? false) {
-      final variantKind = _product?.variants?.first.kind;
-      selectedType = variantKind == 'original'
-          ? 'Оригинал'
-          : variantKind == 'sub_original'
-              ? 'Под оригинал'
-              : 'Авторазбор';
-    } else {
-      selectedType = 'Оригинал'; // Значение по умолчанию
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_didInitialize) {
+      _fetchProduct();
+      _loadTags();
+      _loadManufacturers();
+      _loadBrands();
+      // _selectedBrandId = _product?.brandId;
+
+      _didInitialize = true;
+      //   if (_product!.kind!.isEmpty ?? false) {
+      //     final variantKind = _product?.kind;
+      //     selectedType = variantKind == 'original'
+      //         ? S.of(context).original
+      //         : variantKind == 'sub_original'
+      //             ? S.of(context).sub_original
+      //             : S.of(context).auto_disassembly;
+      //   } else {
+      //     selectedType = S.of(context).original; // Значение по умолчанию
+      //   }
+      //   _didInitialize = true;
+      // }
     }
   }
 
-  Future<void> _loadCategories() async {
+  Future<void> _loadTags() async {
     try {
+      final responseTags = await _tagsService.getTags(context);
       setState(() {
-        isLoadingCategories = true;
-      });
-
-      final parentResponse =
-          await _categoriesService.fetchCategoriesParent(context);
-      final allCategoriesResponse =
-          await _categoriesService.fetchCategories(context);
-
-      if (!mounted) return; // Проверка перед вызовом setState
-
-      setState(() {
-        final parentCategories = parentResponse.items ?? [];
-        final allCategories = allCategoriesResponse.items ?? [];
-
-        categories = parentCategories.map((parent) {
-          parent.children = allCategories
-              .where((category) => category.parentId == parent.id)
-              .toList();
-          return parent;
-        }).toList();
-
-        isLoadingCategories = false;
+        _tags = responseTags.items ?? [];
       });
     } catch (e) {
-      if (!mounted) return; // Проверка перед вызовом setState
-
-      setState(() {
-        isLoadingCategories = false;
-      });
-      _showError('Ошибка загрузки категорий: $e');
+      print(e);
     }
   }
 
-  void _showCategories() {
-    // Показываем модальное окно
+  void handleTagUpdate(BuildContext context) async {
+    // Собираем ID выбранных тегов в строку через запятую
+    final String tagIds = _selectedTags.map((tag) => tag.id).join(',');
+    // Получаем productId из виджета
+    final String productId = widget.productId;
+
+    try {
+      await _tagsService.deleteAndCreate(context, tagIds, productId);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(S.of(context).success)),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: $e')),
+      );
+    }
+  }
+
+  void _showTags() {
+    final local = S.of(context);
+    if (_tags.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(S.of(context).empty)),
+      );
+      return;
+    }
+
+    // Локальная копия выбранных тегов для работы в модальном окне
+    List<ItemsTags> tempSelectedTags = List.from(_selectedTags);
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -134,107 +167,125 @@ class _ProductChangePageState extends State<ProductChangePage> {
       ),
       backgroundColor: Colors.white,
       builder: (context) {
-        // Используем StatefulBuilder для управления состоянием модального окна
+        String searchQuery = ''; // Локальная переменная для поиска
         return StatefulBuilder(
           builder: (context, setStateModal) {
-            // Проверяем состояние загрузки
-            if (isLoadingCategories) {
-              // Пока данные загружаются, показываем индикатор
-              return SizedBox(
-                height: MediaQuery.of(context).size.height * 0.4,
-                child: const Center(
-                    child: CircularProgressIndicator(
-                  color: ThemeColors.orange,
-                )),
-              );
-            }
-
-            // Если данные загружены, проверяем их наличие
-            if (categories.isEmpty) {
-              return SizedBox(
-                height: MediaQuery.of(context).size.height * 0.4,
-                child: const Center(
-                  child: Text('Список категорий пуст'),
-                ),
-              );
-            }
-
-            // Если категории загружены, отображаем список
-            String searchQuery = '';
-            final filteredCategories = categories;
+            // Фильтрация по поисковому запросу
+            final filteredTags = _tags
+                .where((tag) =>
+                    tag.text != null &&
+                    tag.text!.toLowerCase().contains(searchQuery.toLowerCase()))
+                .toList();
+            // Исключаем из списка доступных те теги, которые уже выбраны
+            final availableTags = filteredTags.where((tag) {
+              return !tempSelectedTags
+                  .any((selectedTag) => selectedTag.id == tag.id);
+            }).toList();
 
             return SizedBox(
-              height: MediaQuery.of(context).size.height * 0.9,
+              height: MediaQuery.of(context).size.height * 0.8,
               child: Padding(
-                padding: const EdgeInsets.all(16.0),
+                padding: const EdgeInsets.all(10.0),
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    // Заголовок и кнопка закрытия
                     Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Expanded(
-                          child: TextField(
-                            decoration: InputDecoration(
-                              hintText: 'Поиск категории',
-                              prefixIcon: const Icon(Icons.search),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              contentPadding: const EdgeInsets.symmetric(
-                                vertical: 10,
-                                horizontal: 12,
-                              ),
-                            ),
-                            onChanged: (value) {
-                              setStateModal(() {
-                                searchQuery = value;
-                                filteredCategories.clear();
-                                filteredCategories.addAll(
-                                  categories.where((category) =>
-                                      category.name != null &&
-                                      category.name!
-                                          .toLowerCase()
-                                          .contains(searchQuery.toLowerCase())),
-                                );
-                              });
-                            },
-                          ),
+                        Text(
+                          local.choose_tags,
+                          style: TextStyle(
+                              fontSize: 16, fontWeight: FontWeight.bold),
                         ),
-                        const SizedBox(width: 20),
                         IconButton(
                           icon: const Icon(Icons.close),
-                          onPressed: () {
-                            Navigator.pop(context);
-                          },
+                          onPressed: () => Navigator.pop(context),
                         ),
                       ],
                     ),
+                    if (tempSelectedTags.isNotEmpty) Text(local.productTags),
+                    // Отображение выбранных тегов сверху в виде Chip-виджетов
+                    if (tempSelectedTags.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 8.0),
+                        child: Wrap(
+                          spacing: 8.0,
+                          alignment: WrapAlignment
+                              .start, // Выравнивание по левому краю
+                          children: tempSelectedTags.map((tag) {
+                            return Chip(
+                              label: Text(
+                                tag.text ?? '',
+                                style: TextStyle(
+                                  color: tag.textColor != null
+                                      ? HexColor(tag.textColor!)
+                                      : Colors.black,
+                                ),
+                              ),
+                              backgroundColor: tag.backgroundColor != null
+                                  ? HexColor(tag.backgroundColor!)
+                                  : Colors.white,
+                              onDeleted: () {
+                                setStateModal(() {
+                                  tempSelectedTags.removeWhere(
+                                    (selected) => selected.id == tag.id,
+                                  );
+                                });
+                              },
+                            );
+                          }).toList(),
+                        ),
+                      ),
+                    if (availableTags.isNotEmpty) Text(local.availableTags),
                     const SizedBox(height: 10),
                     Expanded(
-                      child: ListView.builder(
-                        itemCount: filteredCategories.length,
-                        itemBuilder: (context, index) {
-                          final parentCategory = filteredCategories[index];
-                          final subcategories = parentCategory.children ?? [];
-                          return ExpansionTile(
-                            title: Text(parentCategory.name ?? 'Без названия'),
-                            children: subcategories.map((subcategory) {
-                              return Padding(
-                                padding: const EdgeInsets.only(left: 16.0),
-                                child: ListTile(
-                                  title:
-                                      Text(subcategory.name ?? 'Без названия'),
-                                  onTap: () {
-                                    Navigator.pop(context);
-                                    setState(() {
-                                      selectedCategory =
-                                          subcategory.name ?? 'Без названия';
-                                    });
-                                  },
+                      child: SingleChildScrollView(
+                        child: Wrap(
+                          spacing: 8.0,
+                          alignment: WrapAlignment
+                              .start, // Выравнивание по левому краю
+                          children: availableTags.map((tag) {
+                            return ActionChip(
+                              label: Text(
+                                tag.text ?? local.no_name,
+                                style: TextStyle(
+                                  color: tag.textColor != null
+                                      ? HexColor(tag.textColor!)
+                                      : Colors.black,
+                                  fontWeight: FontWeight.bold,
                                 ),
-                              );
-                            }).toList(),
-                          );
+                              ),
+                              backgroundColor: tag.backgroundColor != null
+                                  ? HexColor(tag.backgroundColor!)
+                                  : Colors.white,
+                              onPressed: () {
+                                setStateModal(() {
+                                  tempSelectedTags.add(tag);
+                                });
+                              },
+                            );
+                          }).toList(),
+                        ),
+                      ),
+                    ),
+                    // Кнопка сохранения
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 20.0),
+                      child: CustomButton(
+                        onPressed: () {
+                          setState(() {
+                            _selectedTags = tempSelectedTags;
+                            context.read<GlobalProvider>().setTagsId(
+                                  _selectedTags
+                                      .map((tag) => tag.id ?? '')
+                                      .join(','),
+                                );
+                          });
+                          handleTagUpdate(context);
+                          Navigator.pop(context);
                         },
+                        text: local.save,
                       ),
                     ),
                   ],
@@ -245,24 +296,15 @@ class _ProductChangePageState extends State<ProductChangePage> {
         );
       },
     );
-
-    // Проверяем, загружены ли данные, и при необходимости запускаем загрузку
-    if (categories.isEmpty) {
-      _loadCategories().then((_) {
-        // После завершения загрузки вызываем обновление состояния модального окна
-        if (context.mounted) {
-          Navigator.pop(context); // Закрываем текущее окно
-          _showCategories(); // Повторно открываем с загруженными данными
-        }
-      }).catchError((error) {
-        // Если произошла ошибка, отображаем сообщение
-        _showError('Ошибка загрузки категорий: $error');
-      });
-    }
   }
 
   void _showTypeOptions() {
-    final typeOptions = ['Оригинал', 'Под оригинал', 'Авторазбор'];
+    final local = S.of(context);
+    final typeOptions = [
+      local.original,
+      local.sub_original,
+      local.auto_disassembly
+    ];
 
     showModalBottomSheet(
       context: context,
@@ -280,7 +322,7 @@ class _ProductChangePageState extends State<ProductChangePage> {
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
                   children: [
-                    const Text('Выберите тип товара'),
+                    Text(local.choose_type),
                     const SizedBox(height: 10),
                     Expanded(
                       child: ListView.builder(
@@ -295,13 +337,13 @@ class _ProductChangePageState extends State<ProductChangePage> {
                                 selectedType = type;
                               });
                               // 2. Преобразуем его в нужный формат для API
-                              final updatedKind = type == 'Оригинал'
+                              final updatedKind = type == local.original
                                   ? 'original'
-                                  : (type == 'Под оригинал'
+                                  : (type == local.sub_original
                                       ? 'sub_original'
                                       : 'disassemble');
                               // 3. Ставим значение во внутреннем объекте
-                              _product?.variants?.first.kind = updatedKind;
+                              _product?.kind = updatedKind;
 
                               Navigator.pop(context);
                             },
@@ -319,19 +361,19 @@ class _ProductChangePageState extends State<ProductChangePage> {
     );
   }
 
-  String _convertPropertyValue(String type, String value) {
+  dynamic _convertPropertyValue(String type, String value) {
     switch (type) {
       case 'boolean':
-        return (value.toLowerCase() == 'true').toString(); // true -> "true"
+        return value.toLowerCase() == 'true';
       case 'number':
-        return (int.tryParse(value) ?? 0).toString(); // 123 -> "123"
+        return int.tryParse(value) ?? 0;
       case 'float':
-        return (double.tryParse(value) ?? 0.0).toString(); // 123.45 -> "123.45"
+        return double.tryParse(value) ?? 0.0;
       case 'color':
-        return value; // HEX-код цвета остается строкой
+        return value; // Для цвета оставляем строку (например, HEX-код)
       case 'string':
       default:
-        return value; // Оставляем как есть
+        return value;
     }
   }
 
@@ -386,6 +428,7 @@ class _ProductChangePageState extends State<ProductChangePage> {
   }
 
   Future<void> _fetchProduct() async {
+    final local = S.of(context);
     setState(() {
       _isLoading = true;
       _errorMessage = null;
@@ -398,14 +441,16 @@ class _ProductChangePageState extends State<ProductChangePage> {
       );
       setState(() {
         _product = product;
-        _originalProduct = FetchProductResponse.fromJson(
-            product.toJson()); // Сохраняем оригинал
+        _selectedTags = product.tags ?? [];
+        _selectedBrandId = product.brandId;
+        _originalProduct =
+            ProductItems.fromJson(product.toJson()); // Сохраняем оригинал
         _originalImages = List.from(product.images ?? []);
-        selectedType = product.variants?.first.kind == 'original'
-            ? 'Оригинал'
-            : product.variants?.first.kind == 'sub_original'
-                ? 'Под оригинал'
-                : 'Авторазбор';
+        selectedType = product.kind == 'original'
+            ? local.original
+            : product.kind == 'sub_original'
+                ? local.sub_original
+                : local.auto_disassembly;
         _isLoading = false;
       });
 
@@ -424,7 +469,7 @@ class _ProductChangePageState extends State<ProductChangePage> {
   Future<void> _onUpdateProduct() async {
     if (_product == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Нет данных для обновления')),
+        SnackBar(content: Text('Empty update')),
       );
       return;
     }
@@ -435,25 +480,33 @@ class _ProductChangePageState extends State<ProductChangePage> {
 
     final updatedFields = _getUpdatedFields();
 
-    final updatedProperties = _propertyValues.entries
-        .where((entry) {
-          final existing = _product?.properties
-              ?.firstWhereOrNull((prop) => prop.id == entry.key);
-          return existing == null || entry.value != existing.value;
-        })
-        .map((entry) => {
-              'id': entry.key,
-              'value': entry.value,
-            })
-        .toList();
+    final updatedProperties = _propertyValues.entries.where((entry) {
+      // Ищем соответствующее свойство в списке _product.properties по id свойства
+      final p = _product?.properties
+          ?.firstWhereOrNull((prop) => prop.property?.id == entry.key);
+      // Сравниваем текущее значение с сохранённым (приводим к строке для сравнения)
+      return p == null || entry.value != (p.value?.toString() ?? '');
+    }).map((entry) {
+      // Получаем тип свойства из оригинальных данных
+      final p = _product?.properties
+          ?.firstWhereOrNull((prop) => prop.property?.id == entry.key);
+      final type = p?.property?.type ?? 'string';
+      return {
+        'id': entry.key,
+        'value': entry.value,
+        'type':
+            type, // Добавляем тип, чтобы потом правильно преобразовать значение
+      };
+    }).toList();
 
     final bool hasImageChanges =
         _newImages.isNotEmpty || _deletedImages.isNotEmpty;
-    final currentVariant = _product?.variants?.first;
+    final currentVariant = _product;
     final updatedManufacturerId = currentVariant?.manufacturerId;
     final updatedSku = currentVariant?.sku;
     final updatedKind = currentVariant?.kind;
-    final originalVariant = _originalProduct?.variants?.first;
+    final originalVariant = _originalProduct;
+
     final hasVariantChanges = currentVariant != null &&
         (updatedManufacturerId != originalVariant?.manufacturerId ||
             updatedSku != originalVariant?.sku ||
@@ -510,13 +563,11 @@ class _ProductChangePageState extends State<ProductChangePage> {
         for (final prop in updatedProperties) {
           final propertyId = prop['id'];
           final rawValue = prop['value'];
-
-          // Получаем тип свойства (если он есть в данных)
-          final type = prop['type'] ?? 'string';
-
-          // Преобразуем значение в нужный формат
+          // Используем тип из объекта обновлённых свойств
+          final type = prop['type'];
+          // Преобразуем значение в нужный формат (для number, float, boolean – возвращаются соответствующие типы)
           final newValue =
-              _convertPropertyValue(type, rawValue?.toString() ?? '');
+              _convertPropertyValue(type ?? '', rawValue?.toString() ?? '');
 
           final pItem = _product?.properties?.firstWhereOrNull(
             (p) => p.property?.id == propertyId,
@@ -527,15 +578,13 @@ class _ProductChangePageState extends State<ProductChangePage> {
               context,
               productId: widget.productId,
               propertiesId: pItem.id!,
-              value: newValue, // Теперь передаём правильный тип
+              value: newValue, // Передаём значение корректного типа
             );
           }
         }
       }
 
-      if (hasVariantChanges &&
-          currentVariant != null &&
-          originalVariant != null) {
+      if (hasVariantChanges && currentVariant != null && _product != null) {
         final variantsService = VariantsService();
         final newAmount = currentVariant.price?.amount?.toDouble() ?? 0.0;
         await variantsService.updateProductVariant(
@@ -546,6 +595,8 @@ class _ProductChangePageState extends State<ProductChangePage> {
           manufacturerId: updatedManufacturerId,
           sku: updatedSku,
           kind: updatedKind,
+          discountedPersent: _product!.discountPercent ?? 0,
+          discountedAmount: _product!.discountedPrice!.amount!.toDouble(),
         );
       }
 
@@ -556,7 +607,7 @@ class _ProductChangePageState extends State<ProductChangePage> {
           updatedFields: updatedFields,
         );
         if (response.statusCode != 200 && response.statusCode != 204) {
-          throw Exception('Ошибка обновления товара: ${response.body}');
+          throw Exception('Error: ${response.body}');
         }
       }
 
@@ -565,11 +616,12 @@ class _ProductChangePageState extends State<ProductChangePage> {
       _showSuccessDialog();
     } catch (e) {
       Navigator.pop(context);
-      _showError('Ошибка при обновлении товара: $e');
+      _showError('Error: $e');
     }
   }
 
   void _showSuccessDialog() {
+    final local = S.of(context);
     showDialog(
       context: context,
       barrierDismissible: false, // Диалог нельзя закрыть кликом вне окна
@@ -586,8 +638,8 @@ class _ProductChangePageState extends State<ProductChangePage> {
                 size: 55,
               ),
               const SizedBox(height: 16),
-              const Text(
-                'Товар успешно обновлён!',
+              Text(
+                local.productUpdatedSuccessfully,
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 textAlign: TextAlign.center,
               ),
@@ -610,8 +662,8 @@ class _ProductChangePageState extends State<ProductChangePage> {
                         BorderRadius.circular(12), // Закруглённые края кнопки
                   ),
                 ),
-                child: const Text(
-                  'Показать товар',
+                child: Text(
+                  local.showProduct,
                   style: TextStyle(
                     fontSize: 12, // Размер шрифта
                     fontWeight: FontWeight.bold, // Толщина шрифта
@@ -633,44 +685,6 @@ class _ProductChangePageState extends State<ProductChangePage> {
         _newImages.add(pickedFile); // Сохраняем файл локально
       });
     }
-  }
-
-  void _showLoadingDialog(String message) {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) {
-        return Dialog(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Row(
-              children: [
-                const CircularProgressIndicator(
-                  color: ThemeColors.grey4,
-                ),
-                const SizedBox(width: 16),
-                Expanded(child: Text(message)),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  void _showSnackBar(String message, {bool isSuccess = true}) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          message,
-          style: const TextStyle(
-              color: Colors.white, fontWeight: FontWeight.bold), // Белый текст
-        ),
-        backgroundColor: isSuccess
-            ? Colors.green
-            : Colors.red, // Зелёный для успеха, красный для ошибки
-      ),
-    );
   }
 
   Future<void> _removeImage(int index) async {
@@ -697,22 +711,23 @@ class _ProductChangePageState extends State<ProductChangePage> {
       });
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Ошибка загрузки производителей: $e')),
+        SnackBar(content: Text('Error: $e')),
       );
     }
   }
 
   Future<void> _showAddManufacturerDialog() async {
+    final local = S.of(context);
     final TextEditingController nameController = TextEditingController();
 
     await showCustomAlertDialog(
       context: context,
-      title: 'Добавить производителя',
+      title: local.add_manufacturer,
       content: TextField(
         controller: nameController,
-        decoration: const InputDecoration(
+        decoration: InputDecoration(
           // labelText: 'Название производителя',
-          hintText: 'Введите название',
+          hintText: local.enter_manufacturer_name,
           // border: OutlineInputBorder(),
         ),
       ),
@@ -728,7 +743,7 @@ class _ProductChangePageState extends State<ProductChangePage> {
 
             // Показываем уведомление об успешном добавлении
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Производитель "$name" успешно добавлен')),
+              SnackBar(content: Text(local.success)),
             );
 
             // Обновляем список производителей
@@ -739,14 +754,13 @@ class _ProductChangePageState extends State<ProductChangePage> {
           } catch (e) {
             // Показываем ошибку
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Ошибка добавления производителя: $e')),
+              SnackBar(content: Text('Error: $e')),
             );
           }
         } else {
           // Показываем ошибку, если поле ввода пустое
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-                content: Text('Название производителя не может быть пустым')),
+            SnackBar(content: Text(local.empty)),
           );
         }
       },
@@ -768,13 +782,14 @@ class _ProductChangePageState extends State<ProductChangePage> {
       setState(() {
         isLoading = false; // Завершаем загрузку даже при ошибке
       });
-      _showError('Ошибка загрузки брендов: $e');
+      _showError('Error: $e');
     }
   }
 
   void _showBrands() {
+    final local = S.of(context);
     if (brands.isEmpty) {
-      _showError('Список брендов пуст');
+      _showError(S.of(context).emptyBrandList);
       return;
     }
 
@@ -807,7 +822,7 @@ class _ProductChangePageState extends State<ProductChangePage> {
                         Expanded(
                           child: TextField(
                             decoration: InputDecoration(
-                              hintText: 'Поиск бренда',
+                              hintText: local.searchBrand,
                               prefixIcon: const Icon(Icons.search),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(10),
@@ -840,17 +855,18 @@ class _ProductChangePageState extends State<ProductChangePage> {
                         itemBuilder: (context, index) {
                           final brand = filteredBrands[index];
                           return ListTile(
-                            title: Text(brand.name ?? 'Без названия'),
+                            title: Text(brand.name ?? local.no_name),
                             onTap: () {
-                              Navigator.pop(context);
-                              setState(() {
-                                _selectedBrandId =
-                                    brand.id; // Сохраняем brandId
-                                _product?.brandId =
-                                    brand.id; // Обновляем продукт
-                                selectedBrand = brand.name ??
-                                    'Не указано'; // Отображаем имя
-                              });
+                              if (_product?.brandId != brand.id) {
+                                Navigator.pop(context);
+                                setState(() {
+                                  _selectedBrandId = brand.id;
+                                  _product?.brandId = brand.id;
+                                  selectedBrand = brand.name ?? local.no_name;
+                                });
+                              } else {
+                                Navigator.pop(context);
+                              }
                             },
                           );
                         },
@@ -860,7 +876,7 @@ class _ProductChangePageState extends State<ProductChangePage> {
                     Align(
                       alignment: Alignment.bottomCenter,
                       child: CustomButton(
-                        text: 'Создать свой бренд',
+                        text: local.create_your_brand,
                         onPressed: () {
                           _showAddBrandDialog();
                         },
@@ -880,26 +896,27 @@ class _ProductChangePageState extends State<ProductChangePage> {
     try {
       final brand = await _brandsService.fetchBrandById(context, brandId);
       setState(() {
-        selectedBrand = brand.name ?? 'Не указано';
+        selectedBrand = brand.name ?? S.of(context).no_name;
       });
     } catch (e) {
-      _showError('Ошибка загрузки бренда: $e');
+      _showError('Error: $e');
     }
   }
 
   void _showAddBrandDialog() {
+    final local = S.of(context);
     String newBrandName = '';
     String selectedType = 'product'; // Значение по умолчанию
 
     showCustomAlertDialog(
       context: context,
-      title: 'Добавить бренд',
+      title: local.add_brand,
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           TextField(
-            decoration: const InputDecoration(
-              hintText: 'Введите название бренда',
+            decoration: InputDecoration(
+              hintText: local.enter_brand_name,
             ),
             onChanged: (value) {
               newBrandName = value;
@@ -928,27 +945,28 @@ class _ProductChangePageState extends State<ProductChangePage> {
             // Закрываем диалоговое окно после успешной операции
             Navigator.pop(context);
           } catch (e) {
-            _showError('Ошибка при добавлении бренда: $e');
-            print('Ошибка при добавлении бренда: $e');
+            _showError('Error: $e');
+            print('Error: $e');
           }
         } else {
-          _showError('Название бренда не может быть пустым');
+          _showError(S.of(context).empty);
         }
       },
     );
   }
 
   void _showError(String message) {
+    print(message);
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Ошибка'),
+          title: Text(S.of(context).error),
           content: Text(message),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('ОК'),
+              child: Text(S.of(context).ok),
             ),
           ],
         );
@@ -957,9 +975,10 @@ class _ProductChangePageState extends State<ProductChangePage> {
   }
 
   void _showManufacturers() {
+    final local = S.of(context);
     if (_manufacturers.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Список производителей пуст')),
+        SnackBar(content: Text(S.of(context).empty)),
       );
       return;
     }
@@ -994,7 +1013,7 @@ class _ProductChangePageState extends State<ProductChangePage> {
                         Expanded(
                           child: TextField(
                             decoration: InputDecoration(
-                              hintText: 'Поиск производителя',
+                              hintText: local.manufacturer_search,
                               prefixIcon: const Icon(Icons.search),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(10),
@@ -1027,13 +1046,12 @@ class _ProductChangePageState extends State<ProductChangePage> {
                         itemBuilder: (context, index) {
                           final manufacturer = filteredManufacturers[index];
                           return ListTile(
-                            title: Text(manufacturer.name ?? 'Без названия'),
+                            title: Text(manufacturer.name ?? local.no_name),
                             onTap: () {
                               Navigator.pop(context);
                               setState(() {
                                 _selectedManufacturer = manufacturer;
-                                _product?.variants?.first.manufacturerId =
-                                    manufacturer.id;
+                                _product?.manufacturerId = manufacturer.id;
                                 // Сохраняем ID производителя в AuthProvider
                                 context
                                     .read<GlobalProvider>()
@@ -1048,7 +1066,7 @@ class _ProductChangePageState extends State<ProductChangePage> {
                     Align(
                       alignment: Alignment.bottomCenter,
                       child: CustomButton(
-                        text: 'Добавить производителя',
+                        text: local.add_manufacturer,
                         onPressed: () {
                           _showAddManufacturerDialog();
                         },
@@ -1066,10 +1084,11 @@ class _ProductChangePageState extends State<ProductChangePage> {
 
   @override
   Widget build(BuildContext context) {
+    final local = S.of(context);
     return Scaffold(
       backgroundColor: ThemeColors.white,
       appBar: AppBar(
-        title: const Text('Редактирование товара'),
+        title: Text(local.productEditing),
       ),
       body: _isLoading
           ? const Center(
@@ -1082,26 +1101,27 @@ class _ProductChangePageState extends State<ProductChangePage> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        'Ошибка: $_errorMessage',
+                        '${local.error} $_errorMessage',
                         style: const TextStyle(color: Colors.red),
                         textAlign: TextAlign.center,
                       ),
                       ElevatedButton(
                         onPressed: _fetchProduct,
-                        child: const Text('Повторить'),
+                        child: Text(local.repeat),
                       ),
                     ],
                   ),
                 )
               : _product != null
                   ? _buildProductDetails()
-                  : const Center(
-                      child: Text('Товар не найден'),
+                  : Center(
+                      child: Text(local.empty),
                     ),
     );
   }
 
   Widget _buildProductDetails() {
+    final local = S.of(context);
     final displayValue = '';
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16.0),
@@ -1110,10 +1130,10 @@ class _ProductChangePageState extends State<ProductChangePage> {
         children: [
           // Название товара
           EditableDropdownField(
-            title: 'Название товара',
+            title: local.productName,
             value: _productName.isNotEmpty
                 ? _productName
-                : (_product?.name ?? 'Не указано'),
+                : (_product?.name ?? local.no_name),
             onChanged: (newValue) {
               setState(() {
                 _product?.name = newValue; // Обновляем текущее значение
@@ -1125,109 +1145,120 @@ class _ProductChangePageState extends State<ProductChangePage> {
 
           // Статус
           CustomDropdownField(
-            title: 'Статус товара',
+            title: local.productStatus,
             value:
                 (_product!.status == 'created' || _product!.status == 'updated')
-                    ? 'Ожидает модерации'
+                    ? local.awaitingModeration
                     : (_product!.status == 'active'
-                        ? 'Активный'
-                        : (_product!.status ?? 'Не указано')),
-            onTap: () {
-              print('Нажата строка со статусом товара');
-            },
+                        ? local.active
+                        : (_product!.status ?? local.no_name)),
+            onTap: () {},
             showIcon: false,
           ),
 
           const SizedBox(height: 15),
 
           // Изображения
+
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'Изображения:',
+              Text(
+                '${local.productPhotos}:',
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 5),
-              Row(
-                children: [
-                  // Отображение существующих изображений
-                  ...?_product?.images?.map((image) {
-                    int index = _product!.images!.indexOf(image);
-                    return Stack(
-                      children: [
-                        Container(
-                          margin: const EdgeInsets.only(right: 10),
+              Builder(
+                builder: (context) {
+                  final int existingImagesCount = _product?.images?.length ?? 0;
+                  final int newImagesCount = _newImages.length;
+                  final int totalImages = existingImagesCount + newImagesCount;
+                  final List<Widget> imageWidgets = [
+                    // Отображение существующих изображений
+                    ...?_product?.images?.map((image) {
+                      int index = _product!.images!.indexOf(image);
+                      return Stack(
+                        children: [
+                          Container(
+                            margin: const EdgeInsets.only(right: 10),
+                            width: 80,
+                            height: 80,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(8),
+                              image: DecorationImage(
+                                image: NetworkImage(image.url!),
+                                fit: BoxFit.contain,
+                              ),
+                            ),
+                          ),
+                          Positioned(
+                            right: 8,
+                            top: 0,
+                            child: GestureDetector(
+                              onTap: () => _removeImage(index),
+                              child: const Icon(Icons.close,
+                                  color: Colors.red, size: 20),
+                            ),
+                          ),
+                        ],
+                      );
+                    }).toList(),
+
+                    // Отображение новых изображений
+                    ..._newImages.map((newImage) {
+                      int index = (_product?.images?.length ?? 0) +
+                          _newImages.indexOf(newImage);
+                      return Stack(
+                        children: [
+                          Container(
+                            margin: const EdgeInsets.only(right: 10),
+                            width: 80,
+                            height: 80,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(8),
+                              image: DecorationImage(
+                                image: FileImage(File(newImage.path)),
+                                fit: BoxFit.contain,
+                              ),
+                            ),
+                          ),
+                          Positioned(
+                            right: 8,
+                            top: 0,
+                            child: GestureDetector(
+                              onTap: () => _removeImage(index),
+                              child: const Icon(Icons.close,
+                                  color: Colors.red, size: 20),
+                            ),
+                          ),
+                        ],
+                      );
+                    }).toList(),
+
+                    // Кнопка добавления изображения
+                    if (totalImages < 5)
+                      GestureDetector(
+                        onTap: _addImage,
+                        child: Container(
                           width: 80,
                           height: 80,
                           decoration: BoxDecoration(
+                            border: Border.all(color: Colors.grey),
                             borderRadius: BorderRadius.circular(8),
-                            image: DecorationImage(
-                              image: NetworkImage(image.url!),
-                              fit: BoxFit.contain,
-                            ),
                           ),
+                          child:
+                              const Icon(Icons.add_a_photo, color: Colors.grey),
                         ),
-                        Positioned(
-                          right: 8,
-                          top: 0,
-                          child: GestureDetector(
-                            onTap: () => _removeImage(index),
-                            child: const Icon(Icons.close,
-                                color: Colors.red, size: 20),
-                          ),
-                        ),
-                      ],
-                    );
-                  }).toList(),
-
-                  // Отображение новых изображений
-                  ..._newImages.map((newImage) {
-                    int index = _product?.images?.length ??
-                        0 + _newImages.indexOf(newImage);
-                    return Stack(
-                      children: [
-                        Container(
-                          margin: const EdgeInsets.only(right: 10),
-                          width: 80,
-                          height: 80,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(8),
-                            image: DecorationImage(
-                              image: FileImage(File(newImage.path)),
-                              fit: BoxFit.contain,
-                            ),
-                          ),
-                        ),
-                        Positioned(
-                          right: 8,
-                          top: 0,
-                          child: GestureDetector(
-                            onTap: () => _removeImage(index),
-                            child: const Icon(Icons.close,
-                                color: Colors.red, size: 20),
-                          ),
-                        ),
-                      ],
-                    );
-                  }).toList(),
-
-                  // Кнопка добавления изображения
-                  if ((_product?.images?.length ?? 0) + _newImages.length < 5)
-                    GestureDetector(
-                      onTap: _addImage,
-                      child: Container(
-                        width: 80,
-                        height: 80,
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.grey),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child:
-                            const Icon(Icons.add_a_photo, color: Colors.grey),
                       ),
-                    ),
-                ],
+                  ];
+
+                  return totalImages > 3
+                      ? SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Row(children: imageWidgets),
+                        )
+                      : Row(children: imageWidgets);
+                },
               ),
             ],
           ),
@@ -1236,9 +1267,9 @@ class _ProductChangePageState extends State<ProductChangePage> {
 
           // Описание
           EditableDropdownField(
-            title: 'Описание товара',
+            title: local.description,
             value: _product?.description?.blocks?.first.data?.text ??
-                'Нет описания',
+                local.description_absent,
             onChanged: (newValue) {
               setState(() {
                 if (_product?.description?.blocks != null &&
@@ -1254,7 +1285,7 @@ class _ProductChangePageState extends State<ProductChangePage> {
           const SizedBox(height: 10),
 
           CustomDropdownField(
-            title: 'Бренд',
+            title: local.brand,
             value: selectedBrand, // Отображаем имя бренда
             onTap: _showBrands,
             showIcon: true,
@@ -1269,12 +1300,20 @@ class _ProductChangePageState extends State<ProductChangePage> {
           // ),
           const SizedBox(height: 10),
           CustomDropdownField(
-              title: 'Производитель',
+              title: local.manufacturer,
               value: _selectedManufacturer?.name ??
-                  _product?.variants?.first.manufacturer?.name ??
-                  'Не указано',
+                  _product?.manufacturer?.name ??
+                  local.no_name,
               onTap: _showManufacturers),
 
+          const SizedBox(height: 10),
+          CustomDropdownField(
+            title: local.tags,
+            value: _selectedTags.isNotEmpty
+                ? _selectedTags.map((tag) => tag.text).join(', ')
+                : local.choose_tags,
+            onTap: _showTags,
+          ),
           const SizedBox(height: 10),
 
           // Цена
@@ -1291,7 +1330,7 @@ class _ProductChangePageState extends State<ProductChangePage> {
 
           // Код товара
           EditableDropdownField(
-            title: 'Артикул товара',
+            title: local.article,
             value: _product?.vendorCode ?? '',
             onChanged: (newValue) {
               setState(() {
@@ -1299,28 +1338,29 @@ class _ProductChangePageState extends State<ProductChangePage> {
               });
             },
           ),
-
           const SizedBox(height: 10),
-          EditableDropdownField(
-            title: 'OEM номер',
-            change: false,
-            value: _product?.crossNumber ?? '',
-            onChanged: (newValue) {
-              setState(() {
-                _product?.crossNumber = newValue; // Обновляем код товара
-              });
-            },
-          ),
+
+          if (_product?.crossNumber != null)
+            EditableDropdownField(
+              title: local.oemNumber,
+              change: false,
+              value: _product?.crossNumber ?? '',
+              onChanged: (newValue) {
+                setState(() {
+                  _product?.crossNumber = newValue; // Обновляем код товара
+                });
+              },
+            ),
           const SizedBox(height: 10),
 
           // Артикул товара
           EditableDropdownField(
-            title: 'Код товара',
-            value: _product?.variants?.first.sku ?? '',
+            title: local.vendor_code,
+            value: _product?.sku ?? '',
             onChanged: (newValue) {
               setState(() {
                 // Обновляем реальное поле SKU в _product
-                _product?.variants?.first.sku = newValue;
+                _product?.sku = newValue;
               });
             },
           ),
@@ -1340,56 +1380,147 @@ class _ProductChangePageState extends State<ProductChangePage> {
           // const SizedBox(height: 10),
 
           CustomDropdownField(
-            title: 'Тип',
-            value: selectedType ?? 'Выберите тип',
+            title: local.type,
+            value: selectedType ?? local.choose_type,
             onTap: _showTypeOptions,
           ),
           const SizedBox(height: 15),
+          // Отображение свойств товара с учётом типа
+          const SizedBox(height: 10),
           Text(
-            'Свойство товара:',
+            local.productProperty,
             style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 5),
-
-          // Проверяем, есть ли свойства
           if (_product?.properties != null && _product!.properties!.isNotEmpty)
             ..._product!.properties!.map((property) {
               final propertyId = property.property?.id ?? '';
-              final propertyName = property.property?.name ?? 'Не указано';
+              final propertyName = property.property?.name ?? local.no_name;
               final propertyUnit = property.property?.unit;
-              final currentValue =
-                  _propertyValues[propertyId] ?? property.value ?? '';
+              final propertyType = property.property?.type ?? 'string';
+              // Берём текущее значение либо из локального словаря, либо из объекта свойства
+              final currentValue = _propertyValues[propertyId] ??
+                  property.value?.toString() ??
+                  '';
 
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  EditableDropdownField(
-                    title: propertyUnit == null
-                        ? propertyName
-                        : '$propertyName ($propertyUnit)',
-                    value: currentValue,
-                    // hint: 'Введите значение',
-                    onChanged: (value) {
-                      setState(() {
-                        _propertyValues[propertyId] = value;
-                      });
-                    },
-                  ),
-                  const SizedBox(height: 12),
-                ],
-              );
+              final title = propertyUnit == null
+                  ? propertyName
+                  : '$propertyName ($propertyUnit)';
+
+              switch (propertyType) {
+                case 'boolean':
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(title),
+                        Checkbox(
+                          value: currentValue.toLowerCase() == 'true',
+                          onChanged: (value) {
+                            setState(() {
+                              _propertyValues[propertyId] = value.toString();
+                            });
+                          },
+                        ),
+                      ],
+                    ),
+                  );
+                case 'number':
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      CustomEditableField(
+                        title: title,
+                        value: currentValue,
+                        keyboardType: TextInputType.number,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly
+                        ],
+                        onChanged: (value) {
+                          setState(() {
+                            _propertyValues[propertyId] = value;
+                          });
+                        },
+                      ),
+                      const SizedBox(height: 12),
+                    ],
+                  );
+                case 'float':
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      CustomEditableField(
+                        title: title,
+                        value: currentValue,
+                        keyboardType: const TextInputType.numberWithOptions(
+                            decimal: true),
+                        inputFormatters: [
+                          FilteringTextInputFormatter.allow(
+                              RegExp(r'^\d*\.?\d*'))
+                        ],
+                        onChanged: (value) {
+                          setState(() {
+                            _propertyValues[propertyId] = value;
+                          });
+                        },
+                      ),
+                      const SizedBox(height: 12),
+                    ],
+                  );
+                case 'color':
+                  return SizedBox.shrink();
+
+                // return Column(
+                //   crossAxisAlignment: CrossAxisAlignment.start,
+                //   children: [
+                //     ColorPicker(
+                //       propertyId: propertyId,
+                //       initialColor:
+                //           currentValue, // currentValue содержит id выбранного цвета, если он уже установлен
+                //       onColorSelected: (selectedColorId) {
+                //         setState(() {
+                //           _propertyValues[propertyId] = selectedColorId;
+                //         });
+                //       },
+                //     ),
+                //     if (_propertyErrors[propertyId] ?? false)
+                //       const Text(
+                //         'Выберите цвет',
+                //         style: TextStyle(color: Colors.red),
+                //       ),
+                //     const SizedBox(height: 12),
+                //   ],
+                // );
+
+                case 'string':
+                default:
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      CustomEditableField(
+                        title: title,
+                        value: currentValue,
+                        onChanged: (value) {
+                          setState(() {
+                            _propertyValues[propertyId] = value;
+                          });
+                        },
+                      ),
+                      const SizedBox(height: 12),
+                    ],
+                  );
+              }
             }).toList()
           else
-            const Center(
-              child: Text('Нет доступных свойств'),
-            ),
+            Center(child: Text(local.noAvailableProperties)),
 
           const SizedBox(height: 12),
 
           Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.only(bottom: 18.0),
             child: CustomButton(
-              text: 'Обновить товар',
+              text: local.updateProduct,
               onPressed: () {
                 _onUpdateProduct();
               },

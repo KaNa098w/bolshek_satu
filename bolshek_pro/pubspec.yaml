@@ -1,7 +1,7 @@
 name: bolshek_pro
 description: "A new Flutter project."
 
-version: 1.0.9+21
+version: 1.1.0+24
 
 environment:
   sdk: ^3.5.1
@@ -33,6 +33,7 @@ dependencies:
   collection: ^1.18.0
   intl: ^0.19.0
   extended_tabs: ^4.2.0
+  keyboard_actions: ^3.4.0
   photo_view: ^0.15.0
   yandex_mapkit: ^4.1.0
   location: ^7.0.1
@@ -42,6 +43,7 @@ dependencies:
   flutter_local_notifications: ^18.0.1
   # image: ^4.5.2
   flutter_image_compress: ^2.4.0
+  intl_utils: ^2.8.10
 
 dev_dependencies:
   flutter_test:
@@ -56,6 +58,13 @@ flutter_launcher_icons:
   adaptive_icon_foreground: "assets/icons/icon_bolshek_2.png"
   image_path_ios: "assets/icons/icon_bolshek_2.png"
   remove_alpha_ios: true
+
+
+flutter_intl:
+  enabled: true
+  class_name: S
+  output_dir: lib/generated
+
 
 flutter:
   uses-material-design: true

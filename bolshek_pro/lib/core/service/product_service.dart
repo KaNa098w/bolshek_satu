@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'dart:math';
-import 'package:bolshek_pro/core/models/fetch_product_response.dart';
+import 'package:bolshek_pro/core/models/product_responses.dart';
 import 'package:bolshek_pro/core/models/product_response.dart';
 import 'package:bolshek_pro/core/utils/constants.dart';
 import 'package:bolshek_pro/core/utils/provider.dart';
@@ -165,7 +165,7 @@ class ProductService {
     }
   }
 
-  Future<FetchProductResponse> fetchProduct({
+  Future<ProductItems> fetchProduct({
     required BuildContext context,
     required String id,
   }) async {
@@ -191,7 +191,7 @@ class ProductService {
         print('Декодированный JSON: $json'); // Лог декодированного JSON
 
         // Прямо создаём объект ProductItems из JSON
-        final product = FetchProductResponse.fromJson(json);
+        final product = ProductItems.fromJson(json);
         print('Сформированный FetchProductResponse: $product');
         return product;
       } else {
@@ -205,21 +205,26 @@ class ProductService {
   }
 
   Future<http.Response> createProduct(
-      BuildContext context,
-      String name,
-      String slug,
-      String brandId,
-      String deliveryType,
-      String categoryId,
-      String vendorCode,
-      String descriptionText, // Передаём ваш текст для описания
-      String crossNumber,
-      String vehicleGenerationId) async {
+    BuildContext context,
+    String name,
+    String slug,
+    String brandId,
+    String deliveryType,
+    String categoryId,
+    String vendorCode,
+    String descriptionText,
+    String crossNumber,
+    String vehicleGenerationId,
+    double price,
+    String kind,
+    String sku,
+    String manufacturerId,
+  ) async {
     try {
       final token = _getToken(context);
 
-      // Формирование базового тела запроса
-      final body = {
+      // Тело запроса с вложенными ценами – flat-поля удалены!
+      final body = <String, dynamic>{
         "name": name,
         "slug": slug,
         "brandId": brandId,
@@ -230,21 +235,43 @@ class ProductService {
           "time": DateTime.now().millisecondsSinceEpoch,
           "blocks": [
             {
-              "id": _generateBlockId(), // Генерация уникального ID для блока
+              "id": _generateBlockId(),
               "type": "paragraph",
               "data": {"text": descriptionText},
             }
           ],
         },
         "crossNumber": crossNumber,
+        // Обязательно: вложенный объект basePrice
+        "basePrice": {
+          "amount": price,
+          "precision": 2, // число, не строка
+          "currency": "KZT",
+        },
+        // Обязательно: вложенный объект price
+        "price": {
+          "amount": price,
+          "precision": 2,
+          "currency": "KZT",
+        },
+        "kind": kind,
+        "sku": sku,
+        "manufacturerId": manufacturerId,
+        "discountPercent": 0,
+        // Если API поддерживает скидку – вложенный объект discountedPrice
+        "discountedPrice": {
+          "amount": 0,
+          "precision": 2,
+          "currency": "KZT",
+        },
       };
 
-      // Добавляем ключ vehicleGenerationId, если значение не пустое
+      // Добавляем vehicleGenerationId, если нужно
       if (vehicleGenerationId.isNotEmpty) {
         body["vehicleGenerationId"] = vehicleGenerationId;
       }
 
-      print('Creating product with data: ${jsonEncode(body)}');
+      print('Request body: ${jsonEncode(body)}');
 
       final response = await httpClient.post(
         Uri.parse(_baseUrl),
@@ -257,6 +284,32 @@ class ProductService {
 
       print('Response status: ${response.statusCode}');
       print('Response body: ${response.body}');
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return response;
+      } else {
+        throw Exception(
+          'Failed to create product: ${response.statusCode}, ${response.body}',
+        );
+      }
+    } catch (e) {
+      print('Error creating product: $e');
+      throw Exception('Error creating product: $e');
+    }
+  }
+
+  Future<http.Response> productDuplicate(
+      BuildContext context, String productId) async {
+    try {
+      final token = _getToken(context);
+
+      final response = await httpClient.post(
+        Uri.parse('$_baseUrl/$productId/duplicate'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         return response;

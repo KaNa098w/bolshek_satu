@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:bolshek_pro/generated/l10n.dart';
 import 'package:flutter/material.dart';
 import 'package:yandex_mapkit/yandex_mapkit.dart';
 import 'package:http/http.dart' as http;
@@ -86,7 +87,7 @@ class _YandexMapViewPageState extends State<YandexMapViewPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Просмотр адреса на карте'),
+        title: Text(S.of(context).openMap),
       ),
       body: Stack(
         children: [

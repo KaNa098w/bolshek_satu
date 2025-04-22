@@ -1,7 +1,7 @@
 import 'dart:convert';
-import 'package:bolshek_pro/app/pages/orders/order_detail_page.dart';
 import 'package:bolshek_pro/app/pages/return/return_detail_page.dart';
 import 'package:bolshek_pro/app/widgets/%20order_status_widget.dart';
+import 'package:bolshek_pro/generated/l10n.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:bolshek_pro/core/models/return_response.dart';
@@ -11,7 +11,7 @@ import 'package:bolshek_pro/app/widgets/loading_widget.dart';
 import 'package:bolshek_pro/core/utils/theme.dart';
 
 class ReturnsListPage extends StatefulWidget {
-  final String statusFilter; // Добавлено для фильтрации
+  final String statusFilter;
 
   const ReturnsListPage({Key? key, required this.statusFilter})
       : super(key: key);
@@ -49,63 +49,27 @@ class _ReturnsListPageState extends State<ReturnsListPage> {
     super.dispose();
   }
 
-  /// Загрузка данных из кэша
   Future<void> _loadCachedOrders() async {
     final prefs = await SharedPreferences.getInstance();
-    final cachedData = prefs.getString(
-        'cached_orders_${widget.statusFilter}'); // Используем уникальный ключ для каждого статуса
+    final cachedData = prefs.getString('cached_orders_${widget.statusFilter}');
     if (cachedData != null) {
       final List<dynamic> cachedList = jsonDecode(cachedData);
       setState(() {
-        _orders.addAll(
-          cachedList.map((e) => OrderItem.fromJson(e)).toList(),
-        );
+        _orders.addAll(cachedList.map((e) => OrderItem.fromJson(e)).toList());
         _skip = _orders.length;
       });
     }
   }
 
-  /// Сохранение данных в кэш с учётом статуса
-  /// Сохранение данных в кэш с учётом статуса и проверкой актуальности
-  // Future<void> _cacheOrders() async {
-  //   final prefs = await SharedPreferences.getInstance();
-
-  //   // Загрузить текущие заказы из кэша
-  //   final cachedData = prefs.getString('cached_orders_${widget.statusFilter}');
-  //   final List<dynamic> cachedList =
-  //       cachedData != null ? jsonDecode(cachedData) : [];
-  //   final cachedOrders = cachedList.map((e) => OrderItem.fromJson(e)).toList();
-
-  //   // Сравнить загруженные заказы с кешированными и удалить отсутствующие
-  //   final updatedOrders = cachedOrders.where((cachedOrder) {
-  //     return _orders.any((order) => order.id == cachedOrder.id);
-  //   }).toList();
-
-  //   // Добавить новые заказы в кэш
-  //   for (var order in _orders) {
-  //     if (!updatedOrders.any((cachedOrder) => cachedOrder.id == order.id)) {
-  //       updatedOrders.add(order);
-  //     }
-  //   }
-
-  //   // Сохранить обновлённый список в кэш
-  //   final data = updatedOrders.map((e) => e.toJson()).toList();
-  //   await prefs.setString(
-  //       'cached_orders_${widget.statusFilter}', jsonEncode(data));
-  // }
-
   String _formatDate(String isoDate) {
     try {
       final parsedDate = DateTime.parse(isoDate);
-      final formatter =
-          DateFormat('dd.MM.yyyy  HH:mm'); // Например, "27.09.2024 11:02"
+      final formatter = DateFormat('dd.MM.yyyy  HH:mm');
       return formatter.format(parsedDate);
     } catch (e) {
-      return 'Некорректная дата'; // На случай, если формат даты неправильный
+      return S.of(context).error;
     }
   }
-
-  /// Загрузка заказов с пагинацией
 
   Future<void> _fetchOrders() async {
     if (_isLoading || !_hasMore) return;
@@ -132,12 +96,9 @@ class _ReturnsListPageState extends State<ReturnsListPage> {
         _skip += _take;
         _hasMore = newOrders.length == _take;
       });
-
-      // Проверить и обновить кэш
-      // await _cacheOrders();
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Ошибка загрузки: $e')),
+        SnackBar(content: Text('${S.of(context).error}: $e')),
       );
     } finally {
       setState(() {
@@ -162,6 +123,8 @@ class _ReturnsListPageState extends State<ReturnsListPage> {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context);
+
     return Scaffold(
       backgroundColor: ThemeColors.greyF,
       body: Padding(
@@ -177,8 +140,8 @@ class _ReturnsListPageState extends State<ReturnsListPage> {
                     child: _orders.isEmpty && !_isLoading
                         ? Center(
                             child: Text(
-                              'Данный раздел пусто',
-                              style: TextStyle(
+                              s.empty,
+                              style: const TextStyle(
                                 fontSize: 16,
                                 color: Colors.grey,
                               ),
@@ -190,41 +153,43 @@ class _ReturnsListPageState extends State<ReturnsListPage> {
                             itemBuilder: (context, index) {
                               if (index >= _orders.length) {
                                 return Center(
-                                    child: Padding(
-                                  padding: const EdgeInsets.all(12.0),
-                                  child: Column(
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(12.0),
+                                    child: Column(
                                       children: List.generate(
-                                    1,
-                                    (index) => const Padding(
-                                      padding: EdgeInsets.only(bottom: 10),
-                                      child: Row(
-                                        children: [
-                                          LoadingWidget(
-                                            width: 365,
-                                            height: 120,
+                                        1,
+                                        (index) => const Padding(
+                                          padding: EdgeInsets.only(bottom: 10),
+                                          child: Row(
+                                            children: [
+                                              LoadingWidget(
+                                                width: 365,
+                                                height: 120,
+                                              ),
+                                            ],
                                           ),
-                                        ],
+                                        ),
                                       ),
                                     ),
-                                  )),
-                                ));
+                                  ),
+                                );
                               }
                               final order = _orders[index];
                               return _buildOrderItem(
-                                address: order.comment ?? 'Адрес не указан',
+                                address: order.comment ?? s.comment,
                                 name: order.orderItem.product?.name ?? '',
                                 total:
                                     '${_formatPrice((order.orderItem.totalPrice?.amount ?? 0) / 100)} ₸',
-                                orderId: order.id ?? 'Неизвестно',
+                                orderId: order.id ?? '—',
                                 data: order.createdAt.timeZoneName,
                                 orderNumber: 999,
-                                // count: order.orderItem.price.amount ?? 0,
                                 status: order.status ?? '',
                                 imageUrl: order.orderItem.product?.images?.first
                                         .sizes?.first.url ??
                                     '',
                               );
-                            }),
+                            },
+                          ),
                   ),
                 ],
               ),
@@ -242,21 +207,13 @@ class _ReturnsListPageState extends State<ReturnsListPage> {
     required String data,
     required String orderId,
     required int orderNumber,
-    // required int count,
     required String status,
-    required String imageUrl, // Добавлено поле для изображения
+    required String imageUrl,
   }) {
+    final s = S.of(context);
+
     return GestureDetector(
-      onTap: () {
-        // if (orderId.isNotEmpty) {
-        //   Navigator.push(
-        //     context,
-        //     MaterialPageRoute(
-        //       builder: (context) => ShopProductDetailScreen(productId: orderId),
-        //     ),
-        //   );
-        // }
-      },
+      onTap: () {},
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
@@ -272,7 +229,7 @@ class _ReturnsListPageState extends State<ReturnsListPage> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    '№ $orderNumber',
+                    '${s.order_prefix} $orderNumber',
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 15,
@@ -280,7 +237,7 @@ class _ReturnsListPageState extends State<ReturnsListPage> {
                     ),
                   ),
                   Text(
-                    '$total',
+                    total,
                     style: const TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.bold,
@@ -318,15 +275,7 @@ class _ReturnsListPageState extends State<ReturnsListPage> {
                                 ),
                         ),
                       ),
-                      SizedBox(
-                          height: 4), // Отступ между изображением и текстом
-                      // Text(
-                      //   count == 1 ? '' : '+${count - 1} товара',
-                      //   style: TextStyle(
-                      //       fontSize: 12,
-                      //       fontWeight: FontWeight.w500,
-                      //       color: Colors.grey.shade700),
-                      // ),
+                      const SizedBox(height: 4),
                     ],
                   ),
                   const SizedBox(width: 12),
@@ -335,33 +284,26 @@ class _ReturnsListPageState extends State<ReturnsListPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          '$name',
+                          name,
                           style: const TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w400,
                           ),
                         ),
-                        SizedBox(height: 4),
+                        const SizedBox(height: 4),
                         Text(
-                          'Описание: $address',
+                          '${s.comment}: $address',
                           style: const TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w400,
                           ),
                         ),
                         const SizedBox(height: 3),
-                        // Text(
-                        //   'Количество товаров: $count',
-                        //   style: const TextStyle(
-                        //     fontSize: 14,
-                        //     fontWeight: FontWeight.w400,
-                        //   ),
-                        // ),
                         Row(
                           children: [
-                            const Text(
-                              'Статус: ',
-                              style: TextStyle(
+                            Text(
+                              '${s.status_label}',
+                              style: const TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w400,
                               ),
@@ -370,10 +312,9 @@ class _ReturnsListPageState extends State<ReturnsListPage> {
                           ],
                         ),
                         const SizedBox(height: 3),
-
                         Text(
-                          'Дата: ${_orders.isNotEmpty && _orders.first.createdAt != null ? _formatDate(_orders.first.createdAt!.toIso8601String()) : 'Дата не указана'}',
-                          style: TextStyle(
+                          '${s.date}: ${_orders.isNotEmpty && _orders.first.createdAt != null ? _formatDate(_orders.first.createdAt!.toIso8601String()) : s.date_not_specified}',
+                          style: const TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w400,
                           ),
@@ -389,9 +330,7 @@ class _ReturnsListPageState extends State<ReturnsListPage> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => ReturnDetailPage(
-                        orderId: orderId,
-                      ),
+                      builder: (context) => ReturnDetailPage(orderId: orderId),
                     ),
                   );
                 },
@@ -399,7 +338,7 @@ class _ReturnsListPageState extends State<ReturnsListPage> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'Детали возврата',
+                      s.return_details,
                       style: TextStyle(
                         color: Colors.blue.shade700,
                         fontSize: 16,

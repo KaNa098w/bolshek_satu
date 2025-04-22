@@ -18,6 +18,7 @@ class GlobalProvider extends ChangeNotifier {
   String _kind = 'original'; // Default kind
   String _sku = '';
   String? _manufacturerId;
+  String? _tagsId;
 
   String? _fcmToken;
   String? get fcmToken => _fcmToken;
@@ -31,6 +32,7 @@ class GlobalProvider extends ChangeNotifier {
   String get kind => _kind;
   String get sku => _sku;
   String? get manufacturerId => _manufacturerId;
+  String? get tagsId => _tagsId;
 
   // Геттеры
   String? get selectedCategoryId => _selectedCategoryId;
@@ -154,6 +156,11 @@ class GlobalProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void setTagsId(String tagsId) {
+    _tagsId = tagsId;
+    notifyListeners();
+  }
+
   // Новый метод logout
   Future<void> logout() async {
     // Очистка данных из SharedPreferences
@@ -224,6 +231,7 @@ class GlobalProvider extends ChangeNotifier {
     _images.clear();
     _propertyValues.clear();
     _carMappings.clear();
+    _tagsId = null;
     notifyListeners();
   }
 

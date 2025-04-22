@@ -40,6 +40,15 @@ abstract class ThemeTextMontserratBold {
     height: 1.4,
     fontSize: 20,
   );
+  static final size16 = TextStyle(
+    color: fontColor,
+    fontWeight: fontWeight,
+    fontFamily: fontFamily,
+    fontStyle: FontStyle.normal,
+    letterSpacing: 0.3,
+    height: 1.4,
+    fontSize: 16,
+  );
 
   static final size22 = TextStyle(
     color: fontColor,

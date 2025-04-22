@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class ThemeColors {
   static ThemeData get lightTheme {
@@ -44,5 +45,10 @@ class ThemeColors {
   static const error = Color(0xFFE2100C);
   static const iBrandPrimary = Color(0xFF2B63F3);
 
-  static const primary = Colors.greenAccent;
+  static var primary;
+}
+
+String formatDateTime(DateTime dateTime) {
+  // Преобразуем к локальному времени и форматируем
+  return DateFormat('dd.MM.yyyy, HH:mm').format(dateTime.toLocal());
 }

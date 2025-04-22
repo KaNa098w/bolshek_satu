@@ -1,4 +1,5 @@
 import 'package:bolshek_pro/app/widgets/phone_number_formatter.dart';
+import 'package:bolshek_pro/generated/l10n.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:bolshek_pro/core/utils/theme.dart';
@@ -76,10 +77,10 @@ class _OTPInputFieldState extends State<OTPInputField> {
         ),
         validator: (value) {
           if (value == null || value.isEmpty) {
-            return "Введите номер телефона";
+            return S.of(context).enterPhone;
           }
           if (value.length != 16) {
-            return "Введите корректный номер телефона";
+            return S.of(context).enterValidPhone;
           }
           return null;
         },

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:bolshek_pro/app/pages/orders/order_detail_page.dart';
 import 'package:bolshek_pro/app/widgets/%20order_status_widget.dart';
+import 'package:bolshek_pro/generated/l10n.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -162,6 +163,7 @@ class _OrderListPageState extends State<OrderListPage> {
 
   @override
   Widget build(BuildContext context) {
+    final localizations = S.of(context);
     return Scaffold(
       backgroundColor: ThemeColors.greyF,
       body: Padding(
@@ -177,7 +179,7 @@ class _OrderListPageState extends State<OrderListPage> {
                     child: _orders.isEmpty && !_isLoading
                         ? Center(
                             child: Text(
-                              'В данном разделе нет заказов',
+                              localizations.no_orders_message,
                               style: TextStyle(
                                 fontSize: 16,
                                 color: Colors.grey,
@@ -211,13 +213,15 @@ class _OrderListPageState extends State<OrderListPage> {
                               }
                               final order = _orders[index];
                               return _buildOrderItem(
-                                address:
-                                    order.address?.address ?? 'Адрес не указан',
+                                address: order.address?.address ??
+                                    localizations.address_not_specified,
                                 name: order.items.first.product?.name ?? '',
                                 total:
                                     '${_formatPrice((order.totalPrice?.amount ?? 0) / 100)} ₸',
-                                orderId: order.id ?? 'Неизвестно',
-                                data: order.updatedAt ?? 'Не указано',
+                                orderId:
+                                    order.id ?? localizations.unknown_order,
+                                data: order.updatedAt ??
+                                    localizations.date_not_specified,
                                 orderNumber: order.number ?? 0,
                                 count: order.items?.length ?? 0,
                                 status: order.status ?? '',
@@ -245,18 +249,12 @@ class _OrderListPageState extends State<OrderListPage> {
     required int orderNumber,
     required int count,
     required String status,
-    required String imageUrl, // Добавлено поле для изображения
+    required String imageUrl,
   }) {
+    final localizations = S.of(context);
     return GestureDetector(
       onTap: () {
-        // if (orderId.isNotEmpty) {
-        //   Navigator.push(
-        //     context,
-        //     MaterialPageRoute(
-        //       builder: (context) => ShopProductDetailScreen(productId: orderId),
-        //     ),
-        //   );
-        // }
+        // Можно добавить логику при нажатии
       },
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -273,7 +271,7 @@ class _OrderListPageState extends State<OrderListPage> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    '№ $orderNumber',
+                    '${localizations.order_number_prefix} $orderNumber',
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 15,
@@ -319,14 +317,16 @@ class _OrderListPageState extends State<OrderListPage> {
                                 ),
                         ),
                       ),
-                      SizedBox(
-                          height: 4), // Отступ между изображением и текстом
+                      const SizedBox(height: 4),
                       Text(
-                        count == 1 ? '' : '+${count - 1} товара',
+                        count == 1
+                            ? ''
+                            : '+${count - 1} ${localizations.additional_items}',
                         style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
-                            color: Colors.grey.shade700),
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.grey.shade700,
+                        ),
                       ),
                     ],
                   ),
@@ -342,27 +342,20 @@ class _OrderListPageState extends State<OrderListPage> {
                             fontWeight: FontWeight.w400,
                           ),
                         ),
-                        SizedBox(height: 4),
+                        const SizedBox(height: 4),
                         Text(
-                          'Адрес: $address',
+                          '${localizations.address_prefix} $address',
                           style: const TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w400,
                           ),
                         ),
                         const SizedBox(height: 3),
-                        // Text(
-                        //   'Количество товаров: $count',
-                        //   style: const TextStyle(
-                        //     fontSize: 14,
-                        //     fontWeight: FontWeight.w400,
-                        //   ),
-                        // ),
                         Row(
                           children: [
-                            const Text(
-                              'Статус: ',
-                              style: TextStyle(
+                            Text(
+                              '${localizations.status_prefix} ',
+                              style: const TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w400,
                               ),
@@ -371,10 +364,9 @@ class _OrderListPageState extends State<OrderListPage> {
                           ],
                         ),
                         const SizedBox(height: 3),
-
                         Text(
-                          'Дата: ${_orders.first.createdAt != null ? _formatDate(_orders.first.createdAt!) : 'Дата не указана'}',
-                          style: TextStyle(
+                          '${localizations.date_prefix} ${_orders.first.createdAt != null ? _formatDate(_orders.first.createdAt!) : localizations.date_not_specified}',
+                          style: const TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w400,
                           ),
@@ -401,7 +393,7 @@ class _OrderListPageState extends State<OrderListPage> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'Детали заказа',
+                      localizations.order_details,
                       style: TextStyle(
                         color: Colors.blue.shade700,
                         fontSize: 16,

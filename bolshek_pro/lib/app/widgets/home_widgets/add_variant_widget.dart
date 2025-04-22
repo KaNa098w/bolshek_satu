@@ -1,13 +1,20 @@
+import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
 import 'package:bolshek_pro/app/widgets/custom_alert_dialog_widget.dart';
 import 'package:bolshek_pro/app/widgets/custom_dropdown_field.dart';
 import 'package:bolshek_pro/app/widgets/editable_dropdown_field.dart';
+import 'package:bolshek_pro/app/widgets/home_widgets/hex_colors_widget.dart';
 import 'package:bolshek_pro/app/widgets/textfield_widget.dart';
 import 'package:bolshek_pro/core/models/manufacturers_response.dart';
+import 'package:bolshek_pro/core/models/tags_response.dart';
 import 'package:bolshek_pro/core/service/maufacturers_service.dart';
 import 'package:bolshek_pro/app/widgets/custom_button.dart';
+import 'package:bolshek_pro/core/service/tags_service.dart';
 import 'package:bolshek_pro/core/utils/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:bolshek_pro/generated/l10n.dart';
 
 class ProductDetailsWidget extends StatefulWidget {
   @override
@@ -18,15 +25,29 @@ class _ProductDetailsWidgetState extends State<ProductDetailsWidget> {
   final ManufacturersService _service = ManufacturersService();
   List<ManufacturersItems> _manufacturers = [];
   ManufacturersItems? _selectedManufacturer;
+  List<ItemsTags> _selectedTags = [];
+
+  final TagsService _tagsService = TagsService();
+  List<ItemsTags> _tags = [];
   int _quantity = 0;
-  String selectedType = 'Оригинал'; // Значение по умолчанию
-  String selectedDelivery = 'Стандартная';
+  // Значение по умолчанию для типа товара – локализуемые строки можно использовать,
+  // но здесь для логики используются внутренние значения, поэтому отображаемые подписи локализуем отдельно
+  String selectedType = '';
+  String selectedDelivery = '';
   String? descriptionText = '';
+  final TextEditingController _focusController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     _loadManufacturers();
+    _loadTags();
+  }
+
+  @override
+  void dispose() {
+    _focusController.dispose();
+    super.dispose();
   }
 
   Future<void> _loadManufacturers() async {
@@ -37,62 +58,31 @@ class _ProductDetailsWidgetState extends State<ProductDetailsWidget> {
       });
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Ошибка загрузки производителей: $e')),
+        SnackBar(
+            content: Text(
+                '${S.of(context).error}: Ошибка загрузки производителей: $e')),
       );
     }
   }
 
-  Future<void> _showAddManufacturerDialog() async {
-    final TextEditingController nameController = TextEditingController();
-    final result = await showDialog<String>(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('Добавить производителя'),
-          content: TextField(
-            controller: nameController,
-            decoration: const InputDecoration(
-              labelText: 'Название производителя',
-              hintText: 'Введите название',
-              border: OutlineInputBorder(),
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Отмена'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                final name = nameController.text.trim();
-                if (name.isNotEmpty) {
-                  Navigator.of(context).pop(name);
-                }
-              },
-              child: const Text('Добавить'),
-            ),
-          ],
-        );
-      },
-    );
-
-    if (result != null && result.isNotEmpty) {
-      try {
-        await _service.createManufacturers(context, result);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Производитель "$result" успешно добавлен')),
-        );
-        await _loadManufacturers();
-      } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Ошибка добавления производителя: $e')),
-        );
-      }
+  Future<void> _loadTags() async {
+    try {
+      final responseTags = await _tagsService.getTags(context);
+      setState(() {
+        _tags = responseTags.items ?? [];
+      });
+    } catch (e) {
+      print(e);
     }
   }
 
   void _showTypeOptions() {
-    final typeOptions = ['Оригинал', 'Под оригинал', 'Авторазбор'];
+    // Используем локализацию для названий типов
+    final typeOptions = [
+      S.of(context).original,
+      S.of(context).sub_original,
+      S.of(context).auto_disassembly
+    ];
 
     showModalBottomSheet(
       context: context,
@@ -117,7 +107,10 @@ class _ProductDetailsWidgetState extends State<ProductDetailsWidget> {
                   children: [
                     const SizedBox(height: 14),
                     Row(
-                      children: [Text('Тип товара')],
+                      children: [
+                        Text(
+                            S.of(context).product_amount), // ключ: product_type
+                      ],
                     ),
                     const SizedBox(height: 10),
                     Expanded(
@@ -132,11 +125,14 @@ class _ProductDetailsWidgetState extends State<ProductDetailsWidget> {
                               setState(() {
                                 selectedType = type;
                                 String kind = '';
-                                if (type == 'Оригинал') kind = 'original';
-                                if (type == 'Под оригинал')
+                                if (type == S.of(context).original)
+                                  kind = 'original';
+                                if (type == S.of(context).sub_original)
                                   kind = 'sub_original';
-                                if (type == 'Авторазбор') kind = 'disassemble';
+                                if (type == S.of(context).auto_disassembly)
+                                  kind = 'disassemble';
                                 context.read<GlobalProvider>().setKind(kind);
+                                FocusScope.of(context).unfocus();
                               });
                             },
                           );
@@ -154,7 +150,11 @@ class _ProductDetailsWidgetState extends State<ProductDetailsWidget> {
   }
 
   void _showDeliveryMethods() {
-    final deliveryMethods = ['Экспресс', 'Стандартная', 'Индивидуальная'];
+    final deliveryMethods = [
+      S.of(context).express,
+      S.of(context).standard,
+      S.of(context).custom_delivery
+    ];
 
     showModalBottomSheet(
       context: context,
@@ -164,7 +164,7 @@ class _ProductDetailsWidgetState extends State<ProductDetailsWidget> {
       ),
       backgroundColor: Colors.white,
       builder: (context) {
-        String searchQuery = ''; // Локальная переменная для поиска
+        String searchQuery = '';
         return StatefulBuilder(
           builder: (context, setStateModal) {
             final filteredMethods = deliveryMethods
@@ -179,7 +179,11 @@ class _ProductDetailsWidgetState extends State<ProductDetailsWidget> {
                   children: [
                     const SizedBox(height: 14),
                     Row(
-                      children: [Text('Методы доставки')],
+                      children: [
+                        Text(S
+                            .of(context)
+                            .delivery_methods), // ключ: delivery_methods
+                      ],
                     ),
                     const SizedBox(height: 10),
                     Expanded(
@@ -194,15 +198,16 @@ class _ProductDetailsWidgetState extends State<ProductDetailsWidget> {
                               setState(() {
                                 selectedDelivery = method;
                                 String deliveryType = '';
-                                if (method == 'Экспресс')
+                                if (method == S.of(context).express)
                                   deliveryType = 'express';
-                                if (method == 'Стандартная')
+                                if (method == S.of(context).standard)
                                   deliveryType = 'standard';
-                                if (method == 'Индивидуальная')
+                                if (method == S.of(context).custom_delivery)
                                   deliveryType = 'custom';
                                 context
                                     .read<GlobalProvider>()
                                     .setDeliveryType(deliveryType);
+                                FocusScope.of(context).unfocus();
                               });
                             },
                           );
@@ -219,24 +224,11 @@ class _ProductDetailsWidgetState extends State<ProductDetailsWidget> {
     );
   }
 
-  void _incrementQuantity() {
-    setState(() {
-      _quantity++;
-    });
-  }
-
-  void _decrementQuantity() {
-    setState(() {
-      if (_quantity > 0) {
-        _quantity--;
-      }
-    });
-  }
-
   void _showManufacturers() {
     if (_manufacturers.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Список производителей пуст')),
+        SnackBar(
+            content: Text(S.of(context).error)), // ключ: manufacturers_empty
       );
       return;
     }
@@ -249,9 +241,7 @@ class _ProductDetailsWidgetState extends State<ProductDetailsWidget> {
       ),
       backgroundColor: Colors.white,
       builder: (context) {
-        bool isloading = false;
-
-        String searchQuery = ''; // Локальная переменная для поиска
+        String searchQuery = '';
         return StatefulBuilder(
           builder: (context, setStateModal) {
             final filteredManufacturers = _manufacturers
@@ -274,15 +264,15 @@ class _ProductDetailsWidgetState extends State<ProductDetailsWidget> {
                         Expanded(
                           child: TextField(
                             decoration: InputDecoration(
-                              hintText: 'Поиск производителя',
+                              hintText: S
+                                  .of(context)
+                                  .manufacturer_search, // ключ: manufacturer_search
                               prefixIcon: const Icon(Icons.search),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(10),
                               ),
                               contentPadding: const EdgeInsets.symmetric(
-                                vertical: 10,
-                                horizontal: 12,
-                              ),
+                                  vertical: 10, horizontal: 12),
                             ),
                             onChanged: (value) {
                               setStateModal(() {
@@ -294,9 +284,7 @@ class _ProductDetailsWidgetState extends State<ProductDetailsWidget> {
                         const SizedBox(width: 10),
                         IconButton(
                           icon: const Icon(Icons.close),
-                          onPressed: () {
-                            Navigator.pop(context);
-                          },
+                          onPressed: () => Navigator.pop(context),
                         ),
                       ],
                     ),
@@ -307,16 +295,17 @@ class _ProductDetailsWidgetState extends State<ProductDetailsWidget> {
                         itemBuilder: (context, index) {
                           final manufacturer = filteredManufacturers[index];
                           return ListTile(
-                            title: Text(manufacturer.name ?? 'Без названия'),
+                            title: Text(
+                                manufacturer.name ?? S.of(context).no_name),
                             onTap: () {
                               Navigator.pop(context);
                               setState(() {
                                 _selectedManufacturer = manufacturer;
-                                // Сохраняем ID производителя в GlobalProvider
                                 context
                                     .read<GlobalProvider>()
                                     .setManufacturerId(manufacturer.id ?? '');
                               });
+                              FocusScope.of(context).unfocus();
                             },
                           );
                         },
@@ -326,20 +315,30 @@ class _ProductDetailsWidgetState extends State<ProductDetailsWidget> {
                     Padding(
                       padding: const EdgeInsets.only(bottom: 25.0),
                       child: CustomButton(
-                        text: 'Добавить производителя',
+                        text: S
+                            .of(context)
+                            .add_manufacturer, // ключ: add_manufacturer
                         onPressed: () async {
                           final TextEditingController nameController =
                               TextEditingController();
-
                           await showCustomAlertDialog(
                             context: context,
-                            title: 'Добавить производителя',
+                            title: S.of(context).add_manufacturer,
                             content: TextField(
                               controller: nameController,
-                              decoration: const InputDecoration(
-                                labelText: 'Название производителя',
-                                hintText: 'Введите название',
-                                border: OutlineInputBorder(),
+                              decoration: InputDecoration(
+                                labelText: S
+                                    .of(context)
+                                    .manufacturer_name, // ключ: manufacturer_name
+                                hintText: S
+                                    .of(context)
+                                    .enter_manufacturer_name, // ключ: enter_manufacturer_name
+                                enabledBorder: const UnderlineInputBorder(
+                                  borderSide: BorderSide(color: Colors.grey),
+                                ),
+                                focusedBorder: const UnderlineInputBorder(
+                                  borderSide: BorderSide(color: Colors.orange),
+                                ),
                               ),
                             ),
                             onCancel: () {
@@ -348,31 +347,45 @@ class _ProductDetailsWidgetState extends State<ProductDetailsWidget> {
                             onConfirm: () async {
                               final name = nameController.text.trim();
                               if (name.isNotEmpty) {
+                                showDialog(
+                                  context: context,
+                                  barrierDismissible: false,
+                                  builder: (context) => const Center(
+                                      child: CircularProgressIndicator(
+                                    color: Colors.grey,
+                                  )),
+                                );
                                 try {
                                   await _service.createManufacturers(
                                       context, name);
-
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
-                                        content: Text(
-                                            'Производитель "$name" успешно добавлен')),
+                                      content: Text(S
+                                          .of(context)
+                                          .error), // ключ: manufacturer_added, например: "Производитель \"$name\" успешно добавлен"
+                                    ),
                                   );
-
                                   await _loadManufacturers();
-
-                                  Navigator.pop(context);
+                                  Navigator.pop(
+                                      context); // Закрываем диалог загрузки
+                                  Navigator.pop(
+                                      context); // Закрываем диалог добавления производителя
                                 } catch (e) {
+                                  Navigator.pop(context);
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
-                                        content: Text(
-                                            'Ошибка добавления производителя: $e')),
+                                      content: Text(
+                                          '${S.of(context).error}: $e'), // ключ: error_adding_manufacturer
+                                    ),
                                   );
                                 }
                               } else {
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                      content: Text(
-                                          'Название производителя не может быть пустым')),
+                                  SnackBar(
+                                    content: Text(S
+                                        .of(context)
+                                        .error), // ключ: manufacturer_name_empty
+                                  ),
                                 );
                               }
                             },
@@ -390,14 +403,142 @@ class _ProductDetailsWidgetState extends State<ProductDetailsWidget> {
     );
   }
 
+  void _showTags() {
+    if (_tags.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(S.of(context).tags_empty)), // ключ: tags_empty
+      );
+      return;
+    }
+
+    List<ItemsTags> tempSelectedTags = List.from(_selectedTags);
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      backgroundColor: Colors.white,
+      builder: (context) {
+        String searchQuery = '';
+        return StatefulBuilder(
+          builder: (context, setStateModal) {
+            final filteredTags = _tags
+                .where((tag) =>
+                    tag.text != null &&
+                    tag.text!.toLowerCase().contains(searchQuery.toLowerCase()))
+                .toList();
+            return SizedBox(
+              height: MediaQuery.of(context).size.height * 0.8,
+              child: Padding(
+                padding: const EdgeInsets.all(5.0),
+                child: Column(
+                  children: [
+                    const SizedBox(height: 14),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Padding(
+                          padding: EdgeInsets.only(left: 12.0),
+                          child: Text(
+                            'Выберите теги',
+                            style: TextStyle(
+                                fontSize: 16, fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.close),
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    Expanded(
+                      child: ListView.builder(
+                        itemCount: filteredTags.length,
+                        itemBuilder: (context, index) {
+                          final tag = filteredTags[index];
+                          final isSelected = tempSelectedTags.contains(tag);
+                          Color bgColor = tag.backgroundColor != null
+                              ? HexColor(tag.backgroundColor!)
+                              : Colors.white;
+                          Color txtColor = tag.textColor != null
+                              ? HexColor(tag.textColor!)
+                              : Colors.black;
+                          return ListTile(
+                            title: Container(
+                              padding: const EdgeInsets.all(9.0),
+                              decoration: BoxDecoration(
+                                color: bgColor,
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    tag.text ??
+                                        S.of(context).no_name, // ключ: no_name
+                                    style: TextStyle(
+                                      color: txtColor,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  if (isSelected)
+                                    const Icon(Icons.check_box,
+                                        color: Colors.greenAccent),
+                                ],
+                              ),
+                            ),
+                            onTap: () {
+                              setStateModal(() {
+                                if (isSelected) {
+                                  tempSelectedTags.remove(tag);
+                                } else {
+                                  tempSelectedTags.add(tag);
+                                }
+                              });
+                            },
+                          );
+                        },
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 20.0),
+                      child: CustomButton(
+                        onPressed: () {
+                          setState(() {
+                            _selectedTags = tempSelectedTags;
+                            context.read<GlobalProvider>().setTagsId(
+                                  _selectedTags
+                                      .map((tag) => tag.id ?? '')
+                                      .join(','),
+                                );
+                          });
+                          Navigator.pop(context);
+                          FocusScope.of(context).unfocus();
+                        },
+                        text: S.of(context).save, // ключ: save
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(2.0),
-      // decoration: BoxDecoration(
-      //   borderRadius: BorderRadius.circular(12.0),
-      //   border:
-      // ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -405,8 +546,10 @@ class _ProductDetailsWidgetState extends State<ProductDetailsWidget> {
             children: [
               Expanded(
                 child: CustomDropdownField(
-                  title: 'Вариант',
-                  value: selectedType ?? 'Выберите тип',
+                  title: S.of(context).variant, // ключ: variant
+                  value: selectedType.isNotEmpty
+                      ? selectedType
+                      : S.of(context).choose_type, // ключ: choose_type
                   onTap: _showTypeOptions,
                 ),
               ),
@@ -417,36 +560,41 @@ class _ProductDetailsWidgetState extends State<ProductDetailsWidget> {
             children: [
               Expanded(
                 child: CustomDropdownField(
-                  title: 'Методы доставки',
-                  value: selectedDelivery ?? 'Выберите метод доставки',
+                  title:
+                      S.of(context).delivery_methods, // ключ: delivery_methods
+                  value: selectedDelivery.isNotEmpty
+                      ? selectedDelivery
+                      : S
+                          .of(context)
+                          .choose_delivery_method, // ключ: choose_delivery_method
                   onTap: _showDeliveryMethods,
                 ),
               ),
             ],
           ),
           const SizedBox(height: 12.0),
-          // _buildStyledDropdown(
-          //   label: 'Статус',
-          //   items: ['В продаже', 'Ожидает модерации', 'Не активен'],
-          //   value: 'Ожидает модерации', // Фиксированное значение
-          //   onChanged: (value) {
-          //     // Никакого действия не требуется
-          //   },
-          //   isReadOnly: true, // Устанавливаем режим только для чтения
-          // ),
           CustomDropdownField(
-              title: 'Производитель',
-              value: _selectedManufacturer?.name ?? 'Выберите производителя',
-              onTap: _showManufacturers),
+            title: S.of(context).manufacturer, // ключ: manufacturer
+            value: _selectedManufacturer?.name ??
+                S.of(context).choose_manufacturer, // ключ: choose_manufacturer
+            onTap: _showManufacturers,
+          ),
+          const SizedBox(height: 12.0),
+          CustomDropdownField(
+            title: S.of(context).tags, // ключ: tags
+            value: _selectedTags.isNotEmpty
+                ? _selectedTags.map((tag) => tag.text).join(', ')
+                : S.of(context).choose_tags, // ключ: choose_tags
+            onTap: _showTags,
+          ),
           const SizedBox(height: 12.0),
           Row(
             children: [
               Expanded(
                 child: EditableDropdownField(
-                  title: 'Описание',
+                  title: S.of(context).description, // ключ: description
                   value: '',
-                  // hint: 'Описание товара',
-                  maxLines: 4, // Поле ввода занимает до 4 строк
+                  maxLines: 4,
                   onChanged: (value) {
                     context.read<GlobalProvider>().setDescriptionText(value);
                   },
@@ -454,16 +602,13 @@ class _ProductDetailsWidgetState extends State<ProductDetailsWidget> {
               ),
             ],
           ),
-
           const SizedBox(height: 12.0),
           Row(
             children: [
               Expanded(
                 child: CustomEditableField(
-                  title: 'SKU',
+                  title: S.of(context).sku, // ключ: sku
                   value: '',
-                  // hint: 'Введите артикул',
-                  // maxLines: 1, // Поле для ввода одной строки
                   onChanged: (value) {
                     context.read<GlobalProvider>().setSku(value);
                   },
@@ -471,16 +616,13 @@ class _ProductDetailsWidgetState extends State<ProductDetailsWidget> {
               ),
             ],
           ),
-
           const SizedBox(height: 12.0),
           Row(
             children: [
               Expanded(
                 child: CustomEditableField(
-                  title: 'Код запчасти',
+                  title: S.of(context).vendor_code, // ключ: vendor_code
                   value: '',
-                  // hint: 'Введите код запчасти',
-                  // maxLines: 1, // Поле для ввода одной строки
                   onChanged: (value) {
                     context.read<GlobalProvider>().setVendorCode(value);
                   },
@@ -489,105 +631,6 @@ class _ProductDetailsWidgetState extends State<ProductDetailsWidget> {
             ],
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildTextField({
-    required String label,
-    required String hint,
-    int maxLines = 1,
-    ValueChanged<String>? onChanged, // Добавляем параметр onChanged
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: TextStyle(fontSize: 14.0, color: Colors.grey.shade600),
-        ),
-        const SizedBox(height: 8.0),
-        TextField(
-          maxLines: maxLines,
-          onChanged: onChanged, // Подключаем обработчик изменений текста
-          decoration: InputDecoration(
-            hintText: hint,
-            hintStyle: TextStyle(color: Colors.grey),
-            filled: true, // Включаем заполнение фона
-            fillColor: Colors.grey.shade200, // Устанавливаем серый цвет фона
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12.0), // Закругляем углы
-              borderSide: BorderSide.none, // Убираем границу
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildStyledDropdown({
-    required String label,
-    required List<String> items,
-    String? value,
-    ValueChanged<String?>? onChanged,
-    bool isReadOnly = false, // Новый параметр для управления доступностью
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: TextStyle(fontSize: 14.0, color: Colors.grey.shade600),
-        ),
-        const SizedBox(height: 8.0),
-        DropdownButtonFormField<String>(
-          value: value ?? items.first,
-          isExpanded: true,
-          decoration: InputDecoration(
-            contentPadding:
-                const EdgeInsets.symmetric(horizontal: 12.0, vertical: 10.0),
-            filled: true,
-            fillColor: isReadOnly
-                ? Colors.grey.shade200 // Серый фон для недоступного
-                : Colors.grey.shade200, // Тот же фон, как в текстовом поле
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12.0), // Закругляем углы
-              borderSide: BorderSide.none, // Убираем границу
-            ),
-          ),
-          items: items.map((item) {
-            return DropdownMenuItem<String>(
-              value: item,
-              child: Text(item),
-            );
-          }).toList(),
-          onChanged: isReadOnly ? null : onChanged, // Блокируем onChanged
-          disabledHint: Text(
-            value ?? 'Ожидает модерации',
-            style: const TextStyle(color: Colors.black),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildAddButton() {
-    return Padding(
-      padding: const EdgeInsets.only(top: 25.0),
-      child: ElevatedButton(
-        onPressed: _showAddManufacturerDialog,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.blue,
-          minimumSize: const Size(48, 48),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8.0),
-          ),
-        ),
-        child: const Icon(
-          Icons.add,
-          color: Colors.white,
-          size: 24,
-        ),
       ),
     );
   }

@@ -1,3 +1,4 @@
+import 'package:bolshek_pro/generated/l10n.dart';
 import 'package:flutter/material.dart';
 import 'package:bolshek_pro/core/utils/theme.dart';
 
@@ -6,8 +7,8 @@ class CustomAlertDialog extends StatelessWidget {
   final Widget content; // Кастомное содержимое
   final VoidCallback? onConfirm; // Действие для кнопки "Подтвердить"
   final VoidCallback? onCancel; // Действие для кнопки "Отмена"
-  final String confirmText; // Текст для кнопки "Подтвердить"
-  final String cancelText; // Текст для кнопки "Отмена"
+  final String? confirmText; // Текст для кнопки "Подтвердить" (опционально)
+  final String? cancelText; // Текст для кнопки "Отмена" (опционально)
 
   const CustomAlertDialog({
     Key? key,
@@ -15,12 +16,20 @@ class CustomAlertDialog extends StatelessWidget {
     required this.content,
     this.onConfirm,
     this.onCancel,
-    this.confirmText = "Подтвердить",
-    this.cancelText = "Отмена",
+    this.confirmText,
+    this.cancelText,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final localizations = S.of(context);
+    // Если текст не передан, используем локализацию
+    final String effectiveConfirmText = (confirmText?.isNotEmpty ?? false)
+        ? confirmText!
+        : localizations.confirm;
+    final String effectiveCancelText =
+        (cancelText?.isNotEmpty ?? false) ? cancelText! : localizations.cancel;
+
     return AlertDialog(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(15),
@@ -40,7 +49,7 @@ class CustomAlertDialog extends StatelessWidget {
             style: TextButton.styleFrom(
               foregroundColor: ThemeColors.grey5,
             ),
-            child: Text(cancelText),
+            child: Text(effectiveCancelText),
           ),
         if (onConfirm != null)
           ElevatedButton(
@@ -52,7 +61,7 @@ class CustomAlertDialog extends StatelessWidget {
               ),
             ),
             child: Text(
-              confirmText,
+              effectiveConfirmText,
               style: TextStyle(color: ThemeColors.white),
             ),
           ),
@@ -68,8 +77,8 @@ Future<void> showCustomAlertDialog({
   required Widget content, // Передача кастомного содержимого
   VoidCallback? onConfirm,
   VoidCallback? onCancel,
-  String confirmText = "Подтвердить",
-  String cancelText = "Отмена",
+  String? confirmText,
+  String? cancelText,
 }) async {
   return showDialog(
     context: context,

@@ -1,7 +1,10 @@
 import 'package:bolshek_pro/app/pages/product/product_change_page.dart';
 import 'package:bolshek_pro/app/widgets/full_screen_image_widget.dart';
+import 'package:bolshek_pro/app/widgets/home_widgets/hex_colors_widget.dart';
 import 'package:bolshek_pro/app/widgets/widget_from_bolshek/common_text_button.dart';
 import 'package:bolshek_pro/app/widgets/widget_from_bolshek/theme_text_style.dart';
+import 'package:bolshek_pro/core/models/product_responses.dart';
+import 'package:bolshek_pro/core/models/tags_response.dart';
 import 'package:bolshek_pro/core/service/product_service.dart';
 import 'package:bolshek_pro/core/service/status_change_service.dart';
 import 'package:bolshek_pro/core/service/variants_service.dart';
@@ -9,6 +12,7 @@ import 'package:bolshek_pro/core/utils/constants.dart';
 import 'package:bolshek_pro/core/utils/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:bolshek_pro/generated/l10n.dart';
 
 class ShopProductDetailScreen extends StatefulWidget {
   final String productId;
@@ -28,6 +32,7 @@ class _ShopProductDetailScreenState extends State<ShopProductDetailScreen> {
   String? _productDescription;
   List<String> _productImages = [];
   double? _productPrice;
+  int? _discountPersent;
   String? _variantId;
   String? _status;
   List<Map<String, String>> _productCharacteristics = [];
@@ -39,6 +44,9 @@ class _ShopProductDetailScreenState extends State<ShopProductDetailScreen> {
   int? _variants_lenght;
   String? _variant_kind;
   String? _manufacturerId;
+  List<ItemsTags>? _tags;
+  final PageController _pageController = PageController();
+  int _currentPage = 0;
 
   @override
   void initState() {
@@ -53,45 +61,45 @@ class _ShopProductDetailScreenState extends State<ShopProductDetailScreen> {
         id: widget.productId,
       );
       setState(() {
-        _manufacturerId = product.variants?.first.manufacturerId;
-        _variant_kind = product.variants?.first.kind;
-        _variants_lenght = product.variants?.length;
-        _variants_kod = product.variants?.first?.sku!;
-        _manufacturers_name = product.variants?.first.manufacturer?.name;
-        _articul = product?.vendorCode;
+        _tags = product.tags;
+        _manufacturerId = product.manufacturerId;
+        _variant_kind = product.kind;
+        // _variants_lenght = product.length;
+        _variants_kod = product.sku ?? '';
+        _manufacturers_name = product.manufacturer?.name;
+        _articul = product.vendorCode;
+        _discountPersent = product.discountPercent ?? 0;
         _status = product.status;
-        _variantId = product.variants?.first.id;
+        _variantId = product.id;
         // Название товара
-        _productName = product.name ?? "Название отсутствует";
-
+        _productName = product.name ?? S.of(context).product_name_absent;
         // Описание товара
         _productDescription = product.description?.blocks?.isNotEmpty == true
-            ? product.description?.blocks?.first.data?.text ??
-                "Описание отсутствует"
-            : "Описание отсутствует";
-
+            ? product.description!.blocks!.first.data?.text ??
+                S.of(context).product_description_absent
+            : S.of(context).product_description_absent;
         // Список изображений
         _productImages = product.images?.map((e) => e.url ?? "").toList() ?? [];
-
         // Список характеристик
         _productCharacteristics = product.properties?.map((prop) {
               return {
-                "title": prop.property?.name ?? "Название отсутствует",
-                "value": prop.value ?? "Значение отсутствует",
+                "title": prop.property?.name ??
+                    S.of(context).characteristic_title_absent,
+                "value":
+                    prop.value ?? S.of(context).characteristic_value_absent,
               };
             }).toList() ??
             [];
-
         // Цена товара (берется из первого варианта)
-        _productPrice = product.variants?.isNotEmpty == true
-            ? product.variants?.first.price?.amount?.toDouble()
-            : 0.0;
-
-        // Устанавливаем, что загрузка завершена
+        _productPrice = (product.price?.amount ??
+                    product.discountedPrice?.amount ??
+                    product.basePrice?.amount)
+                ?.toDouble() ??
+            0.0;
         _isLoading = false;
       });
     } catch (e) {
-      print('Ошибка при загрузке данных о товаре: $e');
+      print('${S.of(context).error}: $e');
       setState(() {
         _isLoading = false;
       });
@@ -100,6 +108,7 @@ class _ShopProductDetailScreenState extends State<ShopProductDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final localizations = S.of(context);
     return Scaffold(
       backgroundColor: ThemeColors.white,
       appBar: AppBar(
@@ -109,23 +118,20 @@ class _ShopProductDetailScreenState extends State<ShopProductDetailScreen> {
         toolbarHeight: 32, // Уменьшаем высоту AppBar
         leading: Padding(
           padding: const EdgeInsets.only(left: 16),
-          child: Padding(
-            padding: const EdgeInsets.only(bottom: 0.0),
-            child: IconButton(
-              icon: const Icon(
-                Icons.arrow_back_ios,
-                color: Colors.black,
-                size: 25, // Уменьшаем размер иконки
-              ),
-              onPressed: () {
-                Navigator.of(context).pop(); // Действие для кнопки назад
-              },
-              constraints: const BoxConstraints(
-                minWidth: 32, // Минимальная ширина кнопки
-                minHeight: 32, // Минимальная высота кнопки
-              ),
-              padding: EdgeInsets.zero, // Убираем дополнительные отступы
+          child: IconButton(
+            icon: const Icon(
+              Icons.arrow_back_ios,
+              color: Colors.black,
+              size: 25, // Уменьшаем размер иконки
             ),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            constraints: const BoxConstraints(
+              minWidth: 32, // Минимальная ширина кнопки
+              minHeight: 32, // Минимальная высота кнопки
+            ),
+            padding: EdgeInsets.zero,
           ),
         ),
       ),
@@ -166,6 +172,7 @@ class _ShopProductDetailScreenState extends State<ShopProductDetailScreen> {
   }
 
   Widget _buildProductImages() {
+    final localizations = S.of(context);
     return _productImages.isNotEmpty
         ? GestureDetector(
             onTap: () {
@@ -173,43 +180,129 @@ class _ShopProductDetailScreenState extends State<ShopProductDetailScreen> {
                 Navigator.of(context).push(
                   MaterialPageRoute(
                     builder: (context) => FullScreenImage(
-                      imageUrl: _productImages[
-                          0], // Вы можете изменить индекс или передать нужное изображение
+                      imageUrl: _productImages[_currentPage],
                     ),
                   ),
                 );
               } else {
-                print('Нет доступных изображений для отображения.');
+                print(localizations.no_available_image);
               }
             },
-            child: Center(
-              child: Container(
-                width: 365,
-                height: 365,
-                decoration: BoxDecoration(
-                  borderRadius:
-                      BorderRadius.circular(12), // Более овальная форма
-                  color: Colors.white,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.2),
-                      blurRadius: 10,
-                      spreadRadius: 5,
-                      offset: const Offset(0, 3), // Тень под изображением
-                    ),
-                  ],
-                ),
-                clipBehavior: Clip.antiAlias, // Обрезка изображения по границе
-                child: Image.network(
-                  _productImages.first,
-                  fit: BoxFit.contain,
-                  errorBuilder: (context, error, stackTrace) => const Icon(
-                    Icons.image,
-                    size: 100,
-                    color: Colors.grey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 365,
+                  height: 365,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(12),
+                    color: Colors.white,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.2),
+                        blurRadius: 10,
+                        spreadRadius: 5,
+                        offset: const Offset(0, 3),
+                      ),
+                    ],
+                  ),
+                  clipBehavior: Clip.antiAlias,
+                  child: Stack(
+                    children: [
+                      PageView.builder(
+                        controller: _pageController,
+                        itemCount: _productImages.length,
+                        onPageChanged: (index) {
+                          setState(() {
+                            _currentPage = index;
+                          });
+                        },
+                        itemBuilder: (context, index) {
+                          return Image.network(
+                            _productImages[index],
+                            fit: BoxFit.contain,
+                            errorBuilder: (context, error, stackTrace) =>
+                                const Icon(
+                              Icons.image,
+                              size: 100,
+                              color: Colors.grey,
+                            ),
+                          );
+                        },
+                      ),
+                      Positioned(
+                        bottom: 10,
+                        left: 10,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            if (_discountPersent != 0)
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 8, vertical: 4),
+                                decoration: BoxDecoration(
+                                  color: ThemeColors.black,
+                                  borderRadius: BorderRadius.circular(7),
+                                ),
+                                child: Text(
+                                  "-$_discountPersent%",
+                                  style:
+                                      ThemeTextMontserratBold.size16.copyWith(
+                                    color: ThemeColors.white,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            if (_tags != null && _tags!.isNotEmpty)
+                              ..._tags!.map((tag) {
+                                return Container(
+                                  margin: const EdgeInsets.only(top: 5),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 8, vertical: 4),
+                                  decoration: BoxDecoration(
+                                    color: tag.backgroundColor != null
+                                        ? HexColor(tag.backgroundColor!)
+                                        : Colors.green,
+                                    borderRadius: BorderRadius.circular(7),
+                                  ),
+                                  child: Text(
+                                    tag.text ?? localizations.tag_default,
+                                    style: TextStyle(
+                                      color: tag.textColor != null
+                                          ? HexColor(tag.textColor!)
+                                          : Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                );
+                              }).toList(),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-              ),
+                const SizedBox(height: 8),
+                _productImages.length > 1
+                    ? Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: List.generate(_productImages.length, (index) {
+                          return Container(
+                            margin: const EdgeInsets.symmetric(horizontal: 4),
+                            width: _currentPage == index ? 12 : 8,
+                            height: _currentPage == index ? 12 : 8,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: _currentPage == index
+                                  ? ThemeColors.orange
+                                  : Colors.grey,
+                            ),
+                          );
+                        }),
+                      )
+                    : const SizedBox.shrink(),
+              ],
             ),
           )
         : Center(
@@ -217,7 +310,7 @@ class _ShopProductDetailScreenState extends State<ShopProductDetailScreen> {
               width: 365,
               height: 365,
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(30), // Более овальная форма
+                borderRadius: BorderRadius.circular(30),
                 color: Colors.grey[200],
               ),
               child: const Icon(Icons.image, size: 100, color: Colors.grey),
@@ -226,80 +319,98 @@ class _ShopProductDetailScreenState extends State<ShopProductDetailScreen> {
   }
 
   Widget _buildProductNameAndActions() {
+    final localizations = S.of(context);
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Expanded(
           child: Text(
-            _productName ?? "Название товара отсутствует",
+            _productName ?? localizations.product_name_absent,
             style: ThemeTextMontserratBold.size21.copyWith(
               fontSize: 16,
               color: ThemeColors.black,
             ),
           ),
         ),
-        // Row(
-        //   children: [
-        //     IconButton(
-        //       onPressed: () {
-        //         // Реализуйте добавление в избранное
-        //         print('Добавить в избранное');
-        //       },
-        //       icon: Icon(Icons.favorite_border, color: Colors.grey[600]),
-        //     ),
-        //     IconButton(
-        //       onPressed: () {
-        //         // Реализуйте логику для "Поделиться"
-        //         print('Поделиться товаром');
-        //       },
-        //       icon: Icon(Icons.share, color: Colors.grey[600]),
-        //     ),
-        //   ],
-        // ),
       ],
     );
   }
 
   Widget _buildProductPrice() {
+    final loc = S.of(context);
+
+    final hasPrice = _productPrice != null && _productPrice! > 0;
+    final priceKzt = _productPrice! / 100; // в тенге
+    final discount = _discountPersent ?? 0;
+    final hasDiscount = hasPrice && discount > 0;
+    final discounted = hasDiscount ? priceKzt * (1 - discount / 100) : priceKzt;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Text(
-              _productPrice != null
-                  ? "${_formatPriceWithSpaces(_productPrice! / 100)} ₸"
-                  : "Цена отсутствует",
-              style: ThemeTextMontserratBold.size21.copyWith(
-                fontSize: 17,
-                color: ThemeColors.grey5,
-              ),
+            Expanded(
+              child: hasPrice
+                  ? hasDiscount
+                      ? Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              '${_formatPriceWithSpaces(priceKzt)} ₸',
+                              style: ThemeTextMontserratBold.size18.copyWith(
+                                fontSize: 14,
+                                color: ThemeColors.grey5,
+                                decoration: TextDecoration.lineThrough,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              '${_formatPriceWithSpaces(discounted)} ₸',
+                              style: ThemeTextMontserratBold.size21.copyWith(
+                                fontSize: 18,
+                                color: ThemeColors.green,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        )
+                      : Text(
+                          '${_formatPriceWithSpaces(priceKzt)} ₸',
+                          style: ThemeTextMontserratBold.size21.copyWith(
+                            fontSize: 17,
+                            color: ThemeColors.grey5,
+                          ),
+                        )
+                  : Text(
+                      loc.price_absent,
+                      style: ThemeTextMontserratBold.size21.copyWith(
+                        fontSize: 17,
+                        color: ThemeColors.grey5,
+                      ),
+                    ),
             ),
             TextButton(
-              onPressed: () {
-                _showPriceEditDialog(widget.productId, _variantId!);
-                // Открываем диалог для редактирования цены
-              },
+              onPressed: () =>
+                  _showPriceEditDialog(widget.productId, _variantId!),
+              style: TextButton.styleFrom(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                minimumSize: const Size(0, 0),
+                side: const BorderSide(color: ThemeColors.orange, width: 0.7),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
               child: Text(
-                "Изменить цену",
-                style: TextStyle(
+                loc.change_price,
+                style: const TextStyle(
                   fontSize: 14,
-                  color: ThemeColors.orange, // Цвет текста кнопки
+                  color: ThemeColors.orange,
                   fontWeight: FontWeight.bold,
                 ),
               ),
-            ),
-            // SizedBox(
-            //   width: 1,
-            // ),
-            // Text(
-            //   'Артикул: $_articul',
-            //   style: ThemeTextMontserratBold.size21.copyWith(
-            //       fontSize: 12,
-            //       color: ThemeColors.black,
-            //       fontWeight: FontWeight.w400),
-            // ),
+            )
           ],
         ),
         Row(
@@ -311,22 +422,22 @@ class _ShopProductDetailScreenState extends State<ShopProductDetailScreen> {
                   child: Container(
                     padding:
                         const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
-                    width: 110, // Фиксированная ширина
-                    height: 25, // Фиксированная высота
+                    width: 110,
+                    height: 25,
                     decoration: BoxDecoration(
                       color: ThemeColors.orange,
-                      borderRadius: BorderRadius.circular(5), // Квадратный вид
+                      borderRadius: BorderRadius.circular(5),
                       border: Border.all(color: ThemeColors.orange),
                     ),
                     child: Center(
                       child: Text(
                         _variant_kind == 'original'
-                            ? 'Оригинал'
+                            ? loc.original
                             : _variant_kind == 'sub_original'
-                                ? 'Под оригинал'
+                                ? loc.sub_original
                                 : _variant_kind == 'disassemble'
-                                    ? 'Авторазбор'
-                                    : 'Неизвестный',
+                                    ? loc.auto_disassembly
+                                    : loc.unknown_variant,
                         style: ThemeTextInterRegular.size11.copyWith(
                           color: ThemeColors.black,
                           fontSize: 13,
@@ -341,7 +452,7 @@ class _ShopProductDetailScreenState extends State<ShopProductDetailScreen> {
             Row(
               children: [
                 Text(
-                  'Артикул: $_articul',
+                  '${loc.article}: $_variants_kod',
                   style: ThemeTextMontserratBold.size21.copyWith(
                       fontSize: 12,
                       color: ThemeColors.black,
@@ -356,19 +467,14 @@ class _ShopProductDetailScreenState extends State<ShopProductDetailScreen> {
   }
 
   String _formatPriceWithSpaces(double price) {
-    final formatter = NumberFormat("#,###", "ru_RU"); // Формат с пробелами
-    return formatter
-        .format(price)
-        .replaceAll(',', ' '); // Заменяем запятые на пробелы
+    final formatter = NumberFormat("#,###", "ru_RU");
+    return formatter.format(price).replaceAll(',', ' ');
   }
 
-  /// Метод для форматирования цены без лишних нулей
   String _formatPrice(double price) {
     if (price == price.toInt()) {
-      // Если число целое, убираем дробную часть
       return price.toInt().toString();
     } else {
-      // Если дробная часть есть, оставляем её
       return price
           .toStringAsFixed(2)
           .replaceAll(RegExp(r"0+$"), "")
@@ -377,44 +483,161 @@ class _ShopProductDetailScreenState extends State<ShopProductDetailScreen> {
   }
 
   void _showPriceEditDialog(String productId, String variantId) {
+    final double initialPrice =
+        _productPrice != null ? _productPrice! / 100 : 0.0;
+
     final TextEditingController _priceController = TextEditingController(
-      text: _productPrice != null ? _formatPrice(_productPrice! / 100) : "",
+      text: _productPrice != null ? _formatPrice(initialPrice) : "",
     );
+    final TextEditingController _discountPersentController =
+        TextEditingController(text: _discountPersent?.toString() ?? "");
+    final TextEditingController _discountAmountController =
+        TextEditingController();
+
+    if (initialPrice != 0 && _discountPersent != null) {
+      final discountAmount = initialPrice * _discountPersent! / 100;
+      _discountAmountController.text = discountAmount.toStringAsFixed(0);
+    }
+
+    Widget buildCustomTextField({
+      required TextEditingController controller,
+      String hintText = "",
+      String suffixText = "",
+      bool readOnly = false,
+      ValueChanged<String>? onChanged,
+    }) {
+      return TextField(
+        controller: controller,
+        keyboardType: TextInputType.number,
+        readOnly: readOnly,
+        cursorColor: Colors.orange,
+        decoration: InputDecoration(
+          hintText: hintText,
+          suffixText: suffixText,
+          enabledBorder: const UnderlineInputBorder(
+            borderSide: BorderSide(color: Colors.black),
+          ),
+          focusedBorder: const UnderlineInputBorder(
+            borderSide: BorderSide(color: Colors.orange),
+          ),
+        ),
+        onChanged: onChanged,
+      );
+    }
 
     showDialog(
       context: context,
       builder: (context) {
+        final localizations = S.of(context);
         return AlertDialog(
-          title: const Text(
-            "Изменить цену",
-            style: TextStyle(fontSize: 18),
+          title: Text(
+            localizations.change_price,
+            style: const TextStyle(fontSize: 18),
           ),
-          content: TextField(
-            controller: _priceController,
-            keyboardType: TextInputType.number,
-            decoration: const InputDecoration(
-              hintText: "Введите новую цену",
-            ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  localizations.product_amount,
+                  style: const TextStyle(color: Colors.grey),
+                ),
+              ),
+              buildCustomTextField(
+                controller: _priceController,
+                hintText: localizations.enter_new_price,
+                suffixText: "₸",
+                onChanged: (value) {
+                  final newPrice = double.tryParse(value);
+                  if (newPrice != null) {
+                    final currentDiscountPercent =
+                        int.tryParse(_discountPersentController.text);
+                    if (currentDiscountPercent != null) {
+                      final discountAmount =
+                          newPrice * currentDiscountPercent / 100;
+                      _discountAmountController.text =
+                          discountAmount.toStringAsFixed(0);
+                    }
+                  } else {
+                    _discountAmountController.text = "";
+                  }
+                },
+              ),
+              const SizedBox(height: 10),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  localizations.discount_percent,
+                  style: const TextStyle(color: Colors.grey),
+                ),
+              ),
+              buildCustomTextField(
+                controller: _discountPersentController,
+                hintText: localizations.enter_discount_percent,
+                suffixText: "%",
+                onChanged: (value) {
+                  int? discountPercent = int.tryParse(value);
+                  if (discountPercent != null && discountPercent > 99) {
+                    discountPercent = 99;
+                    _discountPersentController.text = "99";
+                    _discountPersentController.selection =
+                        TextSelection.fromPosition(
+                      TextPosition(
+                          offset: _discountPersentController.text.length),
+                    );
+                  }
+                  final price = double.tryParse(_priceController.text);
+                  if (price != null && discountPercent != null) {
+                    final discountAmount = price * discountPercent / 100;
+                    _discountAmountController.text =
+                        discountAmount.toStringAsFixed(0);
+                  } else {
+                    _discountAmountController.text = "";
+                  }
+                },
+              ),
+              const SizedBox(height: 10),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  localizations.discount_amount,
+                  style: const TextStyle(color: Colors.grey),
+                ),
+              ),
+              buildCustomTextField(
+                controller: _discountAmountController,
+                hintText: localizations.discount_amount,
+                suffixText: "₸",
+                readOnly: true,
+              ),
+            ],
           ),
           actions: [
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: const Text(
-                "Отмена",
-                style:
-                    TextStyle(color: Colors.grey, fontWeight: FontWeight.bold),
+              child: Text(
+                localizations.cancel,
+                style: const TextStyle(
+                    color: Colors.grey, fontWeight: FontWeight.bold),
               ),
             ),
             TextButton(
               onPressed: () async {
                 final enteredPrice = double.tryParse(_priceController.text);
-                if (enteredPrice != null) {
-                  // Конвертируем цену в копейки
-                  final newPrice = enteredPrice * 100;
+                final enteredDiscountPercent =
+                    double.tryParse(_discountPersentController.text);
+                final enteredDiscountAmount =
+                    double.tryParse(_discountAmountController.text);
 
-                  // Показать индикатор загрузки
+                if (enteredPrice != null &&
+                    enteredDiscountPercent != null &&
+                    enteredDiscountAmount != null) {
+                  final newPrice = enteredPrice * 100;
+                  final discountAmountInCents = enteredDiscountAmount * 100;
+
                   showDialog(
                     context: context,
                     barrierDismissible: false,
@@ -428,45 +651,44 @@ class _ShopProductDetailScreenState extends State<ShopProductDetailScreen> {
                   );
 
                   try {
-                    // Вызываем сервис обновления цены
                     final variantsService = VariantsService();
-                    await variantsService.updateProductVariant(context,
-                        productId: productId,
-                        variantId: variantId,
-                        newAmount: newPrice,
-                        sku: _variants_kod,
-                        manufacturerId: _manufacturerId,
-                        kind: _variant_kind);
-
-                    setState(() {
-                      _productPrice = newPrice; // Обновляем локальное состояние
-                    });
-
+                    await variantsService.updateProductVariant(
+                      context,
+                      productId: productId,
+                      variantId: variantId,
+                      newAmount: newPrice,
+                      sku: _variants_kod,
+                      manufacturerId: _manufacturerId,
+                      kind: _variant_kind,
+                      discountedAmount: discountAmountInCents,
+                      discountedPersent: enteredDiscountPercent.toInt(),
+                    );
+                    await _fetchProductDetails();
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
+                      SnackBar(
                         content: Text(
-                          "Цена успешно обновлена",
-                          style: TextStyle(fontWeight: FontWeight.bold),
+                          localizations.price_updated,
+                          style: const TextStyle(fontWeight: FontWeight.bold),
                         ),
                         backgroundColor: ThemeColors.green,
                       ),
                     );
                   } catch (e) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text("Ошибка: $e")),
+                      SnackBar(content: Text("${localizations.error}: $e")),
                     );
                   } finally {
-                    // Закрываем индикатор загрузки
                     Navigator.of(context).pop();
-                    Navigator.of(context)
-                        .pop(); // Закрываем диалог изменения цены
+                    Navigator.of(context).pop();
                   }
                 }
               },
-              child: const Text(
-                "Сохранить",
-                style: TextStyle(
-                    color: ThemeColors.orange, fontWeight: FontWeight.bold),
+              child: Text(
+                localizations.save,
+                style: const TextStyle(
+                  color: ThemeColors.orange,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
           ],
@@ -475,21 +697,20 @@ class _ShopProductDetailScreenState extends State<ShopProductDetailScreen> {
     );
   }
 
-  /// Метод для показа диалога изменения цены
-
   Widget _buildProductDescription() {
+    final localizations = S.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          "Описание",
+          localizations.description,
           style: ThemeTextMontserratBold.size21.copyWith(
             color: ThemeColors.black,
           ),
         ),
         const SizedBox(height: 10),
         Text(
-          _productDescription ?? "Описание отсутствует",
+          _productDescription ?? localizations.description_absent,
           style: ThemeTextInterRegular.size11.copyWith(
             fontSize: 14,
             color: ThemeColors.grey8,
@@ -500,24 +721,25 @@ class _ShopProductDetailScreenState extends State<ShopProductDetailScreen> {
   }
 
   Widget _buildProductCharacteristics(String productCode, String brandName) {
-    // Добавление Код товара и Название бренда в начале списка
+    final localizations = S.of(context);
     final updatedCharacteristics = [
       {
-        "title": "Код товара",
-        "value": productCode.isNotEmpty ? productCode : "Не указан",
+        "title": localizations.product_code,
+        "value":
+            productCode.isNotEmpty ? productCode : localizations.not_specified,
       },
       {
-        "title": "Производитель",
-        "value": brandName.isNotEmpty ? brandName : "Не указан",
+        "title": localizations.manufacturer,
+        "value": brandName.isNotEmpty ? brandName : localizations.not_specified,
       },
-      ..._productCharacteristics, // Остальные характеристики
+      ..._productCharacteristics,
     ];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          "Характеристики",
+          localizations.characteristics,
           style: ThemeTextMontserratBold.size21.copyWith(
             color: ThemeColors.black,
           ),
@@ -529,7 +751,7 @@ class _ShopProductDetailScreenState extends State<ShopProductDetailScreen> {
           itemBuilder: (context, index) {
             final characteristic = updatedCharacteristics[index];
             return Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   characteristic["title"]!,
@@ -538,11 +760,16 @@ class _ShopProductDetailScreenState extends State<ShopProductDetailScreen> {
                     color: ThemeColors.grey8,
                   ),
                 ),
-                Text(
-                  characteristic["value"]!,
-                  style: ThemeTextInterRegular.size11.copyWith(
-                    fontSize: 14,
-                    color: ThemeColors.black,
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    characteristic["value"]!,
+                    style: ThemeTextInterRegular.size11.copyWith(
+                      fontSize: 14,
+                      color: ThemeColors.black,
+                    ),
+                    textAlign: TextAlign.right,
+                    softWrap: true,
                   ),
                 ),
               ],
@@ -556,8 +783,8 @@ class _ShopProductDetailScreenState extends State<ShopProductDetailScreen> {
   }
 
   Widget _buildBottomBar() {
+    final localizations = S.of(context);
     if (_isLoading) {
-      // Показываем пустой контейнер или индикатор загрузки, пока данные загружаются
       return Container(
         height: 0,
         color: Colors.transparent,
@@ -572,20 +799,17 @@ class _ShopProductDetailScreenState extends State<ShopProductDetailScreen> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              // Кнопка: "Снять с продажи" или "Опубликовать"
               Expanded(
                 child: CommonTextButton(
                   size: 15,
                   buttonText: _status == 'inactive'
-                      ? 'Опубликовать'
-                      : Constants.fromSale,
+                      ? localizations.publish
+                      : localizations.from_sale,
                   textColor: ThemeColors.blackWithPath,
                   onTap: () {
                     if (_status == 'inactive') {
-                      // Если статус "inactive", отправляем запрос на публикацию
                       _showPublishConfirmationDialog(context);
                     } else {
-                      // Если статус не "inactive", подтверждаем снятие с продажи
                       _showConfirmationDialog(context);
                     }
                   },
@@ -595,11 +819,9 @@ class _ShopProductDetailScreenState extends State<ShopProductDetailScreen> {
                 ),
               ),
               const SizedBox(width: 10),
-
-              // Кнопка "Изменить товар"
               Expanded(
                 child: CommonTextButton(
-                  buttonText: Constants.changeProduct,
+                  buttonText: localizations.change_product,
                   size: 15,
                   onTap: () async {
                     final result = await Navigator.push(
@@ -625,33 +847,34 @@ class _ShopProductDetailScreenState extends State<ShopProductDetailScreen> {
   }
 
   void _showPublishConfirmationDialog(BuildContext context) {
+    final localizations = S.of(context);
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text(
-            'Подтверждение',
-            style: TextStyle(fontSize: 19),
+          title: Text(
+            localizations.confirmation,
+            style: const TextStyle(fontSize: 19),
           ),
-          content: const Text('Вы уверены, что хотите опубликовать товар?'),
+          content: Text(localizations.publish_confirmation),
           actions: [
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop(); // Закрываем диалог
+                Navigator.of(context).pop();
               },
-              child: const Text(
-                'Отмена',
-                style: TextStyle(color: ThemeColors.blackWithPath),
+              child: Text(
+                localizations.cancel,
+                style: const TextStyle(color: ThemeColors.blackWithPath),
               ),
             ),
             TextButton(
               onPressed: () async {
-                Navigator.of(context).pop(); // Закрываем диалог
+                Navigator.of(context).pop();
                 await _publishProduct(context);
               },
-              child: const Text(
-                'Да',
-                style: TextStyle(color: ThemeColors.orange),
+              child: Text(
+                localizations.confirm,
+                style: const TextStyle(color: ThemeColors.orange),
               ),
             ),
           ],
@@ -661,56 +884,59 @@ class _ShopProductDetailScreenState extends State<ShopProductDetailScreen> {
   }
 
   Future<void> _publishProduct(BuildContext context) async {
+    final localizations = S.of(context);
     try {
-      // Создаем экземпляр сервиса
       final statusChangeService = StatusChangeService();
-
-      // Отправляем запрос для обновления статуса
       await statusChangeService.updateProductStatus(
         context: context,
-        id: widget.productId, // ID продукта
-        status: 'active', // Новый статус
+        id: widget.productId,
+        status: 'active',
       );
-
-      // Обновляем статус локально
       setState(() {
         _status = 'active';
       });
-
-      // Логика после успешного обновления
-      print('Товар отправлен на публикацию');
+      print(localizations.product_published);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Товар отправлен на публикацию')),
+        SnackBar(content: Text(localizations.product_published)),
       );
     } catch (e) {
-      // Обработка ошибки
-      print('Ошибка при публикации товара: $e');
+      print('${localizations.error}: $e');
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Ошибка: $e')),
+        SnackBar(content: Text("${localizations.error}: $e")),
       );
     }
   }
 
   void _showConfirmationDialog(BuildContext context) {
+    final localizations = S.of(context);
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Подтверждение'),
-          content: const Text('Вы уверены, что хотите снять товар с продажи?'),
+          title: Text(
+            localizations.confirmation,
+            style: const TextStyle(fontSize: 19),
+          ),
+          content: Text(localizations.remove_sale_confirmation),
           actions: [
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop(); // Закрываем диалог
+                Navigator.of(context).pop();
               },
-              child: const Text('Отмена'),
+              child: Text(
+                localizations.cancel,
+                style: const TextStyle(color: ThemeColors.blackWithPath),
+              ),
             ),
             TextButton(
               onPressed: () async {
-                Navigator.of(context).pop(); // Закрываем диалог
+                Navigator.of(context).pop();
                 await _updateProductStatus(context);
               },
-              child: const Text('Да'),
+              child: Text(
+                localizations.confirm,
+                style: const TextStyle(color: ThemeColors.orange),
+              ),
             ),
           ],
         );
@@ -719,32 +945,25 @@ class _ShopProductDetailScreenState extends State<ShopProductDetailScreen> {
   }
 
   Future<void> _updateProductStatus(BuildContext context) async {
+    final localizations = S.of(context);
     try {
-      // Создаем экземпляр сервиса
       final statusChangeService = StatusChangeService();
-
-      // Отправляем запрос для обновления статуса
       await statusChangeService.updateProductStatus(
         context: context,
-        id: widget.productId, // ID продукта
-        status: 'inactive', // Новый статус
+        id: widget.productId,
+        status: 'inactive',
       );
-
-      // Обновляем статус локально
       setState(() {
-        _status = 'inactive'; // Устанавливаем статус как "inactive"
+        _status = 'inactive';
       });
-
-      // Логика после успешного обновления
-      print('Статус товара успешно обновлен на inactive');
+      print(localizations.product_removed);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Товар снят с продажи')),
+        SnackBar(content: Text(localizations.product_removed)),
       );
     } catch (e) {
-      // Обработка ошибки
-      print('Ошибка при обновлении статуса: $e');
+      print('${localizations.error}: $e');
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Ошибка: $e')),
+        SnackBar(content: Text("${localizations.error}: $e")),
       );
     }
   }

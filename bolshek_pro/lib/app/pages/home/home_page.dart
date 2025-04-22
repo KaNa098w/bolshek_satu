@@ -1,3 +1,4 @@
+import 'package:bolshek_pro/generated/l10n.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:bolshek_pro/app/pages/return/return_page.dart';
 import 'package:bolshek_pro/app/widgets/main_controller.dart';
@@ -37,7 +38,6 @@ class _HomePageState extends State<HomePage> {
   int _currentIndex = 0;
 
   /// Список товаров со статусами (результат fetchProductsStatuses)
-
   bool _isLoading = true;
 
   @override
@@ -57,8 +57,8 @@ class _HomePageState extends State<HomePage> {
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Не удалось открыть WhatsApp'),
+        SnackBar(
+          content: Text(S.of(context).whatsapp_launch_error),
         ),
       );
     }
@@ -106,56 +106,51 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final localizations = S.of(context);
     return Scaffold(
       backgroundColor: Colors.white,
       body: Center(
-        child:
-            // Если идёт загрузка — показываем прелоадер
-            _isLoading
-                ? const CircularProgressIndicator(
-                    color: Colors.grey,
-                  )
-                // Если товары (statusesTotal) есть, показываем таблицу
-                : _activeTotal > 0
-                    ? _buildStatusesTable()
-                    // Если товаров нет — ваш текущий EmptyState и кнопки
-                    : Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const EmptyState(),
-                          const SizedBox(height: 20),
-                          CustomButton(
-                            text: 'Добавить первый товар',
-                            onPressed: () {
-                              final globalProvider =
-                                  Provider.of<GlobalProvider>(context,
-                                      listen: false);
-                              globalProvider
-                                  .clearProductData(); // Очистка данных в провайдере
-
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => ProductNameInputPage(),
-                                ),
-                              );
-                            },
-                          ),
-                          const SizedBox(height: 13),
-                          CustomButton(
-                            text: 'Открыть чат с Bolshek',
-                            onPressed: _openWhatsAppChat,
-                            isPrimary: false,
-                          ),
-                        ],
+        child: _isLoading
+            ? const CircularProgressIndicator(
+                color: Colors.grey,
+              )
+            : _activeTotal > 0
+                ? _buildStatusesTable(localizations)
+                : Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const EmptyState(),
+                      const SizedBox(height: 20),
+                      CustomButton(
+                        text: localizations.add_first_product,
+                        onPressed: () {
+                          final globalProvider = Provider.of<GlobalProvider>(
+                              context,
+                              listen: false);
+                          globalProvider
+                              .clearProductData(); // Очистка данных в провайдере
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ProductNameInputPage(),
+                            ),
+                          );
+                        },
                       ),
+                      const SizedBox(height: 13),
+                      CustomButton(
+                        text: localizations.open_chat_with_bolshek,
+                        onPressed: _openWhatsAppChat,
+                        isPrimary: false,
+                      ),
+                    ],
+                  ),
       ),
     );
   }
 
   /// Метод, создающий таблицу со списком товаров/статусов
-
-  Widget _buildStatusesTable() {
+  Widget _buildStatusesTable(S localizations) {
     return Card(
       color: Colors.white,
       elevation: 0,
@@ -168,14 +163,12 @@ class _HomePageState extends State<HomePage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Заказы',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              localizations.orders_header,
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
-            SizedBox(
-              height: 10,
-            ),
+            const SizedBox(height: 10),
             _buildStatusRow(
-              label: 'Новые заказы',
+              label: localizations.new_orders,
               value: _newOrdersTotal,
               color: Colors.green,
               onTap: () {
@@ -191,7 +184,7 @@ class _HomePageState extends State<HomePage> {
               },
             ),
             _buildStatusRow(
-              label: 'В обработке',
+              label: localizations.processing_orders,
               value: _processingOrderTotal,
               color: Colors.red,
               onTap: () {
@@ -207,7 +200,7 @@ class _HomePageState extends State<HomePage> {
               },
             ),
             _buildStatusRow(
-              label: 'Доставки',
+              label: localizations.delivered_orders,
               value: _deliveredOrdersTotal,
               color: Colors.green,
               onTap: () {
@@ -222,9 +215,8 @@ class _HomePageState extends State<HomePage> {
                 );
               },
             ),
-
             _buildStatusRow(
-              label: 'Отмененные заказы',
+              label: localizations.cancelled_orders,
               value: _cancelledOrdersTotal,
               color: Colors.blue,
               onTap: () {
@@ -239,18 +231,14 @@ class _HomePageState extends State<HomePage> {
                 );
               },
             ),
-            SizedBox(
-              height: 20,
-            ),
+            const SizedBox(height: 20),
             Text(
-              'Товары',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              localizations.goods_header,
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
-            SizedBox(
-              height: 10,
-            ),
+            const SizedBox(height: 10),
             _buildStatusRow(
-              label: 'В продаже',
+              label: localizations.active_goods,
               value: _activeTotal,
               color: Colors.green,
               onTap: () {
@@ -266,7 +254,7 @@ class _HomePageState extends State<HomePage> {
               },
             ),
             _buildStatusRow(
-              label: 'Сняти с продажи',
+              label: localizations.inactive_goods,
               value: _inactiveTotal,
               color: Colors.red,
               onTap: () {
@@ -282,7 +270,7 @@ class _HomePageState extends State<HomePage> {
               },
             ),
             _buildStatusRow(
-              label: 'Ожидает',
+              label: localizations.waiting_goods,
               value: _watingTotal,
               color: Colors.blue,
               onTap: () {
@@ -297,18 +285,14 @@ class _HomePageState extends State<HomePage> {
                 );
               },
             ),
-            SizedBox(
-              height: 20,
-            ),
+            const SizedBox(height: 20),
             Text(
-              'Возвраты',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              localizations.returns_header,
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
-            SizedBox(
-              height: 10,
-            ),
+            const SizedBox(height: 10),
             _buildStatusRow(
-              label: 'Заявки на возврат',
+              label: localizations.new_returns,
               value: _newReturnsTotal,
               color: Colors.green,
               onTap: () {
@@ -318,7 +302,7 @@ class _HomePageState extends State<HomePage> {
                     builder: (context) => Scaffold(
                       appBar: AppBar(
                         title: Text(
-                          'Заявки на возврат',
+                          localizations.new_returns,
                           textAlign: TextAlign.start,
                         ),
                         backgroundColor: Colors.white,
@@ -326,14 +310,14 @@ class _HomePageState extends State<HomePage> {
                       ),
                       body: ReturnPage(), // Показываем страницу возврата
                       bottomNavigationBar:
-                          _buildBottomNavigationBar(), // Навигатор остаётся
+                          _buildBottomNavigationBar(localizations),
                     ),
                   ),
                 );
               },
             ),
             _buildStatusRow(
-              label: 'Закрытые заявки',
+              label: localizations.completed_returns,
               value: _completedReturnsTotal,
               color: Colors.red,
               onTap: () {
@@ -343,7 +327,7 @@ class _HomePageState extends State<HomePage> {
                     builder: (context) => Scaffold(
                       appBar: AppBar(
                         title: Text(
-                          'Заявки на возврат',
+                          localizations.completed_returns,
                           textAlign: TextAlign.start,
                         ),
                         backgroundColor: Colors.white,
@@ -351,21 +335,17 @@ class _HomePageState extends State<HomePage> {
                       ),
                       body: ReturnPage(
                         initialTabIndex: 5,
-                      ), // Показываем страницу возврата
+                      ), // Показываем страницу возврата с нужным индексом
                       bottomNavigationBar:
-                          _buildBottomNavigationBar(), // Навигатор остаётся
+                          _buildBottomNavigationBar(localizations),
                     ),
                   ),
                 );
               },
             ),
-
-            // ),
-            SizedBox(
-              height: 20,
-            ),
+            const SizedBox(height: 20),
             CustomButton(
-              text: 'Открыть чат с Bolshek',
+              text: localizations.open_chat_with_bolshek,
               onPressed: _openWhatsAppChat,
               isPrimary: false,
             ),
@@ -375,7 +355,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildBottomNavigationBar() {
+  Widget _buildBottomNavigationBar(S localizations) {
     return BottomNavigationBar(
       backgroundColor: Colors.white,
       type: BottomNavigationBarType.fixed,
@@ -395,7 +375,7 @@ class _HomePageState extends State<HomePage> {
             height: 24,
             color: _currentIndex == 0 ? ThemeColors.orange : Colors.grey,
           ),
-          label: 'Главная',
+          label: localizations.bottom_nav_home,
         ),
         BottomNavigationBarItem(
           icon: SvgPicture.asset(
@@ -406,7 +386,7 @@ class _HomePageState extends State<HomePage> {
             height: 24,
             color: _currentIndex == 1 ? ThemeColors.orange : Colors.grey,
           ),
-          label: 'Заказы',
+          label: localizations.bottom_nav_orders,
         ),
         BottomNavigationBarItem(
           icon: SvgPicture.asset(
@@ -417,7 +397,7 @@ class _HomePageState extends State<HomePage> {
             height: 24,
             color: _currentIndex == 2 ? ThemeColors.orange : Colors.grey,
           ),
-          label: 'Товары',
+          label: localizations.bottom_nav_goods,
         ),
         BottomNavigationBarItem(
           icon: SvgPicture.asset(
@@ -428,7 +408,7 @@ class _HomePageState extends State<HomePage> {
             height: 24,
             color: _currentIndex == 3 ? ThemeColors.orange : Colors.grey,
           ),
-          label: 'Настройки',
+          label: localizations.bottom_nav_settings,
         ),
       ],
     );
@@ -469,7 +449,7 @@ class _HomePageState extends State<HomePage> {
                         ),
                       ),
                       const SizedBox(width: 8),
-                      Icon(
+                      const Icon(
                         Icons.chevron_right,
                         color: Colors.black,
                         size: 25,

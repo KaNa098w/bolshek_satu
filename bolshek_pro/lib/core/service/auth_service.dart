@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:bolshek_pro/generated/l10n.dart';
 import 'package:pretty_http_logger/pretty_http_logger.dart';
 import 'package:bolshek_pro/core/models/auth_response.dart';
 import 'package:bolshek_pro/core/models/auth_session_response.dart';
@@ -128,8 +129,7 @@ class AuthService {
         final responseData = jsonDecode(response.body) as Map<String, dynamic>;
         if (responseData['code'] == 10002 || responseData['code'] == 9040) {
           // Сообщение для неактивного аккаунта
-          throw Exception(
-              'Ваш аккаунт еще не активен. Пожалуйста, ждите ответа менеджера.');
+          throw Exception(S.of(context).accountNotActive);
         } else {
           // Обработка других ошибок с кодом 400
           throw Exception(

@@ -87,14 +87,15 @@ class PropertiesService {
     BuildContext context, {
     required String productId,
     required String propertiesId,
-    required dynamic value, // Теперь value - dynamic
+    required dynamic value,
   }) async {
     try {
       final token = _getToken(context);
-      final body = {
-        "value": value, // Не оборачиваем в jsonEncode
-        "propertyId": propertiesId
-      };
+
+      // Приводим значение к строке (без дополнительного JSON-кодирования)
+      final formattedValue = value.toString();
+
+      final body = {"value": formattedValue, "propertyId": propertiesId};
 
       print('Отправляем запрос на обновление: ${jsonEncode(body)}');
 
@@ -102,7 +103,7 @@ class PropertiesService {
         Uri.parse('$_baseUrl/products/$productId/properties/$propertiesId'),
         headers: {
           'Authorization': 'Bearer $token',
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/json; charset=utf-8',
         },
         body: jsonEncode(body),
       );
