@@ -529,6 +529,10 @@
   "manager_data": "经理信息",
   "enter_warehouse_name": "输入仓库名称",
   "create_warehouse": "创建仓库",
-  "your_warehouse": "您的仓库"
+  "your_warehouse": "您的仓库",
+  "no_access": "您无权访问",
+"request_permission": "请求权限",
+"no_permission": "您没有查看仓库的权限"
+
 
 }

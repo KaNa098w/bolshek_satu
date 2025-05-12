@@ -1,3 +1,4 @@
+import 'package:bolshek_pro/app/widgets/custom_alert_dialog_widget.dart';
 import 'package:bolshek_pro/app/widgets/custom_button.dart';
 import 'package:bolshek_pro/app/widgets/yandex_map_widget.dart';
 import 'package:bolshek_pro/core/models/warehouse_response.dart';
@@ -49,6 +50,7 @@ class _WarehouseEditPageState extends State<WarehouseEditPage> {
     final lastNameController = TextEditingController(text: lastName);
 
     showModalBottomSheet(
+      backgroundColor: Colors.white,
       context: context,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
@@ -220,6 +222,51 @@ class _WarehouseEditPageState extends State<WarehouseEditPage> {
                       }
                     },
                   ),
+       TextButton(
+  onPressed: () async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => CustomAlertDialog(
+        title: '${S.of(context).delete}',
+        content: Text(S.of(context).delete),
+        onConfirm: () => Navigator.of(context).pop(true),
+        onCancel: () => Navigator.of(context).pop(false),
+        confirmText: S.of(context).delete,
+        cancelText: S.of(context).cancel,
+      ),
+    );
+
+    if (confirmed == true) {
+      try {
+        await _warehouseService.deleteWarehouse(context, war!.id);
+        if (context.mounted) {
+          Navigator.of(context).pop(true);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(S.of(context).success),
+              backgroundColor: ThemeColors.green,
+            ),
+          );
+        }
+      } catch (e) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('${S.of(context).error}: $e'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    }
+  },
+  child: Text(
+    S.of(context).delete,
+    style: const TextStyle(color: Colors.red, fontSize: 14),
+  ),
+)
+
+
           ],
         ),
       ),
@@ -303,7 +350,7 @@ class _WarehouseEditPageState extends State<WarehouseEditPage> {
                     Navigator.of(context).pop();
                   },
                 ),
-              )
+              ),
             ],
           ),
         );

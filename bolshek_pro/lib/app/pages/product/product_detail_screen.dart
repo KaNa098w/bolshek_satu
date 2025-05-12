@@ -486,17 +486,18 @@ class _ShopProductDetailScreenState extends State<ShopProductDetailScreen> {
     final double initialPrice =
         _productPrice != null ? _productPrice! / 100 : 0.0;
 
-    final TextEditingController _priceController = TextEditingController(
-      text: _productPrice != null ? _formatPrice(initialPrice) : "",
+    final priceController = TextEditingController(
+      text: initialPrice > 0 ? _formatPrice(initialPrice) : "",
     );
-    final TextEditingController _discountPersentController =
-        TextEditingController(text: _discountPersent?.toString() ?? "");
-    final TextEditingController _discountAmountController =
-        TextEditingController();
+    final discountPercentController = TextEditingController(
+      text: _discountPersent?.toString() ?? "",
+    );
+    final finalPriceController = TextEditingController();
 
-    if (initialPrice != 0 && _discountPersent != null) {
-      final discountAmount = initialPrice * _discountPersent! / 100;
-      _discountAmountController.text = discountAmount.toStringAsFixed(0);
+    // Если есть начальные значения – сразу посчитаем итог
+    if (initialPrice > 0 && _discountPersent != null) {
+      final finalPrice = initialPrice * (100 - _discountPersent!) / 100;
+      finalPriceController.text = finalPrice.toStringAsFixed(0);
     }
 
     Widget buildCustomTextField({
@@ -525,89 +526,67 @@ class _ShopProductDetailScreenState extends State<ShopProductDetailScreen> {
       );
     }
 
+    void _recalculateFinal() {
+      final price = double.tryParse(priceController.text) ?? 0.0;
+      final percent = int.tryParse(discountPercentController.text) ?? 0;
+      final finalPrice = price * (100 - percent) / 100;
+      finalPriceController.text = finalPrice.toStringAsFixed(0);
+    }
+
     showDialog(
       context: context,
       builder: (context) {
-        final localizations = S.of(context);
+        final l = S.of(context);
         return AlertDialog(
-          title: Text(
-            localizations.change_price,
-            style: const TextStyle(fontSize: 18),
-          ),
+          title: Text(l.change_price, style: const TextStyle(fontSize: 18)),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               Align(
                 alignment: Alignment.centerLeft,
-                child: Text(
-                  localizations.product_amount,
-                  style: const TextStyle(color: Colors.grey),
-                ),
+                child: Text(l.product_amount,
+                    style: const TextStyle(color: Colors.grey)),
               ),
               buildCustomTextField(
-                controller: _priceController,
-                hintText: localizations.enter_new_price,
+                controller: priceController,
+                hintText: l.enter_new_price,
                 suffixText: "₸",
-                onChanged: (value) {
-                  final newPrice = double.tryParse(value);
-                  if (newPrice != null) {
-                    final currentDiscountPercent =
-                        int.tryParse(_discountPersentController.text);
-                    if (currentDiscountPercent != null) {
-                      final discountAmount =
-                          newPrice * currentDiscountPercent / 100;
-                      _discountAmountController.text =
-                          discountAmount.toStringAsFixed(0);
-                    }
-                  } else {
-                    _discountAmountController.text = "";
-                  }
-                },
+                onChanged: (_) => _recalculateFinal(),
               ),
               const SizedBox(height: 10),
               Align(
                 alignment: Alignment.centerLeft,
-                child: Text(
-                  localizations.discount_percent,
-                  style: const TextStyle(color: Colors.grey),
-                ),
+                child: Text(l.discount_percent,
+                    style: const TextStyle(color: Colors.grey)),
               ),
               buildCustomTextField(
-                controller: _discountPersentController,
-                hintText: localizations.enter_discount_percent,
+                controller: discountPercentController,
+                hintText: l.enter_discount_percent,
                 suffixText: "%",
                 onChanged: (value) {
-                  int? discountPercent = int.tryParse(value);
-                  if (discountPercent != null && discountPercent > 99) {
-                    discountPercent = 99;
-                    _discountPersentController.text = "99";
-                    _discountPersentController.selection =
+                  // ограничим до 99
+                  int? p = int.tryParse(value);
+                  if (p != null && p > 99) {
+                    p = 99;
+                    discountPercentController.text = "99";
+                    discountPercentController.selection =
                         TextSelection.fromPosition(
                       TextPosition(
-                          offset: _discountPersentController.text.length),
+                          offset: discountPercentController.text.length),
                     );
                   }
-                  final price = double.tryParse(_priceController.text);
-                  if (price != null && discountPercent != null) {
-                    final discountAmount = price * discountPercent / 100;
-                    _discountAmountController.text =
-                        discountAmount.toStringAsFixed(0);
-                  } else {
-                    _discountAmountController.text = "";
-                  }
+                  _recalculateFinal();
                 },
               ),
               const SizedBox(height: 10),
               Align(
                 alignment: Alignment.centerLeft,
-                child: Text(
-                  localizations.discount_amount,
-                  style: const TextStyle(color: Colors.grey),
-                ),
+                child: Text(l.discount_amount,
+                    style: const TextStyle(color: Colors.grey)),
               ),
               buildCustomTextField(
-                controller: _discountAmountController,
-                hintText: localizations.discount_amount,
+                controller: finalPriceController,
+                hintText: l.discount_amount,
                 suffixText: "₸",
                 readOnly: true,
               ),
@@ -615,81 +594,69 @@ class _ShopProductDetailScreenState extends State<ShopProductDetailScreen> {
           ),
           actions: [
             TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text(
-                localizations.cancel,
-                style: const TextStyle(
-                    color: Colors.grey, fontWeight: FontWeight.bold),
-              ),
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text(l.cancel,
+                  style: const TextStyle(
+                      color: Colors.grey, fontWeight: FontWeight.bold)),
             ),
             TextButton(
               onPressed: () async {
-                final enteredPrice = double.tryParse(_priceController.text);
-                final enteredDiscountPercent =
-                    double.tryParse(_discountPersentController.text);
-                final enteredDiscountAmount =
-                    double.tryParse(_discountAmountController.text);
+                final enteredPrice = double.tryParse(priceController.text);
+                final enteredPercent =
+                    int.tryParse(discountPercentController.text);
+                if (enteredPrice != null && enteredPercent != null) {
+                  final newAmount = (enteredPrice * 100).round();
+                  final newDiscountPercent = enteredPercent;
+                  final newDiscountedAmount =
+                      ((enteredPrice * (100 - newDiscountPercent) / 100) * 100)
+                          .round();
 
-                if (enteredPrice != null &&
-                    enteredDiscountPercent != null &&
-                    enteredDiscountAmount != null) {
-                  final newPrice = enteredPrice * 100;
-                  final discountAmountInCents = enteredDiscountAmount * 100;
-
+                  // Покажем лоадер
                   showDialog(
                     context: context,
                     barrierDismissible: false,
-                    builder: (BuildContext context) {
-                      return const Center(
-                        child: CircularProgressIndicator(
-                          color: ThemeColors.orange,
-                        ),
-                      );
-                    },
+                    builder: (_) => const Center(
+                      child:
+                          CircularProgressIndicator(color: ThemeColors.orange),
+                    ),
                   );
 
                   try {
-                    final variantsService = VariantsService();
-                    await variantsService.updateProductVariant(
+                    final svc = VariantsService();
+                    await svc.updateProductVariant(
                       context,
                       productId: productId,
                       variantId: variantId,
-                      newAmount: newPrice,
+                      newAmount: newAmount.toDouble(),
                       sku: _variants_kod,
                       manufacturerId: _manufacturerId,
                       kind: _variant_kind,
-                      discountedAmount: discountAmountInCents,
-                      discountedPersent: enteredDiscountPercent.toInt(),
+                      discountedAmount: newDiscountedAmount.toDouble(),
+                      discountedPersent: newDiscountPercent,
                     );
                     await _fetchProductDetails();
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                        content: Text(
-                          localizations.price_updated,
-                          style: const TextStyle(fontWeight: FontWeight.bold),
-                        ),
+                        content: Text(l.price_updated,
+                            style:
+                                const TextStyle(fontWeight: FontWeight.bold)),
                         backgroundColor: ThemeColors.green,
                       ),
                     );
                   } catch (e) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text("${localizations.error}: $e")),
+                      SnackBar(content: Text("${l.error}: $e")),
                     );
                   } finally {
-                    Navigator.of(context).pop();
-                    Navigator.of(context).pop();
+                    Navigator.of(context).pop(); // убираем лоадер
+                    Navigator.of(context)
+                        .pop(); // убираем диалог редактирования
                   }
                 }
               },
-              child: Text(
-                localizations.save,
-                style: const TextStyle(
-                  color: ThemeColors.orange,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+              child: Text(l.save,
+                  style: const TextStyle(
+                      color: ThemeColors.orange, fontWeight: FontWeight.bold)),
             ),
           ],
         );

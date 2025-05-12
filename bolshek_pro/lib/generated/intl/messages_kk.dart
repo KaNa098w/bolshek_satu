@@ -457,6 +457,9 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "noImage": MessageLookupByLibrary.simpleMessage("Сурет жоқ"),
     "noNotifications": MessageLookupByLibrary.simpleMessage("Хабарлама жоқ"),
+    "no_access": MessageLookupByLibrary.simpleMessage(
+      "Сізде қолжетімділік жоқ",
+    ),
     "no_address_found": MessageLookupByLibrary.simpleMessage(
       "Мекенжайлар табылмады",
     ),
@@ -479,6 +482,9 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "no_org_data": MessageLookupByLibrary.simpleMessage(
       "Ұйым туралы мәліметтер жоқ",
+    ),
+    "no_permission": MessageLookupByLibrary.simpleMessage(
+      "Қоймаларды көруге рұқсатыңыз жоқ",
     ),
     "no_price_variants": MessageLookupByLibrary.simpleMessage(
       "Өнімде баға варианты жоқ",
@@ -710,6 +716,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Өнімді сатылымнан шығарғыңыз келе ме?",
     ),
     "repeat": MessageLookupByLibrary.simpleMessage("Қайталау"),
+    "request_permission": MessageLookupByLibrary.simpleMessage("Рұқсат сұрау"),
     "resendText": MessageLookupByLibrary.simpleMessage("Кодты қайта жіберу"),
     "resendTimerText": m3,
     "resend_code": MessageLookupByLibrary.simpleMessage("Кодты қайта жіберу"),

@@ -90,10 +90,10 @@ class _AuthMainScreenState extends State<AuthMainScreen> {
           return Scaffold(
             backgroundColor: Colors.blueGrey[900],
             body: Center(
-              child: CircularProgressIndicator(
-                color: ThemeColors.orange,
-              ),
-            ),
+                child: SvgPicture.asset(
+              'assets/svg/logo_3.svg',
+              width: 200,
+            )),
           );
         }
 

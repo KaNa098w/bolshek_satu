@@ -3,8 +3,6 @@ import 'package:bolshek_pro/app/widgets/custom_button.dart';
 import 'package:bolshek_pro/app/widgets/phoneNumber_widget.dart';
 import 'package:bolshek_pro/app/widgets/textfield_widget.dart';
 import 'package:bolshek_pro/app/widgets/yandex_map_widget.dart';
-import 'package:bolshek_pro/core/service/address_service.dart';
-import 'package:bolshek_pro/core/service/manager_service.dart';
 import 'package:bolshek_pro/core/service/warehouse_service.dart';
 import 'package:bolshek_pro/generated/l10n.dart';
 import 'package:bolshek_pro/core/utils/theme.dart';
@@ -19,7 +17,7 @@ class WarehousePage extends StatefulWidget {
 }
 
 class _WarehousePageState extends State<WarehousePage> {
-  final warehouseNameController = TextEditingController(); // <-- Новое поле
+  final warehouseNameController = TextEditingController();
   final addressController = TextEditingController();
   final firstNameController = TextEditingController();
   final lastNameController = TextEditingController();
@@ -28,10 +26,7 @@ class _WarehousePageState extends State<WarehousePage> {
   double? latitude;
   double? longitude;
 
-  final _addressService = AddressService();
-  final _managerService = ManagerService();
   final _warehouseService = WarehouseService();
-
   bool _isLoading = false;
 
   Future<void> _openMap() async {
@@ -50,26 +45,20 @@ class _WarehousePageState extends State<WarehousePage> {
 
   Future<void> _saveWarehouse() async {
     final localizations = S.of(context);
+
     final name = warehouseNameController.text.trim();
+    final address = addressController.text.trim();
     final firstName = firstNameController.text.trim();
     final lastName = lastNameController.text.trim();
     final phone = phoneNumberController.text.replaceAll(RegExp(r'[^\d+]'), '');
 
-    if (name.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(localizations.fields_empty)),
-      );
-      return;
-    }
-    if (addressController.text.isEmpty ||
+    if (name.isEmpty ||
+        address.isEmpty ||
         latitude == null ||
-        longitude == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(localizations.address_add_error)),
-      );
-      return;
-    }
-    if (firstName.isEmpty || lastName.isEmpty || phone.isEmpty) {
+        longitude == null ||
+        firstName.isEmpty ||
+        lastName.isEmpty ||
+        phone.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(localizations.fields_empty)),
       );
@@ -78,42 +67,26 @@ class _WarehousePageState extends State<WarehousePage> {
 
     setState(() => _isLoading = true);
     try {
-      // 1. Добавляем адрес
-      final addressResponse = await _addressService.addAddress(
+      await _warehouseService.createWarehouse(
         context,
-        widget.organizationId,
-        {
-          "cityId": "60f95c44-05e8-4031-9d9b-fad22fcd0d0c",
-          "address": addressController.text,
-          "additionalInfo": addressController.text,
-          "latitude": latitude,
-          "longitude": longitude,
-        },
-      );
-
-      // 2. Создаём менеджера
-      final managerResponse = await _managerService.createManager(
-        context,
+        
+        longitude!,
+        latitude!,
+        address,
+        "60f95c44-05e8-4031-9d9b-fad22fcd0d0c", // cityId пока хардкод
         firstName,
+        name,
         lastName,
         phone,
         widget.organizationId,
-      );
-
-      // 3. Создаём склад с именем из текстового поля
-      await _warehouseService.createWarehouse(
-        context,
-        name, // <-- здесь используется имя склада
-        addressResponse.id,
-        widget.organizationId,
-        managerResponse.id,
-        true,
+        true, // isMain
       );
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(localizations.save + ' успешно!')),
       );
-      Navigator.pop(context);
+   Navigator.pop(context, true);
+
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Ошибка при создании склада: $e")),
@@ -139,7 +112,6 @@ class _WarehousePageState extends State<WarehousePage> {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            // 1. Название склада
             CustomEditableField(
               title: localizations.enter_warehouse_name,
               value: '',
@@ -147,7 +119,6 @@ class _WarehousePageState extends State<WarehousePage> {
             ),
             const SizedBox(height: 16),
 
-            // 2. Отображение выбранного адреса
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(15),
@@ -165,14 +136,12 @@ class _WarehousePageState extends State<WarehousePage> {
             ),
             const SizedBox(height: 12),
 
-            // 3. Кнопка выбора адреса
             CustomButton(
               text: localizations.selectAddress,
               onPressed: _openMap,
             ),
             const SizedBox(height: 20),
 
-            // 4. Данные менеджера
             Align(
               alignment: Alignment.centerLeft,
               child: Text(
@@ -200,7 +169,6 @@ class _WarehousePageState extends State<WarehousePage> {
             ),
             const Spacer(),
 
-            // 5. Кнопка "Сохранить"
             Padding(
               padding: const EdgeInsets.only(bottom: 16.0),
               child: CustomButton(

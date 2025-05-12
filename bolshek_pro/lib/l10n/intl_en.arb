@@ -530,6 +530,10 @@
   "manager_data": "Manager Data",
   "enter_warehouse_name": "Enter warehouse name",
   "create_warehouse": "Create Warehouse",
-  "your_warehouse": "Your warehouses"
+  "your_warehouse": "Your warehouses",
+  "no_access": "You do not have access",
+"request_permission": "Request permission",
+"no_permission": "You do not have permission to view warehouses"
+
   
 }

@@ -3504,6 +3504,36 @@ class S {
       args: [],
     );
   }
+
+  /// `You do not have access`
+  String get no_access {
+    return Intl.message(
+      'You do not have access',
+      name: 'no_access',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Request permission`
+  String get request_permission {
+    return Intl.message(
+      'Request permission',
+      name: 'request_permission',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `You do not have permission to view warehouses`
+  String get no_permission {
+    return Intl.message(
+      'You do not have permission to view warehouses',
+      name: 'no_permission',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

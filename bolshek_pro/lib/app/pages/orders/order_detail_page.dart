@@ -417,10 +417,10 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
   }
 
   Widget _buildOrderLineItem(Item item) {
-    final imageUrl = item.product?.images?.isNotEmpty == true
-        ? (item.product?.images?.first.sizes?.isNotEmpty == true
-            ? item.product?.images?.first.sizes?.first.url
-            : item.product?.images?.first.url)
+    final imageUrl = item.warehouseProduct.product?.images?.isNotEmpty == true
+        ? (item.warehouseProduct.product?.images?.first.sizes?.isNotEmpty == true
+            ? item.warehouseProduct.product?.images?.first.sizes?.first.url
+            : item.warehouseProduct.product?.images?.first.url)
         : null;
 
     return Row(
@@ -453,7 +453,8 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                item.product?.name ?? S.of(context).no_name,
+                item.warehouseProduct.product.name
+                 ?? S.of(context).no_name,
                 style: const TextStyle(fontSize: 15),
               ),
               const SizedBox(height: 4),

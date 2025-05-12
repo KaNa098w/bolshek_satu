@@ -7,14 +7,18 @@ import 'package:bolshek_pro/app/widgets/custom_dropdown_field.dart';
 import 'package:bolshek_pro/app/widgets/home_widgets/add_variant_widget.dart';
 import 'package:bolshek_pro/app/widgets/home_widgets/color_picker_widget.dart';
 import 'package:bolshek_pro/app/widgets/main_controller.dart';
+import 'package:bolshek_pro/app/widgets/quantity_widget.dart';
 import 'package:bolshek_pro/app/widgets/textfield_widget.dart';
+import 'package:bolshek_pro/app/widgets/warehouses_entrty.dart';
 import 'package:bolshek_pro/core/models/properties_response.dart';
+import 'package:bolshek_pro/core/models/warehouse_response.dart';
 import 'package:bolshek_pro/core/service/cross_number_service.dart';
 import 'package:bolshek_pro/core/service/images_service.dart';
 import 'package:bolshek_pro/core/service/product_service.dart';
 import 'package:bolshek_pro/core/service/properties_service.dart';
 import 'package:bolshek_pro/core/service/tags_service.dart';
 import 'package:bolshek_pro/core/service/variants_service.dart';
+import 'package:bolshek_pro/core/service/warehouse_service.dart';
 import 'package:bolshek_pro/core/utils/provider.dart';
 import 'package:bolshek_pro/core/utils/theme.dart';
 import 'package:flutter/material.dart';
@@ -38,6 +42,24 @@ class _CharacteristicsTabState extends State<CharacteristicsTab>
   bool isLoading = true;
   Map<String, bool> _propertyErrors = {};
   Map<String, bool> _fieldErrors = {};
+  WarehouseService _warehouseService = WarehouseService();
+  WarehouseResponse? war;
+  WarehouseItem? _selectedWarehouse;
+  int _selectedQuantity = 1;
+  
+   final List<WarehouseEntry> _entries = [ WarehouseEntry() ];
+
+   bool _canAddMore() =>
+    (war?.items.length ?? 0) > _selectedWarehouseIds().length;
+
+  Set<String> _selectedWarehouseIds({int? exceptIdx}) {
+  return _entries.asMap().entries
+      .where((e) =>
+          e.value.warehouse != null &&
+          (exceptIdx == null || e.key != exceptIdx))
+      .map((e) => e.value.warehouse!.id)
+      .toSet();
+}
 
   @override
   bool get wantKeepAlive => true; // Сохраняем состояние
@@ -49,6 +71,7 @@ class _CharacteristicsTabState extends State<CharacteristicsTab>
     if (categoryId != null) {
       _loadProperties(categoryId);
     }
+    _loadWarehouses();
   }
 
   Future<void> _loadProperties(String categoryId) async {
@@ -66,6 +89,26 @@ class _CharacteristicsTabState extends State<CharacteristicsTab>
       _showError('${S.of(context).error_loading_properties}: $e');
     }
   }
+Future<void> _loadWarehouses() async {
+  final permissions = context.read<GlobalProvider>().permissions;
+  if (!permissions.contains('warehouse_read')) {
+    return;
+  }
+
+  try {
+    final orgId = context.read<GlobalProvider>().organizationId;
+    final response = await _warehouseService.getWarehouses(context, orgId ?? '');
+    setState(() {
+      war = response;
+      isLoading = false;
+    });
+  } catch (e) {
+    setState(() {
+      isLoading = false;
+    });
+    _showError('${S.of(context).error_loading_properties}: $e');
+  }
+}
 
   /// Преобразование значения свойства в строку в зависимости от типа
   dynamic _convertPropertyValue(String type, String value) {
@@ -83,6 +126,83 @@ class _CharacteristicsTabState extends State<CharacteristicsTab>
         return value;
     }
   }
+
+  void _showWarehouses(int idx) {
+  if (war == null || war!.items.isEmpty) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(S.of(context).empty)),
+    );
+    return;
+  }
+
+    final busy = _selectedWarehouseIds(exceptIdx: idx);
+  final options = war!.items.where((w) => !busy.contains(w.id)).toList();
+
+  if (options.isEmpty) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Все склады выбран')),
+    );
+    return;
+  }
+
+
+  showModalBottomSheet(
+    context: context,
+    isScrollControlled: true,
+    backgroundColor: Colors.transparent,
+    builder: (ctx) => ClipRRect(
+      borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+      child: Container(
+        height: MediaQuery.of(context).size.height * 0.5, // 60% высоты экрана
+        color: Colors.white,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 8),
+            Center(
+              child: Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade300,
+                  borderRadius: BorderRadius.circular(4),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              S.of(context).your_warehouse,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 12),
+            Expanded(
+              child:ListView.separated(
+      itemCount: options.length,
+      separatorBuilder: (_, __) => const Divider(height: 1),
+      itemBuilder: (_, index) {
+        final wh = options[index];
+        return ListTile(
+          title: Text(wh.name),
+          subtitle: Text(
+            wh.address?.address?.replaceFirst(RegExp(r'^Казахстан,?\s*'), '') ??
+                '',
+          ),
+          onTap: () {
+            setState(() => _entries[idx].warehouse = wh);
+            Navigator.pop(context);
+          },
+        );
+      },
+    ),
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
+}
+
 
   void _validateFields() {
     _propertyErrors.clear();
@@ -150,7 +270,7 @@ class _CharacteristicsTabState extends State<CharacteristicsTab>
     try {
       final authProvider = context.read<GlobalProvider>();
       // Инициализация прогресса загрузки
-      const totalSteps = 4.0;
+      const totalSteps = 5.0;
       ValueNotifier<double> uploadProgressNotifier = ValueNotifier(0.0);
       ValueNotifier<List<String>> completedStepsNotifier = ValueNotifier([]);
       ValueNotifier<String> currentStepNotifier =
@@ -313,8 +433,30 @@ class _CharacteristicsTabState extends State<CharacteristicsTab>
       if (productId.isEmpty) {
         throw Exception(S.of(context).product_id_not_found);
       }
-      uploadProgressNotifier.value += 1.0 / totalSteps;
+            uploadProgressNotifier.value += 1.0 / totalSteps;
       completedStepsNotifier.value.add(S.of(context).product_created);
+
+      // 3. Создание склада товара
+
+    final permissions = context.read<GlobalProvider>().permissions;
+final hasWarehouseAccess = permissions.contains('warehouse_read');
+// после получения productId…
+if (hasWarehouseAccess)
+for (final e in _entries) {
+  await WarehouseService().createWarehouseProduct(
+    context,
+    e.qty.toString(),
+    productId,
+    e.warehouse!.id,           // warehouse гарантирован валидным
+  );
+}
+uploadProgressNotifier.value += 1.0 / totalSteps;
+completedStepsNotifier.value.add('Склады добавлены');
+
+
+
+
+      
 
       // 2. Загрузка фотографий
       currentStepNotifier.value = S.of(context).uploading_photos;
@@ -450,6 +592,9 @@ class _CharacteristicsTabState extends State<CharacteristicsTab>
 
   @override
   Widget build(BuildContext context) {
+    final permissions = context.read<GlobalProvider>().permissions;
+final hasWarehouseAccess = permissions.contains('warehouse_read');
+
     final displayValue = (context.read<GlobalProvider>().carMappings.isNotEmpty)
         ? context.read<GlobalProvider>().carMappings.map((mapping) {
             final brand = mapping['brandName'] ?? '';
@@ -458,6 +603,7 @@ class _CharacteristicsTabState extends State<CharacteristicsTab>
             return oem.isNotEmpty ? '$firstName ($oem)' : firstName;
           }).join(', ')
         : S.of(context).choose_vehicle;
+    // final warehouseValue = war?.items.first.name;
     if (isLoading) {
       return const Center(
         child: CircularProgressIndicator(
@@ -484,6 +630,72 @@ class _CharacteristicsTabState extends State<CharacteristicsTab>
               },
             ),
             const SizedBox(height: 12),
+            if (hasWarehouseAccess)
+Column(
+  children: [
+    ..._entries.asMap().entries.map((e) {
+      final i = e.key;
+      final entry = e.value;
+      return Padding(
+        padding: const EdgeInsets.only(bottom: 6),
+        child: Row(
+          children: [
+            Expanded(
+              child: CustomDropdownField(
+                title: S.of(context).your_warehouse,
+                value: entry.warehouse?.name ?? S.of(context).choose,
+                onTap: () => _showWarehouses(i),          // ← индекс
+              ),
+            ),
+            const SizedBox(width: 10),
+            QuantityInputField(
+              initialValue: entry.qty,
+              onChanged: (v) => entry.qty = v,
+            ),
+            // крестик, но не у первой строки
+            if (_entries.length > 1)
+              Padding(
+                padding: const EdgeInsets.only(left: 5.0),
+                child: GestureDetector(
+                  onTap: () => setState(() => _entries.removeAt(i)),
+                  child: const Icon(Icons.close, color: Colors.grey),
+                ),
+              ),
+          ],
+        ),
+      );
+    }),
+if (_canAddMore())
+  Center(
+    child: Container(
+      width: 500,
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      decoration: BoxDecoration(
+        color: Colors.grey.shade100,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: TextButton(
+        style: TextButton.styleFrom(padding: EdgeInsets.zero),
+        onPressed: () {
+          if (!_canAddMore()) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Все склады выбран')),
+            );
+            return;
+          }
+          setState(() => _entries.add(WarehouseEntry()));
+        },
+        child: const Text('Добавить ещё склады +', style: TextStyle(color: ThemeColors.grey5),),
+      ),
+    ),
+  ),
+
+  ],
+),
+
+
+            const SizedBox(height: 12),
+
             ValueListenableBuilder<List<PropertyItems>>(
               valueListenable: propertiesNotifier,
               builder: (context, properties, child) {

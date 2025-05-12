@@ -530,7 +530,11 @@
 "manager_data": "Данные менеджера",
 "enter_warehouse_name": "Введите название склада",
 "create_warehouse": "Создать склад",
-"your_warehouse": "Ваши склады"
+"your_warehouse": "Ваши склады",
+"no_access": "У вас нет доступа",
+"request_permission": "Запросить разрешение",
+"no_permission": "У вас нет разрешения на просмотр складов"
+
 
 }
 

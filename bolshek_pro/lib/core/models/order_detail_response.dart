@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:bolshek_pro/core/models/product_responses.dart';
+
 Order orderFromJson(String str) => Order.fromJson(json.decode(str));
 String orderToJson(Order data) => json.encode(data.toJson());
 
@@ -8,9 +10,9 @@ class Order {
     this.id,
     this.createdAt,
     this.updatedAt,
-    this.deletedAt,
-    this.createdById,
-    this.deletedById,
+    // this.deletedAt,
+    // this.createdById,
+    // this.deletedById,
     this.organizationId,
     this.number,
     this.status,
@@ -31,9 +33,9 @@ class Order {
   final String? id;
   final DateTime? createdAt;
   final DateTime? updatedAt;
-  final dynamic deletedAt;
-  final dynamic createdById;
-  final dynamic deletedById;
+  // final dynamic deletedAt;
+  // final dynamic createdById;
+  // final dynamic deletedById;
   final dynamic organizationId;
   final int? number;
   final String? status;
@@ -58,9 +60,9 @@ class Order {
         updatedAt: json["updatedAt"] == null
             ? null
             : DateTime.parse(json["updatedAt"]),
-        deletedAt: json["deletedAt"],
-        createdById: json["createdById"],
-        deletedById: json["deletedById"],
+        // deletedAt: json["deletedAt"],
+        // createdById: json["createdById"],
+        // deletedById: json["deletedById"],
         organizationId: json["organizationId"],
         number: json["number"],
         status: json["status"],
@@ -94,9 +96,9 @@ class Order {
         "id": id,
         "createdAt": createdAt?.toIso8601String(),
         "updatedAt": updatedAt?.toIso8601String(),
-        "deletedAt": deletedAt,
-        "createdById": createdById,
-        "deletedById": deletedById,
+        // "deletedAt": deletedAt,
+        // "createdById": createdById,
+        // "deletedById": deletedById,
         "organizationId": organizationId,
         "number": number,
         "status": status,
@@ -323,7 +325,9 @@ class Item {
     this.price,
     this.totalPrice,
     this.product,
-    this.productVariant,
+    required this.warehouseProduct,
+
+    // this.productVariant,
   });
 
   final String? id;
@@ -340,7 +344,9 @@ class Item {
   final Price? price;
   final Price? totalPrice;
   final Product? product;
-  final ProductVariant? productVariant;
+  final OrderDetailWarehouseProduct warehouseProduct;
+
+  // final ProductVariant? productVariant;
 
   factory Item.fromJson(Map<String, dynamic> json) => Item(
         id: json["id"],
@@ -364,9 +370,11 @@ class Item {
             : Price.fromJson(json["totalPrice"]),
         product:
             json["product"] == null ? null : Product.fromJson(json["product"]),
-        productVariant: json["productVariant"] == null
-            ? null
-            : ProductVariant.fromJson(json["productVariant"]),
+        warehouseProduct: OrderDetailWarehouseProduct.fromJson(
+            json['warehouseProduct'] as Map<String, dynamic>),
+        // productVariant: json["productVariant"] == null
+        //     ? null
+        //     : ProductVariant.fromJson(json["productVariant"]),
       );
 
   Map<String, dynamic> toJson() => {
@@ -384,7 +392,8 @@ class Item {
         "price": price?.toJson(),
         "totalPrice": totalPrice?.toJson(),
         "product": product?.toJson(),
-        "productVariant": productVariant?.toJson(),
+        'warehouseProduct': warehouseProduct.toJson(),
+        // "productVariant": productVariant?.toJson(),
       };
 
   // Добавляем метод copyWith
@@ -403,25 +412,26 @@ class Item {
     Price? price,
     Price? totalPrice,
     Product? product,
-    ProductVariant? productVariant,
+    // ProductVariant? productVariant,
   }) {
     return Item(
-      id: id ?? this.id,
-      createdAt: createdAt ?? this.createdAt,
-      updatedAt: updatedAt ?? this.updatedAt,
-      deletedAt: deletedAt ?? this.deletedAt,
-      createdById: createdById ?? this.createdById,
-      deletedById: deletedById ?? this.deletedById,
-      organizationId: organizationId ?? this.organizationId,
-      status: status ?? this.status,
-      orderId: orderId ?? this.orderId,
-      productId: productId ?? this.productId,
-      productVariantId: productVariantId ?? this.productVariantId,
-      price: price ?? this.price,
-      totalPrice: totalPrice ?? this.totalPrice,
-      product: product ?? this.product,
-      productVariant: productVariant ?? this.productVariant,
-    );
+        id: id ?? this.id,
+        createdAt: createdAt ?? this.createdAt,
+        updatedAt: updatedAt ?? this.updatedAt,
+        deletedAt: deletedAt ?? this.deletedAt,
+        createdById: createdById ?? this.createdById,
+        deletedById: deletedById ?? this.deletedById,
+        organizationId: organizationId ?? this.organizationId,
+        status: status ?? this.status,
+        orderId: orderId ?? this.orderId,
+        productId: productId ?? this.productId,
+        productVariantId: productVariantId ?? this.productVariantId,
+        price: price ?? this.price,
+        totalPrice: totalPrice ?? this.totalPrice,
+        product: product ?? this.product,
+        warehouseProduct: warehouseProduct ?? this.warehouseProduct
+        // productVariant: productVariant ?? this.productVariant,
+        );
   }
 }
 
@@ -590,81 +600,166 @@ class SizeData {
       };
 }
 
-// Модель варианта продукта (ProductVariant)
-class ProductVariant {
-  ProductVariant({
-    this.id,
-    this.createdAt,
-    this.updatedAt,
-    this.deletedAt,
-    this.createdById,
-    this.deletedById,
-    this.organizationId,
-    this.discoutPercentage,
-    this.kind,
-    this.quantity,
-    this.sku,
-    this.productId,
-    this.manufacturerId,
-    this.basePrice,
-    this.price,
+// // Модель варианта продукта (ProductVariant)
+// class ProductVariant {
+//   ProductVariant({
+//     this.id,
+//     this.createdAt,
+//     this.updatedAt,
+//     this.deletedAt,
+//     this.createdById,
+//     this.deletedById,
+//     this.organizationId,
+//     this.discoutPercentage,
+//     this.kind,
+//     this.quantity,
+//     this.sku,
+//     this.productId,
+//     this.manufacturerId,
+//     this.basePrice,
+//     this.price,
+//   });
+
+//   final String? id;
+//   final DateTime? createdAt;
+//   final DateTime? updatedAt;
+//   final dynamic deletedAt;
+//   final String? createdById;
+//   final dynamic deletedById;
+//   final String? organizationId;
+//   final dynamic discoutPercentage;
+//   final String? kind;
+//   final int? quantity;
+//   final String? sku;
+//   final String? productId;
+//   final String? manufacturerId;
+//   final Price? basePrice;
+//   final Price? price;
+
+//   factory ProductVariant.fromJson(Map<String, dynamic> json) => ProductVariant(
+//         id: json["id"],
+//         createdAt: json["createdAt"] == null
+//             ? null
+//             : DateTime.parse(json["createdAt"]),
+//         updatedAt: json["updatedAt"] == null
+//             ? null
+//             : DateTime.parse(json["updatedAt"]),
+//         deletedAt: json["deletedAt"],
+//         createdById: json["createdById"],
+//         deletedById: json["deletedById"],
+//         organizationId: json["organizationId"],
+//         discoutPercentage: json["discoutPercentage"],
+//         kind: json["kind"],
+//         quantity: json["quantity"],
+//         sku: json["sku"],
+//         productId: json["productId"],
+//         manufacturerId: json["manufacturerId"],
+//         basePrice: json["basePrice"] == null
+//             ? null
+//             : Price.fromJson(json["basePrice"]),
+//         price: json["price"] == null ? null : Price.fromJson(json["price"]),
+//       );
+
+//   Map<String, dynamic> toJson() => {
+//         "id": id,
+//         "createdAt": createdAt?.toIso8601String(),
+//         "updatedAt": updatedAt?.toIso8601String(),
+//         "deletedAt": deletedAt,
+//         "createdById": createdById,
+//         "deletedById": deletedById,
+//         "organizationId": organizationId,
+//         "discoutPercentage": discoutPercentage,
+//         "kind": kind,
+//         "quantity": quantity,
+//         "sku": sku,
+//         "productId": productId,
+//         "manufacturerId": manufacturerId,
+//         "basePrice": basePrice?.toJson(),
+//         "price": price?.toJson(),
+//       };
+// }
+
+class OrderDetailWarehouseProduct {
+  final String id;
+  final DateTime createdAt;
+  final int quantity;
+  final String warehouseId;
+  final String productId;
+  final ProductItems product;
+  final OrderDetailWarehouse warehouse;
+
+  OrderDetailWarehouseProduct({
+    required this.id,
+    required this.createdAt,
+    required this.quantity,
+    required this.warehouseId,
+    required this.productId,
+    required this.product,
+    required this.warehouse,
   });
 
-  final String? id;
-  final DateTime? createdAt;
-  final DateTime? updatedAt;
-  final dynamic deletedAt;
-  final String? createdById;
-  final dynamic deletedById;
-  final String? organizationId;
-  final dynamic discoutPercentage;
-  final String? kind;
-  final int? quantity;
-  final String? sku;
-  final String? productId;
-  final String? manufacturerId;
-  final Price? basePrice;
-  final Price? price;
-
-  factory ProductVariant.fromJson(Map<String, dynamic> json) => ProductVariant(
-        id: json["id"],
-        createdAt: json["createdAt"] == null
-            ? null
-            : DateTime.parse(json["createdAt"]),
-        updatedAt: json["updatedAt"] == null
-            ? null
-            : DateTime.parse(json["updatedAt"]),
-        deletedAt: json["deletedAt"],
-        createdById: json["createdById"],
-        deletedById: json["deletedById"],
-        organizationId: json["organizationId"],
-        discoutPercentage: json["discoutPercentage"],
-        kind: json["kind"],
-        quantity: json["quantity"],
-        sku: json["sku"],
-        productId: json["productId"],
-        manufacturerId: json["manufacturerId"],
-        basePrice: json["basePrice"] == null
-            ? null
-            : Price.fromJson(json["basePrice"]),
-        price: json["price"] == null ? null : Price.fromJson(json["price"]),
-      );
+  factory OrderDetailWarehouseProduct.fromJson(Map<String, dynamic> json) {
+    return OrderDetailWarehouseProduct(
+      id: json['id'] as String,
+      createdAt: DateTime.parse(json['createdAt'] as String),
+      quantity: json['quantity'] as int,
+      warehouseId: json['warehouseId'] as String,
+      productId: json['productId'] as String,
+      product: ProductItems.fromJson(json['product'] as Map<String, dynamic>),
+      warehouse: OrderDetailWarehouse.fromJson(
+          json['warehouse'] as Map<String, dynamic>),
+    );
+  }
 
   Map<String, dynamic> toJson() => {
-        "id": id,
-        "createdAt": createdAt?.toIso8601String(),
-        "updatedAt": updatedAt?.toIso8601String(),
-        "deletedAt": deletedAt,
-        "createdById": createdById,
-        "deletedById": deletedById,
-        "organizationId": organizationId,
-        "discoutPercentage": discoutPercentage,
-        "kind": kind,
-        "quantity": quantity,
-        "sku": sku,
-        "productId": productId,
-        "manufacturerId": manufacturerId,
-        "basePrice": basePrice?.toJson(),
-        "price": price?.toJson(),
+        'id': id,
+        'createdAt': createdAt.toIso8601String(),
+        'quantity': quantity,
+        'warehouseId': warehouseId,
+        'productId': productId,
+        'product': product.toJson(),
+        'warehouse': warehouse.toJson(),
+      };
+}
+
+class OrderDetailWarehouse {
+  final String id;
+  final DateTime createdAt;
+  final String name;
+  final String addressId;
+  final String relatedOrganizationId;
+  final bool isMain;
+  final String managerId;
+
+  OrderDetailWarehouse({
+    required this.id,
+    required this.createdAt,
+    required this.name,
+    required this.addressId,
+    required this.relatedOrganizationId,
+    required this.isMain,
+    required this.managerId,
+  });
+
+  factory OrderDetailWarehouse.fromJson(Map<String, dynamic> json) {
+    return OrderDetailWarehouse(
+      id: json['id'] as String,
+      createdAt: DateTime.parse(json['createdAt'] as String),
+      name: json['name'] as String,
+      addressId: json['addressId'] as String,
+      relatedOrganizationId: json['relatedOrganizationId'] as String,
+      isMain: json['isMain'] as bool,
+      managerId: json['managerId'] as String,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'createdAt': createdAt.toIso8601String(),
+        'name': name,
+        'addressId': addressId,
+        'relatedOrganizationId': relatedOrganizationId,
+        'isMain': isMain,
+        'managerId': managerId,
       };
 }

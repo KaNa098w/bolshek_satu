@@ -420,6 +420,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "new_returns": MessageLookupByLibrary.simpleMessage("طلبات الإرجاع"),
     "noImage": MessageLookupByLibrary.simpleMessage("لا توجد صورة"),
     "noNotifications": MessageLookupByLibrary.simpleMessage("لا توجد إشعارات"),
+    "no_access": MessageLookupByLibrary.simpleMessage(
+      "ليست لديك صلاحية الوصول",
+    ),
     "no_address_found": MessageLookupByLibrary.simpleMessage(
       "لم يتم العثور على عناوين",
     ),
@@ -440,6 +443,9 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "no_org_data": MessageLookupByLibrary.simpleMessage(
       "لا توجد بيانات عن المؤسسة",
+    ),
+    "no_permission": MessageLookupByLibrary.simpleMessage(
+      "ليست لديك صلاحية لعرض المستودعات",
     ),
     "no_price_variants": MessageLookupByLibrary.simpleMessage(
       "لا توجد خيارات سعر لهذا المنتج",
@@ -641,6 +647,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "remove_sale_confirmation": MessageLookupByLibrary.simpleMessage(
       "هل أنت متأكد أنك تريد إزالة المنتج من البيع؟",
     ),
+    "request_permission": MessageLookupByLibrary.simpleMessage("طلب إذن"),
     "resendText": MessageLookupByLibrary.simpleMessage("إعادة إرسال الرمز"),
     "resendTimerText": m3,
     "resend_code": MessageLookupByLibrary.simpleMessage("أعد إرسال الرمز"),

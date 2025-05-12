@@ -520,6 +520,10 @@
   "manager_data": "بيانات المدير",
   "enter_warehouse_name": "أدخل اسم المستودع",
   "create_warehouse": "إنشاء مستودع",
-  "your_warehouse": "مستودعاتكم"
+  "your_warehouse": "مستودعاتكم",
+  "no_access": "ليست لديك صلاحية الوصول",
+"request_permission": "طلب إذن",
+"no_permission": "ليست لديك صلاحية لعرض المستودعات"
+
 
 }

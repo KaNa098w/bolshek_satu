@@ -23,45 +23,66 @@ class ProductService {
     return _uuid.v4(); // Генерация уникального идентификатора
   }
 
-  Future<Map<String, int>> fetchProductTotals(
-      {required BuildContext context}) async {
-    try {
-      final statuses = [
-        Constants.activeStatus,
-        Constants.inactiveStatus,
-        Constants.awaitingStatus
-      ];
+Future<Map<String, int>> fetchProductTotals({
+  required BuildContext context,
+}) async {
+  try {
+    final token = _getToken(context);
 
-      final results = await Future.wait(
-        statuses.map(
-            (status) => _fetchProductCount(context: context, status: status)),
-      );
+    final statuses = [
+      Constants.activeStatus,
+      Constants.inactiveStatus,
+      Constants.awaitingStatus
+    ];
 
-      return {
-        'active': results[0],
-        'inactive': results[1],
-        'awaiting': results[2],
-      };
-    } catch (e) {
-      debugPrint('Ошибка загрузки товаров: $e');
-      return {'active': 0, 'inactive': 0, 'awaiting': 0};
-    }
+    final results = await Future.wait(
+      statuses.map(
+        (status) => _fetchProductCount(
+          context: context,
+          status: status,
+          token: token,
+        ),
+      ),
+    );
+
+    return {
+      'active': results[0],
+      'inactive': results[1],
+      'awaiting': results[2],
+    };
+  } catch (e) {
+    debugPrint('Ошибка загрузки товаров: $e');
+    return {'active': 0, 'inactive': 0, 'awaiting': 0};
   }
+}
 
-  Future<int> _fetchProductCount(
-      {required BuildContext context, required String status}) async {
-    try {
-      final response = await fetchProductsForMain(
-        context: context,
-        take: 1,
-        status: status,
-      );
-      return response.total ?? 0;
-    } catch (e) {
-      debugPrint('Ошибка при загрузке $status: $e');
-      return 0;
+
+Future<int> _fetchProductCount({
+  required BuildContext context,
+  required String status,
+  required String token,
+}) async {
+  try {
+    final response = await httpClient.get(
+      Uri.parse('$_baseUrl?$status&take=1'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final json = jsonDecode(response.body);
+      return ProductResponse.fromJson(json).total ?? 0;
+    } else {
+      throw Exception('Failed to fetch product count: ${response.statusCode}');
     }
+  } catch (e) {
+    debugPrint('Ошибка при загрузке $status: $e');
+    return 0;
   }
+}
+
 
   /// Fetch products with pagination
   Future<ProductResponse> fetchProductsPaginated({
@@ -72,7 +93,7 @@ class ProductService {
   }) async {
     try {
       final token = _getToken(context);
-      final response = await http.get(
+      final response = await httpClient.get(
         Uri.parse(
             '$_baseUrl?take=$take&skip=$skip&$status&categoryWithChildren=true'),
         headers: {

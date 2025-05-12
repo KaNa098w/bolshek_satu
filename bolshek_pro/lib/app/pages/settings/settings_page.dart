@@ -19,6 +19,7 @@ import 'package:bolshek_pro/generated/l10n.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class MyOrganizationPage extends StatefulWidget {
   @override
@@ -31,7 +32,7 @@ class _MyOrganizationPageState extends State<MyOrganizationPage> {
   // late Future<OrganizationMembersResponse> _membersFuture;
   late Future<WarehouseResponse> _warehousesFuture;
   final _warehouseService = WarehouseService();
-
+  
   @override
   void initState() {
     super.initState();
@@ -39,10 +40,32 @@ class _MyOrganizationPageState extends State<MyOrganizationPage> {
     _authSessionFuture.then((data) {
       final organizationId = data.user?.organization?.id;
       if (organizationId != null) {
+  context.read<GlobalProvider>().setOrganizationId(organizationId);
+  _warehousesFuture = _warehouseService.getWarehouses(context, organizationId);
+}
+      if (organizationId != null) {
         _warehousesFuture =
             _warehouseService.getWarehouses(context, organizationId);
       }
     });
+  }
+
+    Future<void> _openWhatsAppChat() async {
+    const phoneNumber = '77001012200';
+    final Uri whatsappUri = Uri.parse('https://wa.me/$phoneNumber');
+
+    if (await canLaunchUrl(whatsappUri)) {
+      await launchUrl(
+        whatsappUri,
+        mode: LaunchMode.externalApplication,
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(S.of(context).support),
+        ),
+      );
+    }
   }
 
   Future<void> _logout(S localizations) async {
@@ -180,99 +203,126 @@ class _MyOrganizationPageState extends State<MyOrganizationPage> {
                   const SizedBox(height: 20),
 
                   // Список складов
+          // Список складов или сообщение о недоступности
+if (!data.permissions!.contains('warehouse_read')) ...[
+  Text(
+    localizations.your_warehouse,
+    style: const TextStyle(
+      fontSize: 16,
+      fontWeight: FontWeight.w600,
+    ),
+  ),
+  const SizedBox(height: 8),
+  Center(
+    child: Text(localizations.no_access),
+  ),
+] else ...[
+  Text(
+    localizations.your_warehouse,
+    style: const TextStyle(
+      fontSize: 16,
+      fontWeight: FontWeight.w600,
+    ),
+  ),
+  const SizedBox(height: 8),
+  FutureBuilder<WarehouseResponse>(
+    future: _warehousesFuture,
+    builder: (context, whSnap) {
+      if (whSnap.connectionState == ConnectionState.waiting) {
+        return const Center(
+          child: LoadingWidget(width: 400, height: 80),
+        );
+      } else if (whSnap.hasError) {
+        return Center(
+          child: Text('Ошибка: ${whSnap.error}'),
+        );
+      } else if (!whSnap.hasData || whSnap.data!.items.isEmpty) {
+        return Center(
+          child: Text(localizations.empty),
+        );
+      }
+
+      final warehouses = whSnap.data!.items;
+      return Column(
+        children: warehouses.map((wh) {
+          return Card(
+            color: Colors.grey.shade100,
+            elevation: 0,
+            margin: const EdgeInsets.symmetric(vertical: 6),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: ListTile(
+              title: Text(wh.name),
+              subtitle: Row(
+                children: [
                   Text(
-                    localizations.your_warehouse,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                    ),
+                    wh.address.address.replaceFirst(
+                      RegExp(r'^Казахстан\s*,\s*'), ''),
                   ),
-                  const SizedBox(height: 8),
-                  FutureBuilder<WarehouseResponse>(
-                    future: _warehousesFuture,
-                    builder: (context, whSnap) {
-                      if (whSnap.connectionState == ConnectionState.waiting) {
-                        return const Center(
-                          child: LoadingWidget(
-                            width: 400,
-                            height: 80,
-                          ),
-                        );
-                      } else if (whSnap.hasError) {
-                        return Center(
-                          child: Text('Ошибка: ${whSnap.error}'),
-                        );
-                      } else if (!whSnap.hasData ||
-                          whSnap.data!.items.isEmpty) {
-                        return Center(
-                          child: Text(localizations.empty),
-                        );
-                      }
-
-                      final warehouses = whSnap.data!.items;
-                      return Column(
-                        children: warehouses.map((wh) {
-                          return Card(
-                            color: Colors.grey.shade100,
-                            elevation: 0,
-                            margin: const EdgeInsets.symmetric(vertical: 6),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: ListTile(
-                              title: Text(wh.name),
-                              subtitle: Row(
-                                children: [
-                                  Text(
-                                    wh.address.address.replaceFirst(
-                                        RegExp(r'^Казахстан\s*,\s*'), ''),
-                                  ),
-                                ],
-                              ),
-                              trailing: const Icon(Icons.chevron_right),
-                              onTap: () async {
-                                final result = await Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) =>
-                                        WarehouseEditPage(id: wh.id),
-                                  ),
-                                );
-
-                                if (result == true) {
-                                  setState(() {
-                                    _warehousesFuture =
-                                        _warehouseService.getWarehouses(
-                                            context, organization.id!);
-                                  });
-                                }
-                              },
-                            ),
-                          );
-                        }).toList(),
-                      );
-                    },
+                ],
+              ),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () async {
+                final result = await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => WarehouseEditPage(id: wh.id),
                   ),
+                );
+
+                if (result == true) {
+                  setState(() {
+                    _warehousesFuture = _warehouseService.getWarehouses(
+                      context,
+                      organization.id!,
+                    );
+                  });
+                }
+              },
+            ),
+          );
+        }).toList(),
+      );
+    },
+  ),
+],
+
 
                   const SizedBox(height: 20),
 
-                  // Кнопка "Добавить склад"
-                  SizedBox(
-                    width: double.infinity,
-                    child: CustomButton(
-                      text: localizations.add_warehouse,
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => WarehousePage(
-                              organizationId: organization.id!,
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
+if (data.permissions!.contains('warehouse_read'))
+SizedBox(
+  width: double.infinity,
+  child: CustomButton(
+    text: data.permissions!.contains('warehouse_read')
+        ? localizations.add_warehouse
+        : localizations.request_permission,
+    onPressed: data.permissions!.contains('warehouse_read')
+        ? () async {
+            final result = await Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => WarehousePage(
+                  organizationId: organization.id!,
+                ),
+              ),
+            );
+
+            if (result == true) {
+              setState(() {
+                _warehousesFuture = _warehouseService.getWarehouses(
+                  context,
+                  organization.id!,
+                );
+              });
+            }
+          }
+        : () {
+    //  _openWhatsAppChat();
+          },
+  ),
+),
 
                   const SizedBox(height: 20),
                   Center(

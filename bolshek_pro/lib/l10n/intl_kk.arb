@@ -546,7 +546,11 @@
   "manager_data": "Менеджер мәліметтері",
   "enter_warehouse_name": "Қойма атауын енгізіңіз",
   "create_warehouse": "Қойманы құру",
-  "your_warehouse": "Сіздің қоймаларыңыз"
+  "your_warehouse": "Сіздің қоймаларыңыз",
+  "no_access": "Сізде қолжетімділік жоқ",
+"request_permission": "Рұқсат сұрау",
+"no_permission": "Қоймаларды көруге рұқсатыңыз жоқ"
+
 
 
 }

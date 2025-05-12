@@ -45,6 +45,8 @@ class WarehouseService {
     }
   }
 
+   
+
   Future<WarehouseItem> getWarehousesById(
       BuildContext context, String warehouseId) async {
     try {
@@ -74,25 +76,17 @@ class WarehouseService {
     }
   }
 
-  Future<void> createWarehouse(
-      BuildContext context,
-      String firstName,
-      String lastname,
-      String phoneNumber,
-      String organizationId,
-      bool main) async {
+   Future<void> createWarehouseProduct(
+      BuildContext context, String quantity, String productId, String id) async {
     try {
       final token = _getToken(context);
       final body = {
-        "name": firstName,
-        "addressId": lastname,
-        "relatedOrganizationId": phoneNumber,
-        "managerId": organizationId,
-        "isMain": main
+        "quantity": quantity,
+        "productId": productId
       };
 
-      final response = await httpClient.post(
-        Uri.parse(_baseUrl),
+      final response = await http.post(
+        Uri.parse('$_baseUrl/$id/products'),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
@@ -110,6 +104,58 @@ class WarehouseService {
       throw Exception('Error creating warehouse: $e');
     }
   }
+
+  Future<void> createWarehouse(
+  BuildContext context,
+  double longitude,
+  double latitude,
+  String address,
+  String cityId,
+  String firstName,
+  String name,
+  String lastName,
+  String phoneNumber,
+  String organizationId,
+  bool main,
+) async {
+  try {
+    final token = _getToken(context);
+
+    final body = {
+      "name": name, // имя склада
+      "address": address,
+      "cityId": cityId,
+      "latitude": latitude,
+      "longitude": longitude,
+      "isMain": main,
+      "relatedOrganizationId": organizationId, // это UUID
+      "firstName": firstName,
+      "lastName": lastName,
+      "phoneNumber": phoneNumber,
+    };
+
+    final response = await httpClient.post(
+      Uri.parse(_baseUrl),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode(body),
+    );
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      print('Warehouse created successfully');
+    } else {
+      throw Exception(
+        'Failed to create warehouse: ${response.statusCode}, ${response.body}',
+      );
+    }
+  } catch (e) {
+    throw Exception('Error creating warehouse: $e');
+  }
+}
+
+  
 
   Future<void> updateWarehouse(
     BuildContext context,
@@ -158,6 +204,34 @@ class WarehouseService {
       throw Exception('Error updating warehouse: $e');
     }
   }
+
+  Future<void> deleteWarehouse(
+  BuildContext context,
+  String warehouseId,
+) async {
+  try {
+    final token = _getToken(context);
+
+    final response = await httpClient.delete(
+      Uri.parse('$_baseUrl/$warehouseId'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode == 200 || response.statusCode == 204) {
+      print('Warehouse deleted successfully');
+    } else {
+      throw Exception(
+        'Failed to delete warehouse: ${response.statusCode}, ${response.body}',
+      );
+    }
+  } catch (e) {
+    throw Exception('Error deleting warehouse: $e');
+  }
+}
+
 
   String _getToken(BuildContext context) {
     final authProvider = Provider.of<GlobalProvider>(context, listen: false);

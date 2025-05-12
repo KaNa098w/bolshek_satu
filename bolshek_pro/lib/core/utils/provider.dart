@@ -27,6 +27,23 @@ class GlobalProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  String? _organizationId;
+String? get organizationId => _organizationId;
+
+void setOrganizationId(String id) {
+  _organizationId = id;
+  notifyListeners();
+}
+
+List<String> _permissions = [];
+List<String> get permissions => _permissions;
+
+void setPermissions(List<String> value) {
+  _permissions = value;
+  notifyListeners();
+}
+
+
   // Геттерый
   double get price => _price;
   String get kind => _kind;

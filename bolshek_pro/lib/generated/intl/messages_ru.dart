@@ -449,6 +449,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "noImage": MessageLookupByLibrary.simpleMessage("Нет изображения"),
     "noNotifications": MessageLookupByLibrary.simpleMessage("Нет уведомлений"),
+    "no_access": MessageLookupByLibrary.simpleMessage("У вас нет доступа"),
     "no_address_found": MessageLookupByLibrary.simpleMessage(
       "Адреса не найдены",
     ),
@@ -469,6 +470,9 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "no_org_data": MessageLookupByLibrary.simpleMessage(
       "Нет данных об организации",
+    ),
+    "no_permission": MessageLookupByLibrary.simpleMessage(
+      "У вас нет разрешения на просмотр складов",
     ),
     "no_price_variants": MessageLookupByLibrary.simpleMessage(
       "У товара нет вариантов с ценой",
@@ -694,6 +698,9 @@ class MessageLookup extends MessageLookupByLibrary {
       "Вы уверены, что хотите снять товар с продажи?",
     ),
     "repeat": MessageLookupByLibrary.simpleMessage("Повторить"),
+    "request_permission": MessageLookupByLibrary.simpleMessage(
+      "Запросить разрешение",
+    ),
     "resendText": MessageLookupByLibrary.simpleMessage("Отправить код снова"),
     "resendTimerText": m3,
     "resend_code": MessageLookupByLibrary.simpleMessage("Отправить код снова"),

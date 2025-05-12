@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:bolshek_pro/app/pages/orders/order_detail_page.dart';
 import 'package:bolshek_pro/app/widgets/%20order_status_widget.dart';
+import 'package:bolshek_pro/core/models/order_detail_response.dart';
 import 'package:bolshek_pro/generated/l10n.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -23,7 +24,7 @@ class OrderListPage extends StatefulWidget {
 
 class _OrderListPageState extends State<OrderListPage> {
   final OrdersService _ordersService = OrdersService();
-  final List<OrderItem> _orders = [];
+  final List<Order> _orders = [];
   final ScrollController _scrollController = ScrollController();
   bool _isLoading = false;
   bool _hasMore = true;
@@ -59,7 +60,7 @@ class _OrderListPageState extends State<OrderListPage> {
       final List<dynamic> cachedList = jsonDecode(cachedData);
       setState(() {
         _orders.addAll(
-          cachedList.map((e) => OrderItem.fromJson(e)).toList(),
+          cachedList.map((e) => Order.fromJson(e)).toList(),
         );
         _skip = _orders.length;
       });
@@ -75,7 +76,7 @@ class _OrderListPageState extends State<OrderListPage> {
     final cachedData = prefs.getString('cached_orders_${widget.statusFilter}');
     final List<dynamic> cachedList =
         cachedData != null ? jsonDecode(cachedData) : [];
-    final cachedOrders = cachedList.map((e) => OrderItem.fromJson(e)).toList();
+    final cachedOrders = cachedList.map((e) => Order.fromJson(e)).toList();
 
     // Сравнить загруженные заказы с кешированными и удалить отсутствующие
     final updatedOrders = cachedOrders.where((cachedOrder) {
@@ -137,9 +138,9 @@ class _OrderListPageState extends State<OrderListPage> {
       // Проверить и обновить кэш
       await _cacheOrders();
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Ошибка загрузки: $e')),
-      );
+      // ScaffoldMessenger.of(context).showSnackBar(
+      //   SnackBar(content: Text('Ошибка загрузки: $e')),
+      // );
     } finally {
       setState(() {
         _isLoading = false;
@@ -215,19 +216,23 @@ class _OrderListPageState extends State<OrderListPage> {
                               return _buildOrderItem(
                                 address: order.address?.address ??
                                     localizations.address_not_specified,
-                                name: order.items.first.product?.name ?? '',
+                                name: order.items!.first.warehouseProduct.product?.name ?? '',
                                 total:
                                     '${_formatPrice((order.totalPrice?.amount ?? 0) / 100)} ₸',
                                 orderId:
                                     order.id ?? localizations.unknown_order,
-                                data: order.updatedAt ??
-                                    localizations.date_not_specified,
+                     data: order.updatedAt != null
+    ? _formatDate(order.updatedAt!.toIso8601String())
+    : localizations.date_not_specified,
+
                                 orderNumber: order.number ?? 0,
                                 count: order.items?.length ?? 0,
                                 status: order.status ?? '',
-                                imageUrl: order.items.first.product?.images
-                                        ?.first.sizes?.first.url ??
-                                    '',
+imageUrl: order.items!.first.warehouseProduct.product.images?.isNotEmpty == true &&
+           order.items!.first.warehouseProduct.product.images!.first.sizes?.isNotEmpty == true
+    ? order.items!.first.warehouseProduct.product.images!.first.sizes!.first.url ?? ''
+    : '',
+
                               );
                             }),
                   ),
@@ -365,7 +370,7 @@ class _OrderListPageState extends State<OrderListPage> {
                         ),
                         const SizedBox(height: 3),
                         Text(
-                          '${localizations.date_prefix} ${_orders.first.createdAt != null ? _formatDate(_orders.first.createdAt!) : localizations.date_not_specified}',
+                          '${localizations.date_prefix} ${_orders.first.createdAt != null ? _formatDate(_orders.first.createdAt!.toString()) : localizations.date_not_specified}',
                           style: const TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w400,

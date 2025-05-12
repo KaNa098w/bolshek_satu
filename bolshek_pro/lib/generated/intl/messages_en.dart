@@ -453,6 +453,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "noImage": MessageLookupByLibrary.simpleMessage("No image"),
     "noNotifications": MessageLookupByLibrary.simpleMessage("No notifications"),
+    "no_access": MessageLookupByLibrary.simpleMessage("You do not have access"),
     "no_address_found": MessageLookupByLibrary.simpleMessage(
       "No addresses found",
     ),
@@ -472,6 +473,9 @@ class MessageLookup extends MessageLookupByLibrary {
       "There are no orders in this section",
     ),
     "no_org_data": MessageLookupByLibrary.simpleMessage("No organization data"),
+    "no_permission": MessageLookupByLibrary.simpleMessage(
+      "You do not have permission to view warehouses",
+    ),
     "no_price_variants": MessageLookupByLibrary.simpleMessage(
       "No price variants available for the product",
     ),
@@ -696,6 +700,9 @@ class MessageLookup extends MessageLookupByLibrary {
       "Are you sure you want to remove the product from sale?",
     ),
     "repeat": MessageLookupByLibrary.simpleMessage("Repeat"),
+    "request_permission": MessageLookupByLibrary.simpleMessage(
+      "Request permission",
+    ),
     "resendText": MessageLookupByLibrary.simpleMessage("Resend code"),
     "resendTimerText": m3,
     "resend_code": MessageLookupByLibrary.simpleMessage("Resend Code"),

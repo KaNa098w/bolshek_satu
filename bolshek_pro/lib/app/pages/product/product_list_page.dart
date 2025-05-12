@@ -36,6 +36,7 @@ class _ProductListPageState extends State<ProductListPage> {
   bool _isLoading = false;
   bool _hasMore = true;
   int _skip = 0;
+    int   _page = 0;     
   final int _take = 25;
 
   // ──────────────────────────────────────────────── lifecycle
@@ -60,19 +61,20 @@ class _ProductListPageState extends State<ProductListPage> {
   }
 
   // ──────────────────────────────────────────────── cache helpers
-  Future<void> _loadCachedProducts() async {
-    final prefs = await SharedPreferences.getInstance();
-    final cachedData = prefs.getString('cached_products_${widget.status}');
-    if (cachedData != null) {
-      final List<dynamic> cachedList = jsonDecode(cachedData);
-      setState(() {
-        _products.addAll(
-          cachedList.map((e) => ProductItems.fromJson(e)).toList(),
-        );
-        _skip = _products.length;
-      });
-    }
+Future<void> _loadCachedProducts() async {
+  final prefs = await SharedPreferences.getInstance();
+  final cached = prefs.getString('cached_products_${widget.status}');
+  if (cached != null) {
+    final list = (jsonDecode(cached) as List)
+        .map((e) => ProductItems.fromJson(e))
+        .toList();
+
+    setState(() {
+      _products.addAll(list);
+      _page = (_products.length / _take).ceil();   // ← сколько страниц уже есть
+    });
   }
+}
 
   Future<void> _cacheProducts() async {
     final prefs = await SharedPreferences.getInstance();
@@ -82,46 +84,52 @@ class _ProductListPageState extends State<ProductListPage> {
 
   // ──────────────────────────────────────────────── data
   Future<void> _fetchProducts() async {
-    if (_isLoading || !_hasMore) return;
+  if (_isLoading || !_hasMore) return;
+  setState(() => _isLoading = true);
 
-    setState(() => _isLoading = true);
+  try {
+    final response = await _productService.fetchProductsPaginated(
+      context: context,
+      take: _take,
+      skip: _page * _take,
+      status: widget.status,
+    );
 
-    try {
-      final response = await _productService.fetchProductsPaginated(
-        context: context,
-        take: _take,
-        skip: _skip,
-        status: widget.status,
-      );
+    final items  = response.items  ?? [];
+    final total  = response.total ?? 0;
 
-      setState(() {
-        final newProducts = response.items ?? [];
-        for (var p in newProducts) {
-          if (!_products.any((e) => e.id == p.id)) _products.add(p);
-        }
-        _skip += _take;
-        _hasMore = newProducts.length == _take;
-      });
-
-      await _cacheProducts();
-    } catch (e) {
-      final loc = S.of(context);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('${loc.load_error}$e')),
-      );
-    } finally {
-      setState(() => _isLoading = false);
+    for (final p in items) {
+      if (!_products.any((e) => e.id == p.id)) _products.add(p);
     }
-  }
 
-  Future<void> _refreshProducts() async {
-    setState(() {
-      _products.clear();
-      _skip = 0;
-      _hasMore = true;
-    });
-    await _fetchProducts();
+    _page++;
+    _hasMore = _products.length < total;
+
+    // ⬅️  сохраняем обновлённый список
+    await _cacheProducts();         // <<< ДОБАВИЛИ
+  } catch (e) {
+    final loc = S.of(context);
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text('${loc.load_error}$e')));
+  } finally {
+    setState(() => _isLoading = false);
   }
+}
+
+
+Future<void> _refreshProducts() async {
+  setState(() {
+    _products.clear();
+    _page    = 0;
+    _hasMore = true;
+  });
+
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.remove('cached_products_${widget.status}');  // очистили
+
+  await _fetchProducts();         // первая свежая страница сразу попадёт в кэш
+}
+
 
   void _addNewProduct(ProductItems p) {
     if (_products.any((e) => e.id == p.id)) return;

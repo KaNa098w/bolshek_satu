@@ -6,11 +6,14 @@ import 'package:bolshek_pro/app/pages/settings/settings_page.dart';
 import 'package:bolshek_pro/core/models/notifications_response.dart';
 import 'package:bolshek_pro/core/service/auth_service.dart';
 import 'package:bolshek_pro/core/service/notification_service.dart';
+import 'package:bolshek_pro/core/utils/provider.dart';
+import 'package:bolshek_pro/core/utils/provider.dart';
 import 'package:bolshek_pro/core/utils/theme.dart';
 import 'package:bolshek_pro/generated/l10n.dart';
 import 'package:bolshek_pro/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 // Не забудьте создать глобальный observer в main.dart:
@@ -105,25 +108,30 @@ class _MainControllerNavigatorState extends State<MainControllerNavigator>
     }
   }
 
-  Future<void> _fetchAndCacheOrganizationName() async {
-    try {
-      final authSession = await AuthService().fetchAuthSession(context);
-      final fetchedName =
-          authSession.user?.organization?.name ?? 'Без названия';
+Future<void> _fetchAndCacheOrganizationName() async {
+  try {
+    final authSession = await AuthService().fetchAuthSession(context);
+    final fetchedName =
+        authSession.user?.organization?.name ?? 'Без названия';
 
-      setState(() {
-        organizationName = fetchedName;
-      });
+    setState(() {
+      organizationName = fetchedName;
+    });
 
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('organization_name', fetchedName);
-    } catch (e) {
-      print('Error fetching organization name: $e');
-      setState(() {
-        organizationName = '';
-      });
-    }
+    // Сохраняем permissions в GlobalProvider
+    context.read<GlobalProvider>().setPermissions(
+          authSession.permissions ?? [],
+        );
+
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('organization_name', fetchedName);
+  } catch (e) {
+    print('Error fetching organization name: $e');
+    setState(() {
+      organizationName = '';
+    });
   }
+}
 
   void _notificationScreen() {
     Navigator.push<void>(
