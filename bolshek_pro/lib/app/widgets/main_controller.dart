@@ -44,7 +44,7 @@ class _MainControllerNavigatorState extends State<MainControllerNavigator>
   @override
   void initState() {
     super.initState();
-    _loadOrganizationName();
+    // _loadOrganizationName();
     _fetchNotifications();
     _currentIndex = widget.initialIndex;
     _ordersTabIndex = widget.ordersTabIndex;
@@ -95,43 +95,43 @@ class _MainControllerNavigatorState extends State<MainControllerNavigator>
         MyOrganizationPage(),
       ];
 
-  Future<void> _loadOrganizationName() async {
-    final prefs = await SharedPreferences.getInstance();
-    final cachedName = prefs.getString('organization_name');
+//   Future<void> _loadOrganizationName() async {
+//     final prefs = await SharedPreferences.getInstance();
+//     final cachedName = prefs.getString('organization_name');
 
-    if (cachedName != null) {
-      setState(() {
-        organizationName = cachedName;
-      });
-    } else {
-      _fetchAndCacheOrganizationName();
-    }
-  }
+//     if (cachedName != null) {
+//       setState(() {
+//         organizationName = cachedName;
+//       });
+//     } else {
+//       _fetchAndCacheOrganizationName();
+//     }
+//   }
 
-Future<void> _fetchAndCacheOrganizationName() async {
-  try {
-    final authSession = await AuthService().fetchAuthSession(context);
-    final fetchedName =
-        authSession.user?.organization?.name ?? 'Без названия';
+// Future<void> _fetchAndCacheOrganizationName() async {
+//   try {
+//     final authSession = await AuthService().fetchAuthSession(context);
+//     final fetchedName =
+//         authSession.user?.organization?.name ?? 'Без названия';
+//       print()
+//     setState(() {
+//       organizationName = fetchedName;
+//     });
 
-    setState(() {
-      organizationName = fetchedName;
-    });
+//     // Сохраняем permissions в GlobalProvider
+//     context.read<GlobalProvider>().setPermissions(
+//           authSession.permissions ?? [],
+//         );
 
-    // Сохраняем permissions в GlobalProvider
-    context.read<GlobalProvider>().setPermissions(
-          authSession.permissions ?? [],
-        );
-
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('organization_name', fetchedName);
-  } catch (e) {
-    print('Error fetching organization name: $e');
-    setState(() {
-      organizationName = '';
-    });
-  }
-}
+//     final prefs = await SharedPreferences.getInstance();
+//     await prefs.setString('organization_name', fetchedName);
+//   } catch (e) {
+//     print('Error fetching organization name: $e');
+//     setState(() {
+//       organizationName = '';
+//     });
+//   }
+// }
 
   void _notificationScreen() {
     Navigator.push<void>(
@@ -145,12 +145,12 @@ Future<void> _fetchAndCacheOrganizationName() async {
   @override
   Widget build(BuildContext context) {
     final localizations = S.of(context);
-
+    final global = context.read<GlobalProvider>();
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
         title: Text(
-          organizationName ?? '',
+          global.organizationName ?? '',
           style: TextStyle(
               fontSize: 21,
               fontWeight: FontWeight.bold,

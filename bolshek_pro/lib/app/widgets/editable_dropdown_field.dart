@@ -8,6 +8,7 @@ class EditableDropdownField extends StatefulWidget {
   final String hint;
   final int maxLines;
   final bool change; // Если false, редактирование невозможно
+  final TextInputType? keyboardType; // в EditableDropdownField
 
   const EditableDropdownField({
     Key? key,
@@ -16,7 +17,7 @@ class EditableDropdownField extends StatefulWidget {
     required this.onChanged,
     this.hint = 'Введите значение',
     this.maxLines = 1,
-    this.change = true, // по умолчанию редактирование разрешено
+    this.change = true, this.keyboardType, // по умолчанию редактирование разрешено
   }) : super(key: key);
 
   @override
@@ -27,6 +28,7 @@ class _EditableDropdownFieldState extends State<EditableDropdownField> {
   late TextEditingController _controller;
   late FocusNode _focusNode;
   bool _isEditing = false;
+  
 
   @override
   void initState() {
@@ -81,7 +83,9 @@ class _EditableDropdownFieldState extends State<EditableDropdownField> {
                       focusNode: _focusNode,
                       autofocus: true,
                       maxLines: widget.maxLines,
+                      keyboardType: widget.keyboardType,
                       textInputAction: TextInputAction.done,
+                      
                       onSubmitted: (_) => _confirmEdit(),
                       decoration: InputDecoration(
                         hintText: widget.hint,

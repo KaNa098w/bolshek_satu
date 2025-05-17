@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 class CustomDropdownField extends StatelessWidget {
   final String title;
   final String value;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
   final Widget? trailing;
   final bool showIcon;
 
@@ -18,7 +18,7 @@ class CustomDropdownField extends StatelessWidget {
     Key? key,
     required this.title,
     required this.value,
-    required this.onTap,
+    this.onTap,
     this.trailing,
     this.showIcon = true,
     this.rightIcon = false,
@@ -36,7 +36,7 @@ class CustomDropdownField extends StatelessWidget {
             onValueChanged!(newValue);
           }
         } else {
-          onTap();
+          onTap!();
         }
       },
       child: Container(

@@ -95,7 +95,7 @@ Future<int> _fetchProductCount({
       final token = _getToken(context);
       final response = await httpClient.get(
         Uri.parse(
-            '$_baseUrl?take=$take&skip=$skip&$status&categoryWithChildren=true'),
+            '$_baseUrl?take=$take&skip=$skip&$status'),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',

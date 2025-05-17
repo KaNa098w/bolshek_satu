@@ -1,171 +1,183 @@
 import 'dart:async';
+
 import 'package:bolshek_pro/app/widgets/main_controller.dart';
 import 'package:bolshek_pro/app/widgets/widget_from_bolshek/theme_text_style.dart';
 import 'package:bolshek_pro/core/models/auth_response.dart';
+import 'package:bolshek_pro/core/service/auth_service.dart';
 import 'package:bolshek_pro/core/utils/provider.dart';
 import 'package:bolshek_pro/core/utils/theme.dart';
+import 'package:bolshek_pro/generated/l10n.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
-import 'package:bolshek_pro/core/service/auth_service.dart';
 import 'package:provider/provider.dart';
-import 'package:bolshek_pro/generated/l10n.dart'; // Импортируйте сгенерированные локализации
 
+/// Экран ввода SMS-кода.  
+/// После успешной верификации выполняет всю «прелоадерную» инициализацию,
+/// а затем переводит пользователя в [MainControllerNavigator].
 class CodeInputPage extends StatefulWidget {
-  final bool isRegistered;
-  final String otpId;
-  final String phoneNumber;
-
-  CodeInputPage({
+  const CodeInputPage({
+    super.key,
     required this.isRegistered,
     required this.otpId,
     required this.phoneNumber,
   });
 
+  final bool isRegistered;
+  final String otpId;
+  final String phoneNumber;
+
   @override
-  _CodeInputPageState createState() => _CodeInputPageState();
+  State<CodeInputPage> createState() => _CodeInputPageState();
 }
 
 class _CodeInputPageState extends State<CodeInputPage> {
   final TextEditingController _codeController = TextEditingController();
   final FocusNode _pinFocusNode = FocusNode();
-  StreamController<ErrorAnimationType>? errorController =
+  final StreamController<ErrorAnimationType> _errorController =
       StreamController<ErrorAnimationType>();
-  AuthService _authService = AuthService();
-  String currentText = "";
-  Timer? _timer;
-  int _start = 60;
-  bool _isLoading = false;
+  final AuthService _authService = AuthService();
+
+  String _currentText = '';
   late String _otpId;
+
+  Timer? _timer;
+  int _secondsLeft = 60;
+  bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
-    startTimer();
     _otpId = widget.otpId;
+    _startTimer();
   }
 
   @override
   void dispose() {
     _timer?.cancel();
-    errorController?.close();
+    _errorController.close();
     _pinFocusNode.dispose();
     _codeController.dispose();
     super.dispose();
   }
 
-  void startTimer() {
+  /* ─────────────────────────  Таймер  ───────────────────────── */
+
+  void _startTimer() {
     const oneSec = Duration(seconds: 1);
-    _timer = Timer.periodic(
-      oneSec,
-      (Timer timer) {
-        if (_start == 0) {
-          timer.cancel();
-        } else {
-          setState(() {
-            _start--;
-          });
-        }
-      },
-    );
+    _timer?.cancel();
+    _timer = Timer.periodic(oneSec, (t) {
+      if (_secondsLeft == 0) {
+        t.cancel();
+      } else {
+        setState(() => _secondsLeft--);
+      }
+    });
   }
 
-  Future<void> _sendSms() async {
-    setState(() {
-      _isLoading = true;
-    });
+  /* ─────────────────────  Повторная отправка SMS  ───────────────────── */
+
+  Future<void> _sendSmsAgain() async {
+    setState(() => _isLoading = true);
 
     try {
-      final response =
-          await _authService.fetchOtpId(context, widget.phoneNumber);
-      final newOtpId = response['otpId'] as String;
+      final resp = await _authService.fetchOtpId(context, widget.phoneNumber);
+      _otpId = resp['otpId'] as String;
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-              S.of(context).smsSentMessageSuccess), // Локализованное сообщение
-          backgroundColor: Colors.green,
-        ),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        backgroundColor: Colors.green,
+        content: Text(S.of(context).smsSentMessageSuccess),
+      ));
 
       setState(() {
-        _otpId = newOtpId;
-        _start = 60;
+        _secondsLeft = 60;
       });
-      startTimer();
+      _startTimer();
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(S.of(context).smsSentMessageError(e.toString())),
-          backgroundColor: Colors.red,
-        ),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        backgroundColor: Colors.red,
+        content: Text(S.of(context).smsSentMessageError(e.toString())),
+      ));
     } finally {
-      setState(() {
-        _isLoading = false;
-      });
+      setState(() => _isLoading = false);
     }
   }
 
-  void _verifyCode() async {
-    if (currentText.length == 6) {
-      setState(() {
-        _isLoading = true;
-      });
+  /* ─────────────────────  Пост-авторизационный bootstrap  ───────────────────── */
 
-      try {
-        final response = await _authService.signWitpPhone(
-          context,
-          _otpId,
-          currentText,
-        );
+  Future<void> _postLoginInit(AuthResponse auth) async {
+    final global = context.read<GlobalProvider>();
 
-        final authResponse = AuthResponse.fromJson(response);
+    // сохраняем auth-данные в провайдер и SharedPreferences
+    global.setAuthData(auth);
 
-        context.read<GlobalProvider>().setAuthData(authResponse);
+    // подтягиваем расширенную сессию
+    final session = await AuthService().fetchAuthSession(context);
 
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (context) => MainControllerNavigator()),
-          (route) => false,
-        );
-      } catch (e) {
-        String errorMessage = S.of(context).registerError(e.toString());
+    global
+      ..setPermissions(session.permissions ?? [])
+      ..getWarehouseId(session.user?.warehouses?.first.id ?? '')
+      ..getManager(session.user?.roles?.first.role?.name ?? '')
+      ..setOrganizationName(session.user?.organization?.name ?? 'Без названия');
+  }
 
-        if (e.toString().contains('code: 9040') ||
-            e.toString().contains('User account deactivated')) {
-          errorMessage = S.of(context).accountNotActive;
-        }
-        if (errorController?.isClosed == false) {
-          errorController?.add(ErrorAnimationType.shake);
-        }
-        if (e.toString().contains('otp_invalid: Invalid OTP code')) {
-          errorMessage = S.of(context).invalidOtp;
-        }
-        if (e.toString().contains('otp_invalid: OTP is used or expired')) {
-          errorMessage = S.of(context).otpExpired;
-        }
+  /* ─────────────────────  Проверка введённого кода  ───────────────────── */
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(errorMessage)),
-        );
-      } finally {
-        setState(() {
-          _isLoading = false;
-        });
-      }
-    } else {
-      if (errorController?.isClosed == false) {
-        errorController?.add(ErrorAnimationType.shake);
-      }
+  Future<void> _verifyCode() async {
+    if (_currentText.length != 6) {
+      _errorController.add(ErrorAnimationType.shake);
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    try {
+      final raw = await _authService.signWitpPhone(
+        context,
+        _otpId,
+        _currentText,
+      );
+      final auth = AuthResponse.fromJson(raw);
+
+      await _postLoginInit(auth);
+
+      // успешный вход в приложение
+      if (!mounted) return;
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (_) => const MainControllerNavigator()),
+        (_) => false,
+      );
+    } catch (e) {
+      _handleVerifyError(e);
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
     }
   }
+
+  void _handleVerifyError(Object e) {
+    String msg = S.of(context).registerError(e.toString());
+
+    if (e.toString().contains('code: 9040') ||
+        e.toString().contains('User account deactivated')) {
+      msg = S.of(context).accountNotActive;
+    } else if (e.toString().contains('otp_invalid: Invalid OTP code')) {
+      msg = S.of(context).invalidOtp;
+    } else if (e.toString().contains('otp_invalid: OTP is used or expired')) {
+      msg = S.of(context).otpExpired;
+    }
+
+    _errorController.add(ErrorAnimationType.shake);
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+  }
+
+  /* ──────────────────────────  UI  ────────────────────────── */
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-            S.of(context).smsCodeInputTitle), // например, "Введите SMS-код"
+        title: Text(S.of(context).smsCodeInputTitle),
         centerTitle: true,
         backgroundColor: Colors.white,
         elevation: 0,
@@ -174,64 +186,60 @@ class _CodeInputPageState extends State<CodeInputPage> {
       backgroundColor: Colors.white,
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20.0),
+          padding: const EdgeInsets.symmetric(horizontal: 20),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               const SizedBox(height: 30),
               Text(
-                S
-                    .of(context)
-                    .phoneConfirmation, // например, "Подтверждение номера"
+                S.of(context).phoneConfirmation,
                 style: ThemeTextMontserratBold.size21,
-                maxLines: 1,
               ),
               const SizedBox(height: 10),
               Text(
-                S
-                    .of(context)
-                    .smsSentText, // например, "Мы отправили код на ваш номер телефона."
+                S.of(context).smsSentText,
                 textAlign: TextAlign.center,
                 style: const TextStyle(fontSize: 16, color: Colors.grey),
               ),
               const SizedBox(height: 30),
+
+              /* ─── PIN коды ─── */
               PinCodeTextField(
                 appContext: context,
-                autoFocus: true,
                 focusNode: _pinFocusNode,
                 length: 6,
+                autoFocus: true,
+                controller: _codeController,
+                errorAnimationController: _errorController,
+                keyboardType: TextInputType.number,
                 animationType: AnimationType.fade,
+                animationDuration: const Duration(milliseconds: 300),
+                beforeTextPaste: (_) => true,
+                onChanged: (v) => _currentText = v,
+                enableActiveFill: true,
+                cursorColor: Colors.black,
                 pinTheme: PinTheme(
                   shape: PinCodeFieldShape.box,
                   borderRadius: BorderRadius.circular(10),
                   fieldHeight: 50,
                   fieldWidth: 45,
                   inactiveFillColor: Colors.grey[100],
-                  activeFillColor: Colors.white,
-                  selectedFillColor: Colors.grey[100],
                   inactiveColor: Colors.grey[100],
-                  activeColor: Colors.orange[100],
+                  selectedFillColor: Colors.grey[100],
                   selectedColor: Colors.orange[100],
+                  activeFillColor: Colors.white,
+                  activeColor: Colors.orange[100],
                 ),
-                cursorColor: Colors.black,
-                animationDuration: const Duration(milliseconds: 300),
-                enableActiveFill: true,
-                errorAnimationController: errorController,
-                controller: _codeController,
-                keyboardType: TextInputType.number,
                 boxShadows: const [
                   BoxShadow(
                     offset: Offset(0, 2),
-                    color: Colors.black12,
                     blurRadius: 5,
+                    color: Colors.black12,
                   )
                 ],
-                onChanged: (value) {
-                  currentText = value;
-                },
-                beforeTextPaste: (text) => true,
               ),
               const SizedBox(height: 20),
+
+              /* ─── Кнопка подтверждения ─── */
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
@@ -243,35 +251,35 @@ class _CodeInputPageState extends State<CodeInputPage> {
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  child: Text(
-                    S.of(context).verifyButtonText, // "Подтвердить"
-                    style: const TextStyle(
-                      fontSize: 16,
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+                  child: _isLoading
+                      ? const CircularProgressIndicator(color: Colors.white)
+                      : Text(
+                          S.of(context).verifyButtonText,
+                          style: const TextStyle(
+                              fontSize: 16,
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold),
+                        ),
                 ),
               ),
               const SizedBox(height: 15),
-              if (_start > 0)
-                Text(
-                  S.of(context).resendTimerText(
-                      _start), // например, "Отправить повторно через {seconds} сек."
-                  style: const TextStyle(color: Colors.grey),
-                )
-              else
-                GestureDetector(
-                  onTap: _isLoading ? null : _sendSms,
-                  child: Text(
-                    S.of(context).resendText, // "Отправить код снова"
-                    style: const TextStyle(
-                      fontSize: 16,
-                      color: Colors.grey,
-                      fontWeight: FontWeight.w600,
+
+              /* ─── Повторная отправка ─── */
+              _secondsLeft > 0
+                  ? Text(
+                      S.of(context).resendTimerText(_secondsLeft),
+                      style: const TextStyle(color: Colors.grey),
+                    )
+                  : GestureDetector(
+                      onTap: _isLoading ? null : _sendSmsAgain,
+                      child: Text(
+                        S.of(context).resendText,
+                        style: const TextStyle(
+                            fontSize: 16,
+                            color: Colors.grey,
+                            fontWeight: FontWeight.w600),
+                      ),
                     ),
-                  ),
-                ),
             ],
           ),
         ),

@@ -6,6 +6,7 @@ import 'package:bolshek_pro/app/widgets/custom_alert_dialog_widget.dart';
 import 'package:bolshek_pro/app/widgets/editable_dropdown_field.dart';
 import 'package:bolshek_pro/app/widgets/home_widgets/color_picker_widget.dart';
 import 'package:bolshek_pro/app/widgets/home_widgets/hex_colors_widget.dart';
+import 'package:bolshek_pro/app/widgets/quantity_widget.dart';
 import 'package:bolshek_pro/app/widgets/textfield_widget.dart';
 import 'package:bolshek_pro/core/models/category_response.dart' as category;
 import 'package:bolshek_pro/app/widgets/custom_button.dart';
@@ -20,6 +21,7 @@ import 'package:bolshek_pro/core/service/maufacturers_service.dart';
 import 'package:bolshek_pro/core/service/properties_service.dart';
 import 'package:bolshek_pro/core/service/tags_service.dart';
 import 'package:bolshek_pro/core/service/variants_service.dart';
+import 'package:bolshek_pro/core/service/warehouse_service.dart';
 import 'package:bolshek_pro/core/utils/provider.dart';
 import 'package:bolshek_pro/generated/l10n.dart';
 import 'package:flutter/material.dart';
@@ -75,6 +77,8 @@ class _ProductChangePageState extends State<ProductChangePage> {
   List<ItemsTags> _selectedTags = [];
   List<ItemsTags>? list_tags;
   Map<String, bool> _propertyErrors = {};
+  Map<String, String> _updatedWarehouseQuantities = {};
+
 
   final TagsService _tagsService = TagsService();
   List<ItemsTags> _tags = [];
@@ -600,6 +604,24 @@ class _ProductChangePageState extends State<ProductChangePage> {
         );
       }
 
+      final warehouseService = WarehouseService();
+
+for (final entry in _updatedWarehouseQuantities.entries) {
+  final warehouseId = entry.key;
+  final newQuantity = entry.value;
+  try {
+    await warehouseService.updateWarehouseProductQuantity(
+      context,
+      newQuantity,
+      widget.productId,
+      warehouseId,
+    );
+  } catch (e) {
+    print('Ошибка обновления количества на складе $warehouseId: $e');
+  }
+}
+
+
       if (updatedFields.isNotEmpty) {
         final response = await widget.productService.updateProduct(
           context: context,
@@ -1082,6 +1104,57 @@ class _ProductChangePageState extends State<ProductChangePage> {
     );
   }
 
+Widget _buildProductWarehousesAsFields() {
+  final local = S.of(context);
+  final warehouses = _product?.warehouses ?? [];
+
+  if (warehouses.isEmpty) return const SizedBox.shrink();
+
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: warehouses.map((item) {
+      final warehouseName = item.warehouse?.name ?? local.no_name;
+      final warehouseId = item.warehouse?.id ?? '';
+      final initialQuantity = item.quantity?.toString() ?? '0';
+      final currentValue = _updatedWarehouseQuantities[warehouseId] ?? initialQuantity;
+
+      return Padding(
+        padding: const EdgeInsets.only(bottom: 10),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            EditableDropdownField(
+              title: 'Количество',
+              value: currentValue,
+              keyboardType: TextInputType.number,
+              onChanged: (newValue) {
+                setState(() {
+                  _updatedWarehouseQuantities[warehouseId] = newValue;
+                });
+              },
+            ),
+            const SizedBox(height: 5),
+            Padding(
+              padding: const EdgeInsets.only(left: 18.0),
+              child: Text(
+                warehouseName,
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w400,
+                  color: Colors.grey.shade600,
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }).toList(),
+  );
+}
+
+
+
+
   @override
   Widget build(BuildContext context) {
     final local = S.of(context);
@@ -1283,6 +1356,11 @@ class _ProductChangePageState extends State<ProductChangePage> {
           ),
 
           const SizedBox(height: 10),
+
+   _buildProductWarehousesAsFields(),
+
+          const SizedBox(height: 10),
+          
 
           CustomDropdownField(
             title: local.brand,

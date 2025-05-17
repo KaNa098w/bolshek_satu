@@ -12,7 +12,8 @@ class GlobalProvider extends ChangeNotifier {
   String _deliveryType = 'standard';
   String _vendorCode = '';
   String? _descriptionText = '';
-
+  String? _organizationName;
+  String? get organizationName => _organizationName;
   // Новые поля
   double _price = 0.0;
   String _kind = 'original'; // Default kind
@@ -32,6 +33,28 @@ String? get organizationId => _organizationId;
 
 void setOrganizationId(String id) {
   _organizationId = id;
+  notifyListeners();
+}
+
+void setOrganizationName(String name) {
+  _organizationName = name;
+  notifyListeners();
+}
+
+  String? _manager;
+String? get managerValue => _manager;
+
+void getManager(String name) {
+  _manager = name;
+  notifyListeners();
+}
+
+
+  String?_warehouseId;
+String? get warehouseId => _warehouseId;
+
+void getWarehouseId(String id) {
+  _warehouseId = id;
   notifyListeners();
 }
 
@@ -249,6 +272,9 @@ void setPermissions(List<String> value) {
     _propertyValues.clear();
     _carMappings.clear();
     _tagsId = null;
+    _permissions = [];
+    _manager = null;
+    _warehouseId = null;
     notifyListeners();
   }
 

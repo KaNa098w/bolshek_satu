@@ -1,4 +1,5 @@
 import 'package:bolshek_pro/core/models/tags_response.dart';
+import 'package:bolshek_pro/core/models/warehouses_response.dart';
 
 class ProductResponse {
   List<ProductItems>? items;
@@ -52,6 +53,7 @@ class ProductItems {
   // List<Variants>? variants;
   List<Properties>? properties;
   List<ItemsTags>? tags;
+  List<WarehouseProduct>? warehouses;
 
   ProductItems(
       {this.id,
@@ -79,7 +81,8 @@ class ProductItems {
       // this.variants,
 
       this.properties,
-      this.tags});
+      this.tags,
+      this.warehouses});
 
   factory ProductItems.fromJson(Map<String, dynamic> json) {
     // --- парсим картинки сразу, чтобы не плодить null-проверок
@@ -132,7 +135,11 @@ class ProductItems {
       tags: (json['tags'] as List<dynamic>? ?? [])
           .map((v) => ItemsTags.fromJson(v))
           .toList(),
+          warehouses: (json['warehouses'] as List<dynamic>? ?? [])
+          .map((v) => WarehouseProduct.fromJson(v))
+          .toList(),
     );
+
   }
 
   get isNotEmpty => null;
@@ -170,6 +177,7 @@ class ProductItems {
         if (properties!.isNotEmpty)
           'properties': properties!.map((e) => e.toJson()).toList(),
         if (tags!.isNotEmpty) 'tags': tags!.map((e) => e.toJson()).toList(),
+         if (warehouses!.isNotEmpty) 'warehouses': warehouses!.map((e) => e.toJson()).toList(),
       };
 }
 

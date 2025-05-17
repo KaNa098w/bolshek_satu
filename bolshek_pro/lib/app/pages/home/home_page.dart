@@ -1,3 +1,4 @@
+import 'package:bolshek_pro/core/utils/constants.dart';
 import 'package:bolshek_pro/generated/l10n.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:bolshek_pro/app/pages/return/return_page.dart';
@@ -25,6 +26,7 @@ class _HomePageState extends State<HomePage> {
   final ProductService _productService = ProductService();
   final OrdersService _ordersService = OrdersService();
   final ReturningsService _returningsService = ReturningsService();
+  
 
   int _activeTotal = 0;
   int _inactiveTotal = 0;
@@ -106,6 +108,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final manager = context.read<GlobalProvider>().managerValue;
     final localizations = S.of(context);
     return Scaffold(
       backgroundColor: Colors.white,
@@ -121,6 +124,8 @@ class _HomePageState extends State<HomePage> {
                     children: [
                       const EmptyState(),
                       const SizedBox(height: 20),
+                          if (manager != Constants.manager)
+
                       CustomButton(
                         text: localizations.add_first_product,
                         onPressed: () {

@@ -1,10 +1,14 @@
 import 'dart:convert';
 
 import 'package:bolshek_pro/app/pages/product/product_change_page.dart';
+import 'package:bolshek_pro/app/widgets/quantity_widget.dart';
 import 'package:bolshek_pro/core/models/product_responses.dart';
 import 'package:bolshek_pro/core/service/variants_service.dart';
+import 'package:bolshek_pro/core/service/warehouse_service.dart';
 import 'package:bolshek_pro/core/utils/constants.dart';
+import 'package:bolshek_pro/core/utils/provider.dart';
 import 'package:bolshek_pro/generated/l10n.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:intl/intl.dart';
@@ -15,6 +19,7 @@ import 'package:bolshek_pro/app/pages/home/add_name_product_page.dart';
 import 'package:bolshek_pro/app/widgets/custom_button.dart';
 import 'package:bolshek_pro/core/utils/theme.dart';
 import 'package:bolshek_pro/app/widgets/loading_widget.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ProductListPage extends StatefulWidget {
@@ -238,6 +243,9 @@ Future<void> _refreshProducts() async {
   // ──────────────────────────────────────────────── build
   @override
   Widget build(BuildContext context) {
+      final permissions = context.read<GlobalProvider>().permissions;
+  
+    
     final loc = S.of(context);
 
     return Scaffold(
@@ -260,6 +268,7 @@ Future<void> _refreshProducts() async {
               ],
             ),
           ),
+           if (permissions.contains('warehouse_read')) 
           Positioned(
             bottom: 8,
             left: 16,
@@ -352,6 +361,8 @@ Future<void> _refreshProducts() async {
   }) {
     final originalAmount = (product.price?.amount ?? 0) / 100;
     final loc = S.of(context);
+      final permissions = context.read<GlobalProvider>().permissions;
+      final isManager = permissions.contains('warehouse_read');
 
     return GestureDetector(
       onTap: () {
@@ -422,6 +433,9 @@ Future<void> _refreshProducts() async {
                         ),
                       );
                       break;
+                    case 'change_quantity':
+                      _showQuantityEdit(product: product);
+                      break;
                   }
                 },
                 itemBuilder: (_) => [
@@ -429,13 +443,23 @@ Future<void> _refreshProducts() async {
                     value: 'view_product',
                     child: Text(loc.view_product),
                   ),
+           if (permissions.contains('warehouse_read')) 
+
                   PopupMenuItem(
                     value: 'change_price',
                     child: Text(loc.change_price),
                   ),
+   
+           if (permissions.contains('warehouse_read')) 
+
                   PopupMenuItem(
                     value: 'edit_product',
                     child: Text(loc.edit_product),
+                  ),
+                   if (!permissions.contains('warehouse_read'))
+                 PopupMenuItem(
+                    value: 'change_quantity',
+                    child: Text('Изменить количество'),
                   ),
                 ],
                 shape: RoundedRectangleBorder(
@@ -450,6 +474,111 @@ Future<void> _refreshProducts() async {
       ),
     );
   }
+
+  void _showQuantityEdit({required ProductItems product}) {
+  final loc = S.of(context);
+  final warehouseId = context.read<GlobalProvider>().warehouseId;
+  final warehouse = product.warehouses?.first.quantity;
+  
+  final initialQuantity = warehouse;
+  int? quantity = initialQuantity;
+  bool isLoading = false;
+
+  showModalBottomSheet(
+    context: context,
+    isScrollControlled: true,
+    backgroundColor: Colors.white,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+    ),
+    builder: (context) {
+      return StatefulBuilder(
+        builder: (context, setModalState) {
+          return Padding(
+            padding: EdgeInsets.only(
+              left: 16,
+              right: 16,
+              top: 24,
+              bottom: MediaQuery.of(context).viewInsets.bottom + 40,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  loc.enter_number,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                QuantityInputField(
+                  key: const ValueKey('quantity_input'),
+                  initialValue: initialQuantity ?? 0,
+                  onChanged: (val) => quantity = val,
+                ),
+                const SizedBox(height: 20),
+                CustomButton(
+                  isLoading: isLoading,
+                  text: loc.save,
+                  onPressed: () async {
+                    if (quantity == null || quantity! < 0) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(loc.empty),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                      return;
+                    }
+
+                    setModalState(() => isLoading = true);
+
+                    try {
+                      await WarehouseService().updateWarehouseProductQuantity(
+                        context,
+                        quantity.toString(),
+                        product.id!,
+                        warehouseId!,
+                      );
+
+                      setState(() {
+                        final idx = _products.indexWhere((e) => e.id == product.id);
+                        if (idx != -1) {
+                          _products[idx].warehouses?.firstWhereOrNull(
+                                (w) => w.warehouse?.id == warehouseId,
+                              )?.quantity = quantity;
+                        }
+                      });
+
+                      Navigator.of(context).pop();
+
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(loc.success),
+                          backgroundColor: ThemeColors.green,
+                        ),
+                      );
+                    } catch (e) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('${loc.error}: $e'),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                      setModalState(() => isLoading = false);
+                    }
+                  },
+                ),
+              ],
+            ),
+          );
+        },
+      );
+    },
+  );
+}
+
 
   Widget _buildPriceWidget(
       String price, int discountPercent, double originalAmount) {
@@ -483,6 +612,8 @@ Future<void> _refreshProducts() async {
       style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
     );
   }
+
+  
 
   Widget _buildImage(ProductItems product, int discountPercent) {
     final imageUrl = product.images?.isNotEmpty == true

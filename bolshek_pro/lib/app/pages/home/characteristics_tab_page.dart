@@ -445,7 +445,7 @@ if (hasWarehouseAccess)
 for (final e in _entries) {
   await WarehouseService().createWarehouseProduct(
     context,
-    e.qty.toString(),
+    e.qty,
     productId,
     e.warehouse!.id,           // warehouse гарантирован валидным
   );

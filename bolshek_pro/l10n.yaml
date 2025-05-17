@@ -1,4 +1,0 @@
-arb_dir: lib/generated/l10n
-template_arbs: [intl_ru.arb]
-output_dir: lib/generated
-output_file: S.dart

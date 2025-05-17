@@ -16,10 +16,10 @@ class EmptyState extends StatelessWidget {
       children: [
         GestureDetector(
           onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => ProductNameInputPage()),
-            );
+            // Navigator.push(
+            //   context,
+            //   MaterialPageRoute(builder: (context) => ProductNameInputPage()),
+            // );
           },
           child: SvgPicture.asset(
             'assets/svg/add_good.svg',

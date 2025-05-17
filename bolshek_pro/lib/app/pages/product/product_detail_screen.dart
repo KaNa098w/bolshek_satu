@@ -1,18 +1,25 @@
 import 'package:bolshek_pro/app/pages/product/product_change_page.dart';
+import 'package:bolshek_pro/app/widgets/custom_button.dart';
 import 'package:bolshek_pro/app/widgets/full_screen_image_widget.dart';
 import 'package:bolshek_pro/app/widgets/home_widgets/hex_colors_widget.dart';
+import 'package:bolshek_pro/app/widgets/quantity_widget.dart';
 import 'package:bolshek_pro/app/widgets/widget_from_bolshek/common_text_button.dart';
 import 'package:bolshek_pro/app/widgets/widget_from_bolshek/theme_text_style.dart';
 import 'package:bolshek_pro/core/models/product_responses.dart';
 import 'package:bolshek_pro/core/models/tags_response.dart';
+import 'package:bolshek_pro/core/models/warehouses_response.dart';
 import 'package:bolshek_pro/core/service/product_service.dart';
 import 'package:bolshek_pro/core/service/status_change_service.dart';
 import 'package:bolshek_pro/core/service/variants_service.dart';
+import 'package:bolshek_pro/core/service/warehouse_service.dart';
 import 'package:bolshek_pro/core/utils/constants.dart';
+import 'package:bolshek_pro/core/utils/provider.dart';
 import 'package:bolshek_pro/core/utils/theme.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:bolshek_pro/generated/l10n.dart';
+import 'package:provider/provider.dart';
 
 class ShopProductDetailScreen extends StatefulWidget {
   final String productId;
@@ -43,6 +50,7 @@ class _ShopProductDetailScreenState extends State<ShopProductDetailScreen> {
   int selectedVariantIndex = 0;
   int? _variants_lenght;
   String? _variant_kind;
+  ProductItems? _product;
   String? _manufacturerId;
   List<ItemsTags>? _tags;
   final PageController _pageController = PageController();
@@ -73,6 +81,7 @@ class _ShopProductDetailScreenState extends State<ShopProductDetailScreen> {
         _variantId = product.id;
         // Название товара
         _productName = product.name ?? S.of(context).product_name_absent;
+        _product = product;
         // Описание товара
         _productDescription = product.description?.blocks?.isNotEmpty == true
             ? product.description!.blocks!.first.data?.text ??
@@ -108,7 +117,11 @@ class _ShopProductDetailScreenState extends State<ShopProductDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+            final permissions = context.read<GlobalProvider>().permissions;
+            final manager = context.read<GlobalProvider>().managerValue;
+
     final localizations = S.of(context);
+
     return Scaffold(
       backgroundColor: ThemeColors.white,
       appBar: AppBar(
@@ -141,11 +154,14 @@ class _ShopProductDetailScreenState extends State<ShopProductDetailScreen> {
               color: ThemeColors.orange,
             ))
           : _buildProductDetails(),
-      bottomNavigationBar: _buildBottomBar(),
+      bottomNavigationBar: manager == Constants.manager  ?_buildBottomBarIsManager() :  _buildBottomBar() ,
     );
   }
 
   Widget _buildProductDetails() {
+             final permissions = context.read<GlobalProvider>().permissions;
+               final manager = context.read<GlobalProvider>().managerValue;
+
     return Container(
       color: ThemeColors.white,
       child: SingleChildScrollView(
@@ -165,6 +181,9 @@ class _ShopProductDetailScreenState extends State<ShopProductDetailScreen> {
             const SizedBox(height: 20),
             _buildProductCharacteristics(
                 _variants_kod ?? "", _manufacturers_name ?? ""),
+            const SizedBox(height: 10),
+            if (manager != Constants.manager)
+            _buildProductWarehouses()
           ],
         ),
       ),
@@ -337,13 +356,23 @@ class _ShopProductDetailScreenState extends State<ShopProductDetailScreen> {
   }
 
   Widget _buildProductPrice() {
+            final managerValue = context.read<GlobalProvider>().managerValue;
+
     final loc = S.of(context);
+      //        final permissions = context.read<GlobalProvider>().permissions;
+      // final isManager = permissions.contains('warehouse_read');
 
     final hasPrice = _productPrice != null && _productPrice! > 0;
     final priceKzt = _productPrice! / 100; // в тенге
     final discount = _discountPersent ?? 0;
     final hasDiscount = hasPrice && discount > 0;
     final discounted = hasDiscount ? priceKzt * (1 - discount / 100) : priceKzt;
+      final warehouseId = context.read<GlobalProvider>().warehouseId;
+
+final currentWarehouse = _product?.warehouses
+    ?.firstWhereOrNull((wh) => wh.warehouse?.id == warehouseId);
+
+
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -391,6 +420,7 @@ class _ShopProductDetailScreenState extends State<ShopProductDetailScreen> {
                       ),
                     ),
             ),
+            if (managerValue != Constants.manager)
             TextButton(
               onPressed: () =>
                   _showPriceEditDialog(widget.productId, _variantId!),
@@ -449,17 +479,22 @@ class _ShopProductDetailScreenState extends State<ShopProductDetailScreen> {
                 ),
               ],
             ),
-            Row(
-              children: [
-                Text(
-                  '${loc.article}: $_variants_kod',
-                  style: ThemeTextMontserratBold.size21.copyWith(
-                      fontSize: 12,
-                      color: ThemeColors.black,
-                      fontWeight: FontWeight.w300),
-                ),
-              ],
-            )
+
+
+if (currentWarehouse != null)
+  Row(
+    children: [
+      Text(
+        'Количество: ${currentWarehouse.quantity}',
+        style: ThemeTextMontserratBold.size21.copyWith(
+          fontSize: 12,
+          color: ThemeColors.black,
+          fontWeight: FontWeight.w300,
+        ),
+      ),
+    ],
+  )
+
           ],
         ),
       ],
@@ -499,6 +534,7 @@ class _ShopProductDetailScreenState extends State<ShopProductDetailScreen> {
       final finalPrice = initialPrice * (100 - _discountPersent!) / 100;
       finalPriceController.text = finalPrice.toStringAsFixed(0);
     }
+
 
     Widget buildCustomTextField({
       required TextEditingController controller,
@@ -687,6 +723,41 @@ class _ShopProductDetailScreenState extends State<ShopProductDetailScreen> {
     );
   }
 
+Widget _buildProductWarehouses() {
+  final localizations = S.of(context);
+
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Text(
+        localizations.your_warehouse,
+        style: ThemeTextMontserratBold.size21.copyWith(
+          color: ThemeColors.black,
+        ),
+      ),
+      const SizedBox(height: 8),
+      if (_product?.warehouses != null && _product!.warehouses!.isNotEmpty)
+        ..._product!.warehouses!.map((item) {
+          final warehouseName = item.warehouse?.name ?? '';
+          final quantity = item.quantity?.toString() ?? '';
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 4.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(warehouseName),
+                Text(quantity),
+              ],
+            ),
+          );
+        }).toList()
+      else
+        Text(localizations.empty), // можно добавить ключ перевода
+    ],
+  );
+}
+
+
   Widget _buildProductCharacteristics(String productCode, String brandName) {
     final localizations = S.of(context);
     final updatedCharacteristics = [
@@ -813,6 +884,75 @@ class _ShopProductDetailScreenState extends State<ShopProductDetailScreen> {
     );
   }
 
+  Widget _buildBottomBarIsManager() {
+  final warehouseId = context.read<GlobalProvider>().warehouseId;
+  final localizations = S.of(context);
+
+  final currentWarehouse = _product?.warehouses
+      ?.firstWhereOrNull((wh) => wh.warehouse?.id == warehouseId);
+
+  final hasCurrentWarehouse = currentWarehouse != null;
+  final isZeroQuantity = currentWarehouse?.quantity == 0;
+
+  if (_isLoading) {
+    return Container(
+      height: 0,
+      color: Colors.transparent,
+    );
+  }
+
+  return Container(
+    color: ThemeColors.white,
+    child: Padding(
+      padding: const EdgeInsets.all(12.0),
+      child: SafeArea(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Expanded(
+              child: CommonTextButton(
+                
+                size: 15,
+                buttonText: !hasCurrentWarehouse
+                    ? localizations.publish
+                    : isZeroQuantity
+                        ? 'Опубликовать заново'
+                        : localizations.from_sale,
+                textColor: ThemeColors.blackWithPath,
+                onTap: () {
+                  if (!hasCurrentWarehouse) {
+                    _showPublishConfirmationDialogIsManager(context, true);
+                  } else if (isZeroQuantity) {
+                    _showPublishConfirmationDialogIsManager(context, false);
+                  } else {
+                    _showConfirmationDialogIsManager(context);
+                  }
+                },
+                bgColor: !hasCurrentWarehouse || isZeroQuantity
+                    ? ThemeColors.green
+                    : ThemeColors.grey2,
+              ),
+            ),
+            if (hasCurrentWarehouse && !isZeroQuantity) ...[
+              const SizedBox(width: 10),
+              Expanded(
+                child: CommonTextButton(
+                  buttonText: 'Изменить количество',
+                  size: 15,
+                  onTap: () async {
+                    _showPublishConfirmationDialogIsManager(context, false);
+                  },
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
+    ),
+  );
+}
+
+
   void _showPublishConfirmationDialog(BuildContext context) {
     final localizations = S.of(context);
     showDialog(
@@ -874,6 +1014,165 @@ class _ShopProductDetailScreenState extends State<ShopProductDetailScreen> {
     }
   }
 
+  void _showPublishConfirmationDialogIsManager(BuildContext context, bool public) {
+  final localizations = S.of(context);
+  int? quantity;
+  final warehouseId = context.read<GlobalProvider>().warehouseId;
+  final currentWarehouse = _product?.warehouses
+      ?.firstWhereOrNull((wh) => wh.warehouse?.id == warehouseId);
+  final warehousesQuantity = currentWarehouse?.quantity;
+
+  showModalBottomSheet(
+    context: context,
+    isScrollControlled: true,
+    backgroundColor: Colors.white,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+    ),
+    builder: (BuildContext context) {
+      return StatefulBuilder( // <--- важно: для локального setState внутри bottomSheet
+        builder: (context, setModalState) {
+          return Padding(
+            padding: EdgeInsets.only(
+              left: 16,
+              right: 16,
+              top: 24,
+              bottom: MediaQuery.of(context).viewInsets.bottom + 40,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'Введите количество товара',
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                QuantityInputField(
+                  key: const ValueKey('quantity_input'),
+                  initialValue: warehousesQuantity ?? 1,
+                  onChanged: (value) {
+                    quantity = value;
+                  },
+                ),
+                const SizedBox(height: 20),
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 15.0),
+                  child: CustomButton(
+                    isLoading: _isLoading,
+                    text: public ? localizations.publish : localizations.confirm,
+                    onPressed: () async {
+                      if (quantity == null || quantity! <= 0) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(localizations.empty),
+                            backgroundColor: Colors.red,
+                          ),
+                        );
+                        return;
+                      }
+
+                      setModalState(() => _isLoading = true); // показать лоадер
+
+                      try {
+                        if (public) {
+                          await _publishProductToWarehouses(context, quantity!);
+                        } else {
+                          await _updateWarehousesQuantity(context, quantity!);
+                        }
+
+                        Navigator.of(context).pop(); // закрыть bottom sheet
+                      } catch (e) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text("${localizations.error}: $e")),
+                        );
+                      } finally {
+                        setModalState(() => _isLoading = false); // скрыть лоадер
+                      }
+                    },
+                  ),
+                )
+              ],
+            ),
+          );
+        },
+      );
+    },
+  );
+}
+
+
+    Future<void> _publishProductToWarehouses(BuildContext context, int quantity) async {
+    final localizations = S.of(context);
+          final warehouseId = context.read<GlobalProvider>().warehouseId;
+
+    try {
+
+      final warehousesService = WarehouseService();
+      await warehousesService.createWarehouseProduct(
+         context,
+         quantity,
+         _product?.id ?? '',
+         warehouseId ?? ''
+    
+      );
+
+      await _fetchProductDetails();
+
+
+// setState(() {
+//   _status = 'active';
+// });
+
+      print(localizations.product_published);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(localizations.product_published), backgroundColor: Colors.green,),
+      );
+    } catch (e) {
+      print('${localizations.error}: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("${localizations.error}: $e")),
+      );
+    }
+  }
+
+      Future<void> _updateWarehousesQuantity(BuildContext context, int quantity) async {
+    final localizations = S.of(context);
+          final warehouseId = context.read<GlobalProvider>().warehouseId;
+
+    try {
+      //  await _showLoader(context);
+      final warehousesService = WarehouseService();
+      await warehousesService.updateWarehouseProductQuantity(
+         context,
+         quantity.toString(),
+         _product?.id ?? '',
+         warehouseId ?? ''
+    
+      );
+
+      await _fetchProductDetails();
+      setState(() {
+        _status = 'active';
+      });
+
+    // Navigator.of(context).pop(); 
+
+      print(localizations.product_published);
+      // ScaffoldMessenger.of(context).showSnackBar(
+      //   SnackBar(content: Text(localizations.success), backgroundColor: Colors.green,),
+      // );
+    } catch (e) {
+      print('${localizations.error}: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("${localizations.error}: $e")),
+      );
+    }
+  }
+
+
   void _showConfirmationDialog(BuildContext context) {
     final localizations = S.of(context);
     showDialog(
@@ -910,6 +1209,86 @@ class _ShopProductDetailScreenState extends State<ShopProductDetailScreen> {
       },
     );
   }
+
+   void _showConfirmationDialogIsManager(BuildContext context) {
+    final localizations = S.of(context);
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(
+            localizations.confirmation,
+            style: const TextStyle(fontSize: 19),
+          ),
+          content: Text(localizations.remove_sale_confirmation),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text(
+                localizations.cancel,
+                style: const TextStyle(color: ThemeColors.blackWithPath),
+              ),
+            ),
+            TextButton(
+              onPressed: () async {
+                Navigator.of(context).pop();
+                await _deleteProductInWarehouses(context);
+              },
+              child: Text(
+                localizations.confirm,
+                style: const TextStyle(color: ThemeColors.orange),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+    Future<void> _deleteProductInWarehouses(BuildContext context) async {
+    final localizations = S.of(context);
+          final warehouseId = context.read<GlobalProvider>().warehouseId;
+
+
+    try {
+      
+      final warehousesService = WarehouseService();
+      await warehousesService.updateWarehouseProductQuantity(
+        context,
+        '0',
+        _product?.id ?? '',
+        warehouseId ?? '',
+
+      );
+
+      _fetchProductDetails();
+      // setState(() {
+      //   _status = 'inactive';
+      // });
+      print(localizations.product_removed);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(localizations.product_removed)),
+      );
+    } catch (e) {
+      print('${localizations.error}: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("${localizations.error}: $e")),
+      );
+    }
+  }
+
+  Future<void> _showLoader(BuildContext context) async {
+  return showDialog(
+    context: context,
+    barrierDismissible: false,
+    builder: (_) => const Center(
+      child: CircularProgressIndicator(color: ThemeColors.orange),
+    ),
+  );
+}
+
 
   Future<void> _updateProductStatus(BuildContext context) async {
     final localizations = S.of(context);

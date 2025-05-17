@@ -1,8 +1,10 @@
 import 'package:bolshek_pro/core/utils/constants.dart';
+import 'package:bolshek_pro/core/utils/provider.dart';
 import 'package:bolshek_pro/generated/l10n.dart';
 import 'package:flutter/material.dart';
 import 'package:bolshek_pro/core/utils/theme.dart';
 import 'package:bolshek_pro/app/pages/product/product_list_page.dart';
+import 'package:provider/provider.dart';
 
 class GoodsPage extends StatefulWidget {
   final int initialTabIndex;
@@ -35,8 +37,16 @@ class _GoodsPageState extends State<GoodsPage>
 
   @override
   Widget build(BuildContext context) {
+      final warehousesId = context.read<GlobalProvider>().warehouseId;
+
+      // final permissions = context.read<GlobalProvider>().permissions;
+      // final canReadWarehouse = permissions.contains('warehouse_read');
+            final manager = context.read<GlobalProvider>().managerValue;
+
+
     final localizations = S.of(context);
     return Scaffold(
+      
       body: Column(
         children: [
           PreferredSize(
@@ -61,13 +71,17 @@ class _GoodsPageState extends State<GoodsPage>
           Expanded(
             child: TabBarView(
               controller: _tabController,
-              children: const [
-                ProductListPage(status: Constants.activeStatus),
-                ProductListPage(status: Constants.awaitingStatus),
-                ProductListPage(status: Constants.inactiveStatus),
+              children:  [
+                ProductListPage(status: manager == Constants.manager  ? 'warehouseId=${warehousesId}&inStock=true' : Constants.activeStatus ),
+                ProductListPage(status: manager == Constants.manager ? Constants.activeStatus : Constants.awaitingStatus),
+                ProductListPage(status: manager == Constants.manager  ? 'warehouseId=$warehousesId&inStock=false' : Constants.inactiveStatus     ),
+                // ProductListPage(status:  Constants.awaitingStatus),
+
               ],
             ),
           ),
+          
+          
         ],
       ),
     );

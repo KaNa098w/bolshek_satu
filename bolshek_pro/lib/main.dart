@@ -1,3 +1,4 @@
+import 'package:bolshek_pro/app/pages/auth/preloader_screen.dart';
 import 'package:bolshek_pro/generated/kz.dart';
 import 'package:bolshek_pro/core/utils/locale_provider.dart';
 import 'package:bolshek_pro/generated/l10n.dart';
@@ -101,7 +102,7 @@ class _MyAppState extends State<MyApp> {
         KzMaterialLocalizationsDelegate(), // ваш кастомный делегат для казахской локали
       ],
 
-      home: AuthMainScreen(),
+      home: PreloaderScreen(),
     );
   }
 }

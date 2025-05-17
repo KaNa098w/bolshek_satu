@@ -89,7 +89,7 @@ class CustomButton extends StatelessWidget {
       ),
       child: isLoading
           ? CircularProgressIndicator(
-              valueColor: AlwaysStoppedAnimation<Color>(ThemeColors.black),
+              valueColor: AlwaysStoppedAnimation<Color>(ThemeColors.orange),
               strokeWidth: 3.0,
             )
           : (isPrimary

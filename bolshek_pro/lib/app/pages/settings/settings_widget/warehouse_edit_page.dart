@@ -164,6 +164,12 @@ class _WarehouseEditPageState extends State<WarehouseEditPage> {
                 },
               ),
             ),
+                 _infoCard(
+              title: loc.number,
+              value: war!.manager.phoneNumber ?? '',
+              icon: Icons.phone,
+              onEdit: null,
+            ),
             _infoCard(
               title: loc.address,
               value: war!.address.address,

@@ -6,8 +6,8 @@ abstract class Constants {
   static const changeProduct = 'Редактировать';
   static const fromSale = 'Снять с продажи';
   static const newUser = 'Я новый пользователь';
-  static const activeStatus = 'status=active';
-  static const inactiveStatus = 'status=inactive';
+  static const activeStatus = 'status=active&inStock=true';
+  static const inactiveStatus = 'status=inactive&inStock=true';
   static const newOrders =
       'awaiting_confirmation&status=awaiting_payment&status=new';
   static const cancelledOrders = 'cancelled&status=partially_cancelled';
@@ -25,7 +25,7 @@ abstract class Constants {
       'created&status=awaiting_confirmation&status=awaiting_pick_up&status=awaiting_refund';
   static const completedReturnTotal = 'rejected&status=completed';
   static const processingOrders = 'processing';
-  static const awaitingStatus = 'statuses=created&statuses=updated';  
+  static const awaitingStatus = 'statuses=created&statuses=updated&inStock=true';  
   static const addNewGood = 'Добавить новый товар';
   static const pleaseInputPhone = "Пожалуйста, заполните телефон";
   static const orderEmpty = "У вас нет заказов";
@@ -36,4 +36,5 @@ abstract class Constants {
       "Добавляйте любимые товары в избранное, чтобы не искать их снова";
   static const welcome = "Добро пожаловать в Bolshek";
   static const welcome1 = "Введите номер телефона";
+  static const manager = 'Менеджер Организации';
 }

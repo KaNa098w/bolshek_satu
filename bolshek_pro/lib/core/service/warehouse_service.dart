@@ -1,5 +1,7 @@
 import 'dart:convert';
+import 'package:bolshek_pro/core/models/product_responses.dart';
 import 'package:bolshek_pro/core/models/warehouse_response.dart';
+import 'package:bolshek_pro/core/models/warehouses_response.dart';
 import 'package:bolshek_pro/core/utils/constants.dart';
 import 'package:bolshek_pro/core/utils/provider.dart';
 import 'package:http/http.dart' as http;
@@ -77,7 +79,7 @@ class WarehouseService {
   }
 
    Future<void> createWarehouseProduct(
-      BuildContext context, String quantity, String productId, String id) async {
+      BuildContext context, int quantity, String productId, String id) async {
     try {
       final token = _getToken(context);
       final body = {
@@ -85,7 +87,7 @@ class WarehouseService {
         "productId": productId
       };
 
-      final response = await http.post(
+      final response = await httpClient.post(
         Uri.parse('$_baseUrl/$id/products'),
         headers: {
           'Authorization': 'Bearer $token',
@@ -104,6 +106,68 @@ class WarehouseService {
       throw Exception('Error creating warehouse: $e');
     }
   }
+
+    Future<WarehouseProduct> fetchProductsPaginated({
+    required BuildContext context,
+    required int take,
+    required int skip,
+    required String warehousesId,
+  }) async {
+    try {
+      final token = _getToken(context);
+      final response = await httpClient.get(
+        Uri.parse(
+            '$_baseUrl/$warehousesId/products?take=$take&skip=$skip'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final json = jsonDecode(response.body);
+        return WarehouseProduct.fromJson(json);
+      } else {
+        throw Exception('Failed to load products: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Error fetching products: $e');
+    }
+  }
+
+
+  Future<void> updateWarehouseProductQuantity(
+    BuildContext context,
+    String quantity,
+    String productId,
+    String warehouseId,
+) async {
+  try {
+    final token = _getToken(context);
+    final body = {
+      "quantity": quantity,
+    };
+
+    final response = await httpClient.put(
+      Uri.parse('$_baseUrl/$warehouseId/products/$productId'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode(body),
+    );
+
+    if (response.statusCode == 200 || response.statusCode == 204) {
+      print('Product quantity updated successfully');
+    } else {
+      throw Exception(
+          'Failed to update product quantity: ${response.statusCode}, ${response.body}');
+    }
+  } catch (e) {
+    throw Exception('Error updating product quantity: $e');
+  }
+}
+
 
   Future<void> createWarehouse(
   BuildContext context,

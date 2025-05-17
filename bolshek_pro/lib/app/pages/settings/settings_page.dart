@@ -12,6 +12,7 @@ import 'package:bolshek_pro/core/service/address_service.dart';
 import 'package:bolshek_pro/core/service/auth_service.dart';
 import 'package:bolshek_pro/core/service/my_organization_service.dart';
 import 'package:bolshek_pro/core/service/warehouse_service.dart';
+import 'package:bolshek_pro/core/utils/constants.dart';
 import 'package:bolshek_pro/core/utils/locale_provider.dart';
 import 'package:bolshek_pro/core/utils/provider.dart';
 import 'package:bolshek_pro/core/utils/theme.dart';
@@ -204,7 +205,7 @@ class _MyOrganizationPageState extends State<MyOrganizationPage> {
 
                   // Список складов
           // Список складов или сообщение о недоступности
-if (!data.permissions!.contains('warehouse_read')) ...[
+if (data.user?.roles?.first.role?.name == Constants.manager) ...[
   Text(
     localizations.your_warehouse,
     style: const TextStyle(
